@@ -1,0 +1,134 @@
+
+> erica-event-oneq@0.1.0 test
+> node --test tests/core.test.mjs
+
+TAP version 13
+# Subtest: A: PRIME + MOU + VIP: seat, separate request/support, MOU materials
+ok 1 - A: PRIME + MOU + VIP: seat, separate request/support, MOU materials
+  ---
+  duration_ms: 1.169542
+  type: 'test'
+  ...
+# Subtest: B: department + meeting + no VIP: no rental/press, nameplates independent
+ok 2 - B: department + meeting + no VIP: no rental/press, nameplates independent
+  ---
+  duration_ms: 0.240708
+  type: 'test'
+  ...
+# Subtest: C: history + donation + undecided VIP retains attendance task
+ok 3 - C: history + donation + undecided VIP retains attendance task
+  ---
+  duration_ms: 0.076333
+  type: 'test'
+  ...
+# Subtest: D: other + awards + no nameplates removes every nameplate item
+ok 4 - D: other + awards + no nameplates removes every nameplate item
+  ---
+  duration_ms: 0.073666
+  type: 'test'
+  ...
+# Subtest: E: no basic information and undecided venue yields usable checklist
+ok 5 - E: no basic information and undecided venue yields usable checklist
+  ---
+  duration_ms: 0.113459
+  type: 'test'
+  ...
+# Subtest: F: venue changes invalidate related checks, preserve unrelated checks/inputs
+ok 6 - F: venue changes invalidate related checks, preserve unrelated checks/inputs
+  ---
+  duration_ms: 0.202083
+  type: 'test'
+  ...
+# Subtest: F: event and VIP changes remove stale tasks and do not resurrect completed checks
+ok 7 - F: event and VIP changes remove stale tasks and do not resurrect completed checks
+  ---
+  duration_ms: 0.174042
+  type: 'test'
+  ...
+# Subtest: agenda exclude/reorder prunes ghost rows and invalidates flow checks
+ok 8 - agenda exclude/reorder prunes ghost rows and invalidates flow checks
+  ---
+  duration_ms: 0.104333
+  type: 'test'
+  ...
+# Subtest: nameplate and output deselection prunes completed ghost items
+ok 9 - nameplate and output deselection prunes completed ghost items
+  ---
+  duration_ms: 0.231041
+  type: 'test'
+  ...
+# Subtest: G: navigation does not complete tasks; links contain no user-input parameters
+ok 10 - G: navigation does not complete tasks; links contain no user-input parameters
+  ---
+  duration_ms: 0.272666
+  type: 'test'
+  ...
+# Subtest: H: missing, unsafe, nonexistent, HTML fallback and network-failed files stay disabled
+ok 11 - H: missing, unsafe, nonexistent, HTML fallback and network-failed files stay disabled
+  ---
+  duration_ms: 20.054375
+  type: 'test'
+  ...
+# Subtest: H: simulated valid compound-file response activates a validated relative HWP path
+ok 12 - H: simulated valid compound-file response activates a validated relative HWP path
+  ---
+  duration_ms: 0.60925
+  type: 'test'
+  ...
+# Subtest: I: save/restore/reset preserves another application storage key
+ok 13 - I: save/restore/reset preserves another application storage key
+  ---
+  duration_ms: 0.211834
+  type: 'test'
+  ...
+# Subtest: I: malformed JSON and blocked storage never break default guidance
+ok 14 - I: malformed JSON and blocked storage never break default guidance
+  ---
+  duration_ms: 0.435875
+  type: 'test'
+  ...
+# Subtest: I: partially corrupt stored state sanitizes unsupported ids, duplicates and forged checks
+ok 15 - I: partially corrupt stored state sanitizes unsupported ids, duplicates and forged checks
+  ---
+  duration_ms: 0.079625
+  type: 'test'
+  ...
+# Subtest: input validation accepts only optional positive safe integers
+ok 16 - input validation accepts only optional positive safe integers
+  ---
+  duration_ms: 0.053292
+  type: 'test'
+  ...
+# Subtest: all event examples contain meaningful roles, checks and scripts; stable ids unique
+ok 17 - all event examples contain meaningful roles, checks and scripts; stable ids unique
+  ---
+  duration_ms: 6.010291
+  type: 'test'
+  ...
+# Subtest: rescheduling invalidates venue/request/support but preserves unrelated preparation
+ok 18 - rescheduling invalidates venue/request/support but preserves unrelated preparation
+  ---
+  duration_ms: 0.104125
+  type: 'test'
+  ...
+# Subtest: corrupt non-calendar dates are removed during restoration
+ok 19 - corrupt non-calendar dates are removed during restoration
+  ---
+  duration_ms: 0.124042
+  type: 'test'
+  ...
+# Subtest: H: a real temporary fixture path is read and verified, with no fake HWP shipped
+ok 20 - H: a real temporary fixture path is read and verified, with no fake HWP shipped
+  ---
+  duration_ms: 5.916417
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 103.222625

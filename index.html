@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#153356" />
+    <meta
+      name="description"
+      content="장소와 행사 종류에 맞춰 준비 순서, 식순 예시와 필요한 도구를 살펴보세요."
+    />
+    <title>행사 준비 원큐! · PROJECT MACH</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23153356'/%3E%3Cpath d='m8 16 5 5 11-11' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">본문으로 바로가기</a>
+    <header class="header">
+      <a
+        class="brand"
+        href="./index.html"
+        aria-label="행사 준비 원큐! 처음 화면"
+        ><span class="brand-mark" aria-hidden="true">✓</span
+        ><span
+          >행사 준비 <strong>원큐!</strong
+          ><small>PROJECT MACH · V0.1 시제품</small></span
+        ></a
+      >
+      <p>차근차근 준비하고,<br />빠짐없이 확인하세요.</p>
+      <button id="reset" class="text-button">처음부터 다시</button>
+    </header>
+    <div class="workspace">
+      <nav id="steps" aria-label="준비 안내 단계"></nav>
+      <main id="main" tabindex="-1"></main>
+      <aside id="summary" aria-label="선택 내용 요약"></aside>
+    </div>
+    <div id="announce" class="sr-only" aria-live="polite"></div>
+    <dialog id="confirm-dialog" aria-labelledby="dialog-title">
+      <form method="dialog">
+        <h2 id="dialog-title"></h2>
+        <p id="dialog-description"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="button secondary">취소</button
+          ><button value="confirm" class="button">계속하기</button>
+        </div>
+      </form>
+    </dialog>
+    <noscript
+      >이 안내를 이용하려면 브라우저에서 JavaScript를 허용해 주세요.</noscript
+    >
+  </body>
+</html>
