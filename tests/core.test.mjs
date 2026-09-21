@@ -460,7 +460,7 @@ test("V0.2: V0.1 migration preserves input, agenda and unrelated checked status"
   delete old.publicity;
   mark(old, "agenda");
   const migrated = normalizeState(old);
-  assert.equal(migrated.version, 2);
+  assert.equal(migrated.version, 3);
   assert.equal(migrated.eventName, old.eventName);
   assert.deepEqual(migrated.agenda, old.agenda);
   assert.equal(migrated.checks.agenda.status, "done");

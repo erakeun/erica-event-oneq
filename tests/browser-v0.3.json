@@ -1,0 +1,23 @@
+{
+  "scenarios": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "screens": 168,
+  "viewports": [
+    1440,
+    390,
+    412
+  ],
+  "errors": [],
+  "clipboard": true,
+  "downloads": true,
+  "storage": true,
+  "reset": true,
+  "backForward": true,
+  "printPdf": true,
+  "keyboard": true,
+  "overflow": false
+}

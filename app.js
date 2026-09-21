@@ -6,7 +6,29 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.2";
+} from "./data.js?v=0.3";
+import {
+  operationDefaults,
+  operationPrep,
+  reconcileOperations,
+  buildOnsite,
+  buildAfter,
+  invitationText,
+  fieldSummary,
+} from "./operations.js?v=0.3";
+import {
+  logisticsView,
+  photoChoices,
+  roleEditor,
+  operationTabs,
+  unresolvedView,
+  onsiteView,
+  roleView,
+  afterView,
+  timelineView,
+  invitationMissing,
+} from "./operations-view.js?v=0.3";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -28,7 +50,8 @@ export const defaultAgenda = (event) =>
   }));
 export function createState() {
   return {
-    version: 2,
+    ...operationDefaults(),
+    version: 3,
     step: 0,
     venue: "unknown",
     venueStatus: "unknown",
@@ -78,7 +101,7 @@ export const selectedAgenda = (state) =>
     .filter(Boolean);
 export function buildChecklist(state) {
   const items = [],
-    place = `${state.venue}|${state.otherVenue}|${state.venueStatus}|${state.date}`,
+    place = `${state.venue}|${state.otherVenue}|${state.venueStatus}|${state.date}${state.venueDetail ? "|" + state.venueDetail : ""}`,
     flow = `${state.event}|${state.agenda
       .filter((a) => a.included)
       .map((a) => a.id)
@@ -105,8 +128,8 @@ export function buildChecklist(state) {
   add(
     "equipment",
     "장소·기본 준비",
-    "필요한 장비와 작동 상태 점검",
-    "음향·마이크·화면 등 사용할 장비와 현장 작동 여부를 확인하세요.",
+    "필요한 장비·연결 규격 사전 확인",
+    "사용할 장비와 케이블·전원 등을 준비하세요. 실제 작동은 현장점검에서 확인해요.",
     `${place}|${state.outputs.join(",")}`,
   );
   add(
@@ -186,8 +209,8 @@ export function buildChecklist(state) {
     add(
       "nameplate-placement",
       "좌석·명패",
-      "명패 인쇄·거치·현장 배치 확인",
-      "출력한 명패와 실제 좌석 위치를 대조하세요.",
+      "명패 인쇄·거치대 준비",
+      "출력 상태와 수량·거치대를 준비하세요. 실제 좌석 배치는 현장점검에서 확인해요.",
       `${place}|${state.nameplates}`,
     );
   }
@@ -211,8 +234,8 @@ export function buildChecklist(state) {
     add(
       `output-${o.id}-onsite`,
       "화면·안내물",
-      `${LINKS[o.id].name.replace(" 제작기", "")} · ${o.delivery}`,
-      "파일 제작과 현장 사용 확인은 별개입니다. 실제 장비·배치 상태를 점검하세요.",
+      `${LINKS[o.id].name.replace(" 제작기", "")} · 전달·설치 계획 준비`,
+      "담당자에게 전달할 파일과 설치 위치를 확인하세요. 실제 송출·부착은 현장점검에서 확인해요.",
       `${place}|${o.id}`,
     );
   });
@@ -256,7 +279,7 @@ export function buildChecklist(state) {
       "shared",
       "pr",
     );
-  return items;
+  return [...items, ...operationPrep(state)];
 }
 export function reconcile(state) {
   const next = {};
@@ -270,10 +293,10 @@ export function reconcile(state) {
         : { status: "todo", signature: item.signature };
   }
   state.checks = next;
-  return state;
+  return reconcileOperations(state);
 }
 export function normalizeState(raw) {
-  if (!raw || typeof raw !== "object" || ![1, 2].includes(raw.version))
+  if (!raw || typeof raw !== "object" || ![1, 2, 3].includes(raw.version))
     throw new Error("unsupported-state");
   const s = createState();
   s.step =
@@ -315,6 +338,44 @@ export function normalizeState(raw) {
     .map((a) => ({ id: a.id, included: a.included !== false }));
   s.agenda.push(...defaults.filter((a) => !seen.has(a.id)));
   s.checks = raw.checks && typeof raw.checks === "object" ? raw.checks : {};
+  for (const [field, values] of Object.entries({
+    external: ["yes", "no", "unknown"],
+    food: ["none", "snacks", "meal", "both", "unknown"],
+    photography: ["auto", "needed", "none"],
+    audio: ["needed", "none", "later"],
+    borrowed: ["yes", "no", "unknown"],
+    followupAdmin: ["yes", "no", "unknown"],
+    view: ["prep", "onsite", "roles", "after"],
+  }))
+    s[field] = allowed(raw[field], values, s[field]);
+  for (const [field, max] of Object.entries({
+    venueDetail: 120,
+    parkingNote: 240,
+    arrivalNote: 240,
+    contactNote: 240,
+    foodTime: 80,
+    foodPlace: 120,
+    afterNote: 600,
+  }))
+    s[field] = safeText(raw[field], max);
+  s.foodPeople = validPeople(raw.foodPeople) ? raw.foodPeople : "";
+  s.guestNeeds = GUEST_NEEDS.map((n) => n.id).filter(
+    (id) => Array.isArray(raw.guestNeeds) && raw.guestNeeds.includes(id),
+  );
+  s.diet = raw.diet === true;
+  s.roles = Object.fromEntries(
+    ROLE_TEMPLATES.filter((r) => safeText(raw.roles?.[r.id], 60).trim()).map(
+      (r) => [r.id, safeText(raw.roles[r.id], 60)],
+    ),
+  );
+  s.onsiteChecks =
+    raw.onsiteChecks && typeof raw.onsiteChecks === "object"
+      ? raw.onsiteChecks
+      : {};
+  s.afterChecks =
+    raw.afterChecks && typeof raw.afterChecks === "object"
+      ? raw.afterChecks
+      : {};
   return reconcile(s);
 }
 export function loadState(storage) {
@@ -353,7 +414,12 @@ export function updateState(state, field, value) {
   const next = structuredClone(state);
   if (field === "event" && value !== state.event)
     next.agenda = defaultAgenda(value);
-  if (field === "venue" && value !== state.venue) next.venueStatus = "unknown";
+  if (value !== state[field] && ["venue", "otherVenue"].includes(field)) {
+    next.venueStatus = "unknown";
+    next.venueDetail = "";
+    next.parkingNote = "";
+    if (field === "venue") next.otherVenue = "";
+  }
   next[field] = value;
   return reconcile(next);
 }
@@ -421,8 +487,13 @@ const ext = (id, label, cls = "button secondary") =>
 const vipLabel = (s) =>
   ({ yes: "참석", no: "해당 없음", unknown: "아직 미정" })[s.vip];
 const placeLabel = (s) =>
-  s.venue === "other" && s.otherVenue ? s.otherVenue : venueFor(s).name;
+  ["other", "department"].includes(s.venue) && s.otherVenue
+    ? s.otherVenue
+    : venueFor(s).name;
 const dateLabel = (s) => (s.date ? s.date.replace("T", " · ") : "아직 미정");
+let onlyRemaining = false,
+  resetNotice = "",
+  storageFailed = false;
 let state,
   storage,
   storageMessage,
@@ -442,7 +513,7 @@ function rentalInfo() {
   return `<div class="note"><strong>확인된 대관 안내</strong>${info.department ? `<p>담당 부서: ${esc(info.department)}</p>` : ""}${info.contact ? `<p>연락처: ${esc(info.contact)}</p>` : ""}${info.conditions ? `<p>${esc(info.conditions)}</p>` : ""}${info.url && /^https:\/\//.test(info.url) ? `<a href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">예약 창구 안내 열기 ↗</a>` : ""}</div>`;
 }
 function venueView() {
-  return `<h1>어디에서 진행하시나요?</h1><p class="intro">장소와 행사 종류를 선택하면<br>준비 순서와 필요한 도구를 안내해 드립니다.</p><fieldset style="margin:0"><legend class="sr-only">행사 장소</legend><div class="card-grid">${VENUES.map((v) => `<label class="choice ${v.id === "unknown" ? "wide" : ""}"><input type="radio" name="venue" value="${v.id}" ${v.id === state.venue ? "checked" : ""}><span class="symbol" aria-hidden="true">${v.symbol}</span><span><strong>${v.name}</strong><span class="description">${v.note}</span></span></label>`).join("")}</div></fieldset>${state.venue === "other" ? `<div class="field"><label for="otherVenue">장소명 <span class="muted small">· 선택 입력</span></label><input class="input" id="otherVenue" name="otherVenue" maxlength="80" value="${esc(state.otherVenue)}" placeholder="장소가 정해지면 적어 주세요"></div>` : ""}<fieldset><legend>${state.venue === "department" ? "부서 내 장소를 확보하셨나요?" : "장소 확보 상태를 알려 주세요"}</legend>${radios(
+  return `<h1>어디에서 진행하시나요?</h1><p class="intro">장소와 행사 종류를 선택하면<br>준비 순서와 필요한 도구를 안내해 드립니다.</p><fieldset style="margin:0"><legend class="sr-only">행사 장소</legend><div class="card-grid">${VENUES.map((v) => `<label class="choice ${v.id === "unknown" ? "wide" : ""}"><input type="radio" name="venue" value="${v.id}" ${v.id === state.venue ? "checked" : ""}><span class="symbol" aria-hidden="true">${v.symbol}</span><span><strong>${v.name}</strong><span class="description">${v.note}</span></span></label>`).join("")}</div></fieldset>${["other", "department"].includes(state.venue) ? `<div class="field"><label for="otherVenue">장소명 <span class="muted small">· 선택 입력</span></label><input class="input" id="otherVenue" name="otherVenue" maxlength="80" value="${esc(state.otherVenue)}" placeholder="장소가 정해지면 적어 주세요"></div>` : ""}<fieldset><legend>${state.venue === "department" ? "부서 내 장소를 확보하셨나요?" : "장소 확보 상태를 알려 주세요"}</legend>${radios(
     "venueStatus",
     [
       ["secured", "이미 확보했어요"],
@@ -459,10 +530,10 @@ function eventView() {
       ["no", "해당 없음"],
       ["unknown", "아직 미정"],
     ],
-  )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>실제 참석자 명단·연락처·서명자 개인정보·기부금액은 입력하지 마세요. 명단 작업은 필요한 기존 제작기에서 진행해 주세요.</p></details>`;
+  )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>실제 참석자 명단·서명자 개인정보·기부금액은 입력하지 마세요. 명단 작업은 필요한 기존 제작기에서 진행해 주세요.</p></details>${logisticsView(state)}`;
 }
 function requestsView() {
-  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">촬영 지원과 보도자료 제출은 서로 다른 일이에요.</p>${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>정해지면 행사 정보에서 바꿔 주세요. 필요한 촬영·취재 안내를 이어 드릴게요.</div>' : '<div class="note">촬영이 필요한 순서를 포함했다면 촬영 담당과 장비를 직접 준비해 주세요.</div>'}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
+  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">촬영 지원과 보도자료 제출은 서로 다른 일이에요.</p>${photoChoices(state)}${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>정해지면 행사 정보에서 바꿔 주세요. 필요한 촬영·취재 안내를 이어 드릴게요.</div>' : '<div class="note">촬영이 필요한 순서를 포함했다면 촬영 담당과 장비를 직접 준비해 주세요.</div>'}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
     "publicity",
     [
       ["needed", "제출을 검토할게요"],
@@ -509,7 +580,7 @@ function agendaView() {
           )
           .join("")}</ul>`
       : "<p>포함한 식순이 없어요. 필요한 순서를 선택해 주세요.</p>"
-  }</details>${templatesView()}<p class="footnote">발언 순서·서명권자·의전 서열은 자동으로 정하지 않아요.</p>`;
+  }</details>${templatesView()}${roleEditor(state)}<p class="footnote">발언 순서·서명권자·의전 서열은 자동으로 정하지 않아요.</p>`;
 }
 function seatsView() {
   const venue = venueFor(state),
@@ -534,16 +605,20 @@ function outputCard(o) {
   return `<article class="panel"><h2>${o.title}</h2><p>${o.description}</p><span class="small muted">${LINKS[o.id].name}</span><label class="tool-check"><input type="checkbox" data-output="${o.id}" ${state.outputs.includes(o.id) ? "checked" : ""}>이 결과물이 필요해요</label>${state.outputs.includes(o.id) ? ext(o.id, `${LINKS[o.id].name} 열기`) : ""}</article>`;
 }
 function outputsView() {
-  return `<h1>어떤 화면과 안내물이 필요한가요?</h1><p class="intro">필요한 결과물만 골라 주세요. 제작과 현장 확인을 각각 준비표에 담아 드려요.</p><div class="row gap"><button class="button secondary" data-action="skip-outputs">화면·안내물 필요 없어요</button><button class="text-button" data-action="later-outputs">나중에 선택할게요</button></div><div class="note output-note">장소와 장비의 대응 정보는 아직 확인되지 않았어요. 설치 장소·화면 규격을 먼저 확인해 주세요.</div><div class="tool-grid">${OUTPUTS.slice(0, 3).map(outputCard).join("")}</div><details class="help"><summary>다른 제작 도구 보기</summary>${outputCard(OUTPUTS[3])}<p class="footnote">현재 선택한 장소와의 호환 여부가 확인되지 않았어요. 필요한 경우 규격을 확인한 뒤 선택하세요.</p></details>${state.outputDecision === "none" ? '<p class="small muted">화면·안내물 단계를 건너뛰었어요.</p>' : ""}<p class="footnote">제작한 파일은 원큐에 업로드하거나 보관하지 않아요.</p>`;
+  return `<h1>어떤 화면과 안내물이 필요한가요?</h1><p class="intro">필요한 결과물만 골라 주세요. 파일 준비는 준비표에, 실제 송출·부착은 현장점검에 담아 드려요.</p><div class="row gap"><button class="button secondary" data-action="skip-outputs">화면·안내물 필요 없어요</button><button class="text-button" data-action="later-outputs">나중에 선택할게요</button></div><div class="note output-note">장소와 장비의 대응 정보는 아직 확인되지 않았어요. 설치 장소·화면 규격을 먼저 확인해 주세요.</div><div class="tool-grid">${OUTPUTS.slice(0, 3).map(outputCard).join("")}</div><details class="help"><summary>다른 제작 도구 보기</summary>${outputCard(OUTPUTS[3])}<p class="footnote">현재 선택한 장소와의 호환 여부가 확인되지 않았어요. 필요한 경우 규격을 확인한 뒤 선택하세요.</p></details>${state.outputDecision === "none" ? '<p class="small muted">화면·안내물 단계를 건너뛰었어요.</p>' : ""}<p class="footnote">제작한 파일은 원큐에 업로드하거나 보관하지 않아요.</p>`;
 }
 function checklistView() {
+  if (state.view === "onsite")
+    return operationTabs(state) + onsiteView(state, onlyRemaining);
+  if (state.view === "roles") return operationTabs(state) + roleView(state);
+  if (state.view === "after") return operationTabs(state) + afterView(state);
   const items = buildChecklist(state),
     groups = [...new Set(items.map((i) => i.group))],
     done = items.filter((i) => state.checks[i.id].status === "done").length;
-  return `<h1>내 행사 준비표</h1><p class="intro">직접 확인한 항목만 표시해 주세요.<br>요청 여부와 지원 확정 여부는 별도로 확인해 주세요.</p><dl class="event-facts"><div><dt>행사명</dt><dd>${esc(state.eventName) || "아직 미정"}</dd></div><div><dt>일시</dt><dd>${esc(dateLabel(state))}</dd></div><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>예상 인원</dt><dd>${state.people ? esc(state.people) + "명" : "아직 미정"}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div></dl><div class="row no-print"><button class="button" data-action="print">준비표 인쇄</button><button class="button secondary" data-step="0">선택 내용 수정</button></div><p class="check-summary">직접 확인 완료 <strong>${done}개</strong> · 할 일 ${items.filter((i) => state.checks[i.id].status === "todo").length}개 · 해당 없음 ${items.filter((i) => state.checks[i.id].status === "na").length}개</p>${groups
+  return `${operationTabs(state)}<h1>내 행사 준비표</h1>${timelineView()}${unresolvedView(state)}<p class="intro">행사 전에 무엇을 준비해야 하는지 확인해요.<br>실제 배치·작동은 별도의 현장점검에서 확인하세요.</p><dl class="event-facts"><div><dt>행사명</dt><dd>${esc(state.eventName) || "아직 미정"}</dd></div><div><dt>일시</dt><dd>${esc(dateLabel(state))}</dd></div><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>예상 인원</dt><dd>${state.people ? esc(state.people) + "명" : "아직 미정"}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div></dl><div class="row no-print"><button class="button" data-view="onsite">행사 시작 전 최종점검 →</button><button class="button secondary" data-action="print">준비표 인쇄</button><button class="button secondary" data-step="0">선택 내용 수정</button></div><p class="check-summary">직접 확인 완료 <strong>${done}개</strong> · 할 일 ${items.filter((i) => state.checks[i.id].status === "todo").length}개 · 해당 없음 ${items.filter((i) => state.checks[i.id].status === "na").length}개</p>${groups
     .map(
       (group) =>
-        `<section class="checklist-group"><div class="group-heading"><h2>${group}</h2><button class="text-button no-print" data-step="${{ "장소·기본 준비": 0, "식순·현장 준비": 3, "좌석·명패": 4, "화면·안내물": 5, "홍보·촬영 협조": 2 }[group]}">선택 수정</button></div>${items
+        `<section class="checklist-group"><div class="group-heading"><h2>${group}</h2><button class="text-button no-print" data-step="${{ "장소·기본 준비": 0, "식순·현장 준비": 3, "좌석·명패": 4, "화면·안내물": 5, "홍보·촬영 협조": 2, "외부 참석자 안내": 1, "다과·식사": 1 }[group]}">선택 수정</button></div>${items
           .filter((i) => i.group === group)
           .map(
             (i) =>
@@ -571,8 +646,15 @@ function checklistView() {
     )}</ol></section><div class="note">이 준비표는 직접 확인을 돕는 안내입니다. 실제 예약·접수·지원 상태와 행사 준비 완료를 자동으로 확인하지 않습니다.</div>`;
 }
 function summaryRender() {
+  const alert = document.querySelector("#storage-alert");
+  if (alert) {
+    alert.hidden = !storageFailed;
+    alert.textContent = storageFailed
+      ? "이 브라우저에 저장하지 못했어요. 창을 닫거나 새로고침하면 입력을 잃을 수 있어요. 필요한 내용을 인쇄·복사해 보관하세요."
+      : "";
+  }
   document.querySelector("#summary").innerHTML =
-    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-step="6">내 행사 준비표 보기 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
+    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-view="prep">내 행사 준비표 보기 →</button><button class="text-button" data-view="onsite">행사 당일 현장점검 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
 }
 function render(focus = null) {
   const openDetails = new Set(
@@ -592,7 +674,7 @@ function render(focus = null) {
     checklistView,
   ];
   document.querySelector("#main").innerHTML =
-    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
+    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${resetNotice ? `<div class="note warning no-print" role="status">${esc(resetNotice)}</div>` : ""}${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
   summaryRender();
   for (const el of document.querySelectorAll("details"))
     if (openDetails.has(el.querySelector("summary")?.textContent))
@@ -600,7 +682,8 @@ function render(focus = null) {
   if (focus) document.querySelector(focus)?.focus({ preventScroll: true });
 }
 function persist() {
-  storageMessage = saveState(storage, state)
+  storageFailed = !saveState(storage, state);
+  storageMessage = !storageFailed
     ? "이 브라우저에 저장했어요."
     : "브라우저에 저장하지 못했어요. 현재 화면에서는 계속 이용할 수 있어요.";
 }
@@ -608,15 +691,30 @@ function announce(message) {
   document.querySelector("#announce").textContent = message;
 }
 function change(field, value, focus) {
-  state = updateState(state, field, value);
+  updateWithNotice(field, value);
   persist();
   render(focus);
 }
-function navigate(step, record = true) {
+function updateWithNotice(field, value) {
+  const before = state.onsiteChecks;
+  state = updateState(state, field, value);
+  const count = Object.entries(before).filter(
+    ([id, v]) =>
+      v.status === "done" && state.onsiteChecks[id]?.status === "todo",
+  ).length;
+  if (count)
+    resetNotice = `선택이 바뀌어 관련 현장점검 ${count}개를 미확인으로 되돌렸어요.`;
+}
+function navigate(step, record = true, view = "prep") {
   if (step < 0 || step > 6) return;
-  if (record && step !== state.step)
-    history.pushState({ oneqStep: step }, "", `#step-${step + 1}`);
+  if (record && (step !== state.step || view !== state.view))
+    history.pushState(
+      { oneqStep: step, oneqView: view },
+      "",
+      `#step-${step + 1}${step === 6 ? "/" + view : ""}`,
+    );
   state.step = step;
+  state.view = view;
   persist();
   render();
   document.querySelector("#main").focus();
@@ -638,23 +736,77 @@ function confirmation(title, description, action) {
 }
 function handleInput(e) {
   const el = e.target;
-  if (!["otherVenue", "eventName", "date", "people"].includes(el.name)) return;
-  if (el.name === "people") {
+  if (el.dataset.role) {
+    const roles = { ...state.roles };
+    if (el.value.trim()) roles[el.dataset.role] = el.value.slice(0, 60);
+    else delete roles[el.dataset.role];
+    updateWithNotice("roles", roles);
+    persist();
+    summaryRender();
+    if (state.step === 6 && state.view === "roles")
+      document.querySelector(".role-sheet").innerHTML = ROLE_TEMPLATES.filter(
+        (r) => state.roles[r.id]?.trim(),
+      )
+        .map(
+          (r) =>
+            `<div><dt>${r.label}</dt><dd>${esc(state.roles[r.id])}</dd></div>`,
+        )
+        .join("");
+    const emptyRoleNotice = document.querySelector(".roles-empty");
+    if (emptyRoleNotice)
+      emptyRoleNotice.hidden = Object.values(state.roles).some((value) =>
+        value.trim(),
+      );
+    return;
+  }
+  if (
+    ![
+      "otherVenue",
+      "eventName",
+      "date",
+      "people",
+      "venueDetail",
+      "parkingNote",
+      "arrivalNote",
+      "contactNote",
+      "foodPeople",
+      "foodTime",
+      "foodPlace",
+      "afterNote",
+    ].includes(el.name)
+  )
+    return;
+  if (["people", "foodPeople"].includes(el.name)) {
     const valid = validPeople(el.value);
     el.setAttribute("aria-invalid", String(!valid));
-    document.querySelector("#people-error").textContent = valid
+    document.querySelector(
+      `#${el.name === "people" ? "people" : el.name}-error`,
+    ).textContent = valid
       ? ""
       : "1 이상의 정수를 입력해 주세요. 올바르지 않은 값은 저장하지 않아요.";
     if (!valid) {
-      state = updateState(state, "people", "");
+      updateWithNotice(el.name, "");
       persist();
       summaryRender();
       return;
     }
   }
-  state = updateState(state, el.name, el.value);
+  updateWithNotice(el.name, el.value);
+  if (el.name === "otherVenue") {
+    document.querySelectorAll('input[name="venueStatus"]').forEach((input) => {
+      input.checked = input.value === state.venueStatus;
+    });
+  }
   persist();
   summaryRender();
+  const preview = document.querySelector("#invitation");
+  if (preview) {
+    preview.value = invitationText(state);
+    document.querySelector("#invitation-missing").textContent =
+      invitationMissing(state);
+  }
+  if (el.name === "afterNote")
+    document.querySelector(".print-note").textContent = el.value;
 }
 function handleChange(e) {
   const el = e.target;
@@ -668,6 +820,12 @@ function handleChange(e) {
       "nameplates",
       "seating",
       "publicity",
+      "external",
+      "food",
+      "photography",
+      "audio",
+      "borrowed",
+      "followupAdmin",
     ].includes(el.name)
   ) {
     const before = state;
@@ -679,6 +837,39 @@ function handleChange(e) {
       announce(
         "선택에 맞춰 준비표를 갱신했어요. 관련 항목을 다시 확인해 주세요.",
       );
+    return;
+  }
+  if (el.dataset.guest) {
+    change(
+      "guestNeeds",
+      GUEST_NEEDS.map((n) => n.id).filter((id) =>
+        id === el.dataset.guest ? el.checked : state.guestNeeds.includes(id),
+      ),
+      `[data-guest="${el.dataset.guest}"]`,
+    );
+    return;
+  }
+  if (el.name === "diet") {
+    change("diet", el.checked, '[name="diet"]');
+    return;
+  }
+  if (el.id === "remaining-only") {
+    onlyRemaining = el.checked;
+    render("#remaining-only");
+    return;
+  }
+  if (el.dataset.onsite || el.dataset.after) {
+    const key = el.dataset.onsite ? "onsiteChecks" : "afterChecks",
+      id = el.dataset.onsite || el.dataset.after;
+    state[key][id].status = el.checked ? "done" : "todo";
+    persist();
+    const top = scrollY;
+    render(`[data-${key === "onsiteChecks" ? "onsite" : "after"}="${id}"]`);
+    if (key === "onsiteChecks" && onlyRemaining)
+      document
+        .querySelector(".field-check:not(.filtered) input, #remaining-only")
+        ?.focus({ preventScroll: true });
+    window.scrollTo({ top, behavior: "instant" });
     return;
   }
   if (el.dataset.agenda) {
@@ -703,6 +894,10 @@ function handleChange(e) {
 function handleClick(e) {
   const button = e.target.closest("button");
   if (!button) return;
+  if (button.dataset.view) {
+    navigate(6, true, button.dataset.view);
+    return;
+  }
   if (button.dataset.step !== undefined) {
     navigate(Number(button.dataset.step));
     return;
@@ -718,6 +913,12 @@ function handleClick(e) {
     return;
   }
   switch (button.dataset.action) {
+    case "copy-invitation":
+      copyText(invitationText(state));
+      break;
+    case "copy-field":
+      copyText(fieldSummary(state));
+      break;
     case "restore-agenda":
       confirmation(
         "기본 식순으로 되돌릴까요?",
@@ -749,6 +950,9 @@ function handleClick(e) {
       () => {
         const success = clearState(storage);
         state = reconcile(createState());
+        onlyRemaining = false;
+        resetNotice = "";
+        storageFailed = !success;
         history.replaceState({ oneqStep: 0 }, "", "#step-1");
         storageMessage = success
           ? "원큐의 저장 내용만 지웠어요."
@@ -759,6 +963,43 @@ function handleClick(e) {
       },
     );
 }
+async function copyText(text) {
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch {
+    const box = document.createElement("textarea");
+    box.value = text;
+    box.setAttribute("aria-label", "복사할 내용");
+    box.style.position = "fixed";
+    box.style.left = "-9999px";
+    document.body.append(box);
+    box.select();
+    try {
+      ok = document.execCommand("copy");
+    } catch {}
+    box.remove();
+  }
+  document
+    .querySelectorAll(".copy-status")
+    .forEach(
+      (el) =>
+        (el.textContent = ok
+          ? "복사했어요. 내용을 확인한 뒤 직접 전달하세요."
+          : "복사하지 못했어요. 아래 내용을 직접 선택해 복사하세요."),
+    );
+  if (!ok) {
+    const area = document.createElement("textarea");
+    area.className = "input";
+    area.readOnly = true;
+    area.value = text;
+    area.setAttribute("aria-label", "직접 복사할 내용");
+    document.querySelector(".copy-status")?.after(area);
+    area.focus();
+    area.select();
+  }
+}
 async function boot() {
   try {
     storage = window.localStorage;
@@ -766,11 +1007,21 @@ async function boot() {
     storage = null;
   }
   ({ state, message: storageMessage } = loadState(storage));
-  const hashStep = /^#step-([1-7])$/.exec(location.hash);
-  if (hashStep) state.step = Number(hashStep[1]) - 1;
-  history.replaceState({ oneqStep: state.step }, "", `#step-${state.step + 1}`);
+  const hashStep = /^#step-([1-7])(?:\/(prep|onsite|roles|after))?$/.exec(
+    location.hash,
+  );
+  if (hashStep) {
+    state.step = Number(hashStep[1]) - 1;
+    if (hashStep[2]) state.view = hashStep[2];
+  }
+  history.replaceState(
+    { oneqStep: state.step, oneqView: state.view },
+    "",
+    `#step-${state.step + 1}${state.step === 6 ? "/" + state.view : ""}`,
+  );
   window.addEventListener("popstate", (e) => {
-    if (Number.isInteger(e.state?.oneqStep)) navigate(e.state.oneqStep, false);
+    if (Number.isInteger(e.state?.oneqStep))
+      navigate(e.state.oneqStep, false, e.state.oneqView || "prep");
   });
   render();
   document.addEventListener("input", handleInput);

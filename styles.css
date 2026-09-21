@@ -1212,3 +1212,268 @@ dialog p {
     break-after: avoid;
   }
 }
+
+/* V0.3: field operations retain the existing navy/blue preparation flow. */
+textarea {
+  font: inherit;
+  resize: vertical;
+}
+textarea:focus-visible {
+  outline: 3px solid #377ee6;
+  outline-offset: 3px;
+}
+.storage-alert {
+  max-width: 1344px;
+  margin: 0 auto 16px;
+  padding: 16px 24px;
+  background: #fff1d5;
+  border: 1px solid #d4a545;
+  color: #674300;
+}
+.operation-tabs {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 5px;
+  margin: 0 0 24px;
+  background: #eef3fa;
+  border-radius: 12px;
+  width: 100%;
+}
+.operation-tabs button {
+  min-height: 46px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: transparent;
+  color: #3b5272;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.operation-tabs button[aria-current] {
+  color: white;
+  background: var(--navy);
+}
+.timeline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.timeline > * {
+  padding: 12px;
+  background: #f4f7fb;
+  color: var(--navy);
+  font-size: 0.875rem;
+  text-align: left;
+  border: 1px solid white;
+}
+.timeline small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.timeline button {
+  color: var(--blue);
+  font-weight: 650;
+}
+.field-event {
+  border-left: 4px solid var(--blue);
+  padding: 2px 0 2px 16px;
+  margin: 24px 0;
+  overflow-wrap: anywhere;
+}
+.field-event strong,
+.field-event span {
+  display: block;
+}
+.field-event span {
+  font-size: 0.875rem;
+  margin-top: 6px;
+  color: var(--muted);
+}
+.field-progress {
+  padding: 16px;
+  background: #edf4ff;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+.field-progress p {
+  margin-bottom: 8px;
+}
+.field-progress strong {
+  color: var(--blue);
+  font-size: 1.25rem;
+}
+.field-progress progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--blue);
+  display: block;
+}
+.field-progress .tool-check {
+  margin-bottom: 0;
+}
+.field-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 72px;
+  border: 1px solid #cbd8e9;
+  border-radius: 10px;
+  padding: 18px 16px;
+  margin: 10px 0;
+  cursor: pointer;
+  break-inside: avoid;
+}
+.field-check input {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--blue);
+  margin: 2px 0 0;
+}
+.field-check span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.field-check strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.field-check small {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.field-check.checked {
+  background: #edf7f2;
+  border-color: #b5d6c6;
+}
+.field-check:focus-within {
+  outline: 3px solid #377ee6;
+  outline-offset: 2px;
+}
+.field-check.filtered {
+  display: none;
+}
+.role-sheet {
+  margin: 24px 0;
+}
+.role-sheet > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+  break-inside: avoid;
+}
+.role-sheet dt {
+  color: var(--muted);
+}
+.role-sheet dd {
+  margin: 0;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.message-preview {
+  margin-top: 8px;
+  min-height: 150px;
+}
+.copy-status {
+  margin-top: 12px;
+  color: #215b47;
+}
+.print-note {
+  display: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.role-editor .form-grid,
+.panel .form-grid {
+  margin-bottom: 14px;
+}
+.tool-check {
+  min-height: 44px;
+}
+.unresolved .row {
+  gap: 8px;
+}
+.unresolved button {
+  font-size: 0.875rem;
+}
+@media (max-width: 700px) {
+  .operation-tabs {
+    gap: 2px;
+    margin-bottom: 22px;
+  }
+  .operation-tabs button {
+    font-size: 0.875rem;
+  }
+  .field-check {
+    padding: 16px 12px;
+    gap: 12px;
+  }
+  .storage-alert {
+    margin: 0 16px 16px;
+    font-size: 0.875rem;
+  }
+  .role-sheet > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+@media print {
+  .operation-tabs,
+  .storage-alert,
+  .timeline,
+  .copy-status {
+    display: none !important;
+  }
+  .field-check.filtered {
+    display: flex !important;
+  }
+  .field-check input {
+    display: none;
+  }
+  .field-check .print-status {
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 4px;
+  }
+  .field-progress {
+    background: white;
+    border: 1px solid #888;
+  }
+  .field-progress progress {
+    display: none;
+  }
+  .field-event {
+    break-inside: avoid;
+  }
+  .print-note {
+    display: block;
+  }
+  #afterNote,
+  .field:has(#afterNote) {
+    display: none;
+  }
+  .field-check {
+    margin: 6px 0;
+    padding: 10px;
+    min-height: 0;
+  }
+}
+
+.field-check strong {
+  word-break: keep-all;
+}
+.summary-body > .text-button {
+  display: block;
+  text-align: left;
+}

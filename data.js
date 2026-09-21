@@ -435,3 +435,292 @@ export const OUTPUTS = [
     delivery: "현장 화면 송출 확인",
   },
 ];
+
+// V0.3 운영 항목. when은 operations.js의 공통 조건, depends는 재확인 근거입니다.
+export const FOOD_OPTIONS = [
+  ["none", "필요 없음"],
+  ["snacks", "다과"],
+  ["meal", "식사"],
+  ["both", "다과 + 식사"],
+  ["unknown", "미정"],
+];
+export const GUEST_NEEDS = [
+  {
+    id: "parking",
+    label: "주차 안내 확인",
+    field: "parkingNote",
+    placeholder: "직접 확인한 주차 안내만 입력",
+  },
+  {
+    id: "arrival",
+    label: "도착 예정시간 확인",
+    field: "arrivalNote",
+    placeholder: "예: 시작 10분 전 도착 요청",
+  },
+  {
+    id: "contact",
+    label: "담당자 연락 방법 안내",
+    field: "contactNote",
+    placeholder: "공유 가능한 업무 연락 방법만 입력",
+  },
+];
+export const ROLE_TEMPLATES = [
+  { id: "lead", label: "총괄", when: "always" },
+  { id: "host", label: "사회 / 진행", when: "agenda" },
+  { id: "guests", label: "주요 참석자·내빈 안내", when: "guests" },
+  { id: "seats", label: "좌석 / 명패", when: "seats" },
+  { id: "screen", label: "화면 / 발표자료", when: "screen" },
+  { id: "materials", label: "실물자료 / 전달물", when: "materials" },
+  { id: "photo", label: "촬영", when: "photo" },
+  { id: "food", label: "다과 / 식사", when: "food" },
+  { id: "record", label: "회의 기록", when: "meeting" },
+  { id: "support", label: "현장 지원", when: "always" },
+  { id: "other", label: "기타", when: "always" },
+];
+export const GUEST_PREP = [
+  {
+    id: "guest-invite",
+    title: "외부 참석자에게 행사 일시·정확한 장소 안내",
+    detail: "안내문을 검토한 뒤 직접 전달하세요. 복사는 발송이 아닙니다.",
+    when: "external",
+    depends: ["eventName", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  ...GUEST_NEEDS.map((n) => ({
+    id: `guest-${n.id}`,
+    title: n.label,
+    detail: "확인한 내용만 안내하고 필요 시 참석자와 별도로 협의하세요.",
+    when: `guest-${n.id}`,
+    depends: [
+      "external",
+      "guestNeeds",
+      n.field,
+      "date",
+      "venue",
+      "otherVenue",
+      "venueDetail",
+    ],
+  })),
+];
+export const FOOD_PREP = [
+  {
+    id: "food-count",
+    title: "다과·식사 예상 인원 확인",
+    detail: "전체 참석 인원과 실제 제공 인원을 확인하세요.",
+    depends: ["food", "foodPeople", "people"],
+  },
+  {
+    id: "food-order",
+    title: "주문 / 예약 확인",
+    detail: "필요한 준비가 실제로 확정됐는지 직접 확인하세요.",
+    depends: ["food", "foodPeople", "people", "date"],
+  },
+  {
+    id: "food-arrival",
+    title: "수령·배달 시간과 배치 장소 확인",
+    detail: "현장 진행에 맞춰 수령 담당과 위치를 정하세요.",
+    depends: [
+      "food",
+      "foodTime",
+      "foodPlace",
+      "date",
+      "venue",
+      "otherVenue",
+      "venueDetail",
+    ],
+  },
+  {
+    id: "food-cleanup",
+    title: "종료 후 다과·식사 정리 방법 준비",
+    detail: "남은 음식과 사용 물품의 정리 방법을 확인하세요.",
+    depends: ["food", "venue", "otherVenue"],
+  },
+  {
+    id: "food-diet",
+    title: "식이 제한 별도 확인",
+    detail:
+      "필요 여부만 기록합니다. 개인별 알레르기·건강정보는 입력하지 마세요.",
+    when: "diet",
+    depends: ["food", "diet"],
+  },
+];
+export const ONSITE_ITEMS = [
+  {
+    id: "place",
+    title: "행사 장소가 실제로 사용 가능한가요?",
+    detail: "출입·조명·준비 공간과 이동 통로를 현장에서 확인하세요.",
+    when: "always",
+    depends: ["venue", "otherVenue", "venueDetail", "date"],
+  },
+  {
+    id: "seats",
+    title: "좌석이 실제 배치되어 있나요?",
+    when: "seating",
+    depends: [
+      "venue",
+      "otherVenue",
+      "venueDetail",
+      "date",
+      "seating",
+      "people",
+    ],
+  },
+  {
+    id: "nameplates",
+    title: "명패를 실제 좌석과 대조해 배치했나요?",
+    when: "nameplates",
+    depends: [
+      "venue",
+      "otherVenue",
+      "venueDetail",
+      "date",
+      "nameplates",
+      "people",
+    ],
+  },
+  {
+    id: "audio",
+    title: "마이크·음향을 실제로 테스트했나요?",
+    when: "audio",
+    depends: ["venue", "otherVenue", "venueDetail", "date", "audio"],
+  },
+  {
+    id: "agenda",
+    title: "진행 담당이 최종 식순을 갖고 있나요?",
+    when: "agenda",
+    depends: ["event", "agenda", "date", "roles"],
+  },
+  {
+    id: "vip",
+    title: "주요 참석자 도착 여부를 확인했나요?",
+    when: "vip",
+    depends: ["vip", "date", "venue", "otherVenue"],
+  },
+  {
+    id: "photo",
+    title: "촬영 담당·방법과 촬영 위치를 확인했나요?",
+    when: "photo",
+    depends: [
+      "photography",
+      "event",
+      "agenda",
+      "roles",
+      "date",
+      "venue",
+      "otherVenue",
+      "venueDetail",
+    ],
+  },
+  {
+    id: "guests",
+    title: "외부 방문객을 맞이할 안내가 준비됐나요?",
+    when: "external",
+    depends: [
+      "external",
+      "date",
+      "venue",
+      "otherVenue",
+      "venueDetail",
+      "guestNeeds",
+      "parkingNote",
+      "arrivalNote",
+      "contactNote",
+      "roles",
+    ],
+  },
+  {
+    id: "food",
+    title: "다과·식사가 예정된 장소에 실제 배치됐나요?",
+    when: "food",
+    depends: [
+      "food",
+      "foodPeople",
+      "people",
+      "foodTime",
+      "foodPlace",
+      "date",
+      "venue",
+      "otherVenue",
+      "venueDetail",
+    ],
+  },
+  {
+    id: "mou-docs",
+    title: "최종 협약서와 배치 방향을 확인했나요?",
+    when: "mou-exchange",
+    depends: ["event", "agenda", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  {
+    id: "mou-pen",
+    title: "서명펜이 준비되어 있나요?",
+    when: "mou-sign",
+    depends: ["event", "agenda", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  {
+    id: "mou-flow",
+    title: "서명·교환 동선을 현장에서 확인했나요?",
+    when: "mou-exchange",
+    depends: ["event", "agenda", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  {
+    id: "award",
+    title: "상장·상패와 수상자, 수여순서·이동동선을 대조했나요?",
+    when: "award",
+    depends: ["event", "agenda", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  {
+    id: "donation",
+    title: "전달물품·전달자·수령자와 촬영위치를 확인했나요?",
+    when: "donation",
+    depends: ["event", "agenda", "date", "venue", "otherVenue", "venueDetail"],
+  },
+  {
+    id: "meeting",
+    title: "회의자료와 기록 담당을 확인했나요?",
+    when: "meeting",
+    depends: ["event", "agenda", "date", "roles"],
+  },
+  {
+    id: "materials",
+    title: "필요한 실물 문서·물품이 현장에 있나요?",
+    when: "other-materials",
+    depends: ["event", "agenda", "date"],
+  },
+];
+export const AFTER_ITEMS = [
+  {
+    id: "photos",
+    title: "행사 사진·촬영자료 확보",
+    when: "photo",
+    depends: ["date", "photography", "event"],
+  },
+  {
+    id: "publicity",
+    title: "보도자료·블로그 활용 여부 확인",
+    when: "publicity",
+    depends: ["publicity", "date"],
+  },
+  {
+    id: "return",
+    title: "빌린 장비·물품 반납",
+    when: "borrowed",
+    depends: ["borrowed", "date"],
+  },
+  {
+    id: "cleanup",
+    title: "다과·식사와 사용 공간 정리",
+    when: "food",
+    depends: ["food", "date", "venue"],
+  },
+  {
+    id: "archive",
+    title: "행사자료 보관",
+    when: "always",
+    depends: ["event", "date"],
+  },
+  {
+    id: "admin",
+    title: "비용·증빙 등 필요한 후속 행정 처리",
+    when: "admin",
+    depends: ["followupAdmin", "date"],
+  },
+];

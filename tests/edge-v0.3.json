@@ -1,0 +1,12 @@
+{
+  "storageFailure": true,
+  "v02Restore": true,
+  "escaping": true,
+  "prepNavigation": true,
+  "resetIsolation": true,
+  "downloads": 12,
+  "externalNoAutoComplete": true,
+  "copyFallback": true,
+  "text200": true,
+  "errors": []
+}

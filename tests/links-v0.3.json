@@ -1,0 +1,62 @@
+[
+  {
+    "id": "mach",
+    "url": "https://erakeun.github.io/ERICAAI/",
+    "status": 200,
+    "final": "https://erakeun.github.io/ERICAAI/"
+  },
+  {
+    "id": "seat",
+    "url": "https://erakeun.github.io/erica-seat-planner/",
+    "status": 200,
+    "final": "https://erakeun.github.io/erica-seat-planner/"
+  },
+  {
+    "id": "seoulSeat",
+    "url": "https://erakeun.github.io/seoul-seat-planner/",
+    "status": 200,
+    "final": "https://erakeun.github.io/seoul-seat-planner/"
+  },
+  {
+    "id": "nameplate",
+    "url": "https://erakeun.github.io/nameplate-maker/",
+    "status": 200,
+    "final": "https://erakeun.github.io/nameplate-maker/"
+  },
+  {
+    "id": "welcome",
+    "url": "https://erakeun.github.io/welcome-board-maker/",
+    "status": 200,
+    "final": "https://erakeun.github.io/welcome-board-maker/"
+  },
+  {
+    "id": "signage",
+    "url": "https://erakeun.github.io/digital-signage-maker/",
+    "status": 200,
+    "final": "https://erakeun.github.io/digital-signage-maker/"
+  },
+  {
+    "id": "notice",
+    "url": "https://erakeun.github.io/notice-maker/",
+    "status": 200,
+    "final": "https://erakeun.github.io/notice-maker/"
+  },
+  {
+    "id": "led",
+    "url": "https://erakeun.github.io/conference-hall-led-maker/",
+    "status": 200,
+    "final": "https://erakeun.github.io/conference-hall-led-maker/"
+  },
+  {
+    "id": "pr",
+    "url": "https://erakeun.github.io/erica-pr-request/",
+    "status": 200,
+    "final": "https://erakeun.github.io/erica-pr-request/"
+  },
+  {
+    "id": "press",
+    "url": "https://erakeun.github.io/erica-press/",
+    "status": 200,
+    "final": "https://erakeun.github.io/erica-press/"
+  }
+]
