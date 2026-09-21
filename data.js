@@ -1,4 +1,5 @@
 // 확인한 운영 정보만 등록하세요. null은 미등록 상태입니다.
+// V0.1의 저장 내용을 그대로 이어받기 위해 키를 유지합니다. 스키마는 version으로 구분합니다.
 export const STORAGE_KEY = "erica-event-oneq:prototype:v0.1";
 export const STEPS = [
   "장소",
@@ -15,27 +16,44 @@ export const VENUES = [
     name: "프라임 컨퍼런스홀",
     note: "프라임 전용 좌석배치 도구 연결",
     symbol: "01",
+    seatTool: {
+      link: "seat",
+      label: "프라임 컨퍼런스홀 좌석배치 만들기",
+      note: "프라임 컨퍼런스홀 전용 도면에서 좌석과 동선을 확인하세요.",
+    },
+    rental: { department: null, contact: null, url: null, conditions: null },
+  },
+  {
+    id: "seoul",
+    name: "서울캠퍼스 신본관 2층 회의실1",
+    note: "메인 49석 + 배석 4석 · 전용 좌석배치 도구",
+    symbol: "02",
+    seatTool: {
+      link: "seoulSeat",
+      label: "신본관 회의실1 좌석배치 만들기",
+      note: "서울캠퍼스 신본관 회의실1 전용 · 메인 49석 + 배석 4석 = 총 53석",
+    },
     rental: { department: null, contact: null, url: null, conditions: null },
   },
   {
     id: "history",
     name: "히스토리라운지",
     note: "장소 확보 여부부터 확인해 주세요",
-    symbol: "02",
+    symbol: "03",
     rental: { department: null, contact: null, url: null, conditions: null },
   },
   {
     id: "department",
     name: "부서 자체 장소",
     note: "부서에서 사용하는 회의실·행사 공간",
-    symbol: "03",
+    symbol: "04",
     rental: null,
   },
   {
     id: "other",
     name: "기타 장소",
     note: "사용하실 장소를 직접 적어 주세요",
-    symbol: "04",
+    symbol: "05",
     rental: { department: null, contact: null, url: null, conditions: null },
   },
   {
@@ -51,6 +69,10 @@ export const LINKS = {
   seat: {
     name: "프라임 좌석배치",
     url: "https://erakeun.github.io/erica-seat-planner/",
+  },
+  seoulSeat: {
+    name: "신본관 회의실1 좌석배치",
+    url: "https://erakeun.github.io/seoul-seat-planner/",
   },
   nameplate: {
     name: "명패 제작기",
@@ -348,15 +370,44 @@ export const EVENTS = [
     ],
   },
 ];
-// 실제 .hwp를 assets/templates/에 넣은 뒤 path를 등록하세요. 없는 파일은 활성화되지 않습니다.
+// 교체 시 파일과 이 레지스트리의 path / format / status만 수정합니다.
+// events는 적용 행사, agendaIds는 관련 식순이 포함된 경우에만 노출하는 선택 필터입니다.
 export const TEMPLATES = [
-  ...EVENTS.map((e) => ({
-    id: `agenda-${e.id}`,
-    event: e.id,
-    label: `${e.short} 식순지`,
-    path: null,
-  })),
-  { id: "agreement-mou", event: "mou", label: "협약서 예시", path: null },
+  ...EVENTS.flatMap((e) => [
+    {
+      id: `agenda-${e.id}`,
+      events: [e.id],
+      label: `${e.short} 식순 예시`,
+      path: `assets/templates/agenda-${e.id}.txt`,
+      format: "txt",
+      status: "sample",
+    },
+    {
+      id: `script-${e.id}`,
+      events: [e.id],
+      label: `${e.short} 사회자 시나리오 예시`,
+      path: `assets/templates/script-${e.id}.txt`,
+      format: "txt",
+      status: "sample",
+    },
+  ]),
+  {
+    id: "agreement-mou",
+    events: ["mou"],
+    agendaIds: ["sign", "exchange"],
+    label: "협약서 구성 예시",
+    path: "assets/templates/agreement-mou.txt",
+    format: "txt",
+    status: "sample",
+  },
+  {
+    id: "welcome-speech",
+    events: ["mou", "donation", "meeting", "award", "other"],
+    label: "환영사 작성 예시 · 필요할 때 참고",
+    path: "assets/templates/welcome-speech.txt",
+    format: "txt",
+    status: "sample",
+  },
 ];
 export const OUTPUTS = [
   {

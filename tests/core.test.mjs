@@ -17,7 +17,14 @@ import {
   verifyTemplate,
 } from "../app.js";
 import { STORAGE_KEY, EVENTS, TEMPLATES, LINKS } from "../data.js";
-const make = (values) => reconcile(Object.assign(createState(), values));
+const make = (values) =>
+  reconcile(
+    Object.assign(
+      createState(),
+      { seating: "needed", publicity: "needed" },
+      values,
+    ),
+  );
 const ids = (s) => buildChecklist(s).map((i) => i.id);
 const mark = (s, id, status = "done") => {
   s.checks[id].status = status;
@@ -49,7 +56,7 @@ test("A: PRIME + MOU + VIP: seat, separate request/support, MOU materials", () =
     "nameplate-placement",
   ])
     assert.ok(ids(s).includes(id));
-  assert.equal(TEMPLATES.filter((t) => t.event === "mou").length, 2);
+  assert.equal(TEMPLATES.filter((t) => t.events.includes("mou")).length, 4);
 });
 test("B: department + meeting + no VIP: no rental/press, nameplates independent", () => {
   const s = make({
@@ -61,7 +68,7 @@ test("B: department + meeting + no VIP: no rental/press, nameplates independent"
   });
   assert.ok(!ids(s).includes("rental"));
   assert.ok(!ids(s).includes("press-request"));
-  assert.ok(ids(s).includes("self-photo"));
+  assert.ok(!ids(s).includes("self-photo"));
   assert.ok(ids(s).includes("nameplate-file"));
 });
 test("C: history + donation + undecided VIP retains attendance task", () => {
@@ -72,7 +79,7 @@ test("C: history + donation + undecided VIP retains attendance task", () => {
   });
   assert.ok(ids(s).includes("vip-confirm"));
   assert.ok(ids(s).includes("material-donation-handover"));
-  assert.ok(!ids(s).includes("seat"));
+  assert.equal(buildChecklist(s).find((i) => i.id === "seat")?.link, null);
 });
 test("D: other + awards + no nameplates removes every nameplate item", () => {
   const s = make({
@@ -83,7 +90,7 @@ test("D: other + awards + no nameplates removes every nameplate item", () => {
   });
   assert.ok(ids(s).includes("material-award-present"));
   assert.ok(!ids(s).some((id) => id.startsWith("nameplate")));
-  assert.ok(!ids(s).includes("seat"));
+  assert.equal(buildChecklist(s).find((i) => i.id === "seat")?.link, null);
 });
 test("E: no basic information and undecided venue yields usable checklist", () => {
   const s = make({});
@@ -117,7 +124,7 @@ test("F: venue changes invalidate related checks, preserve unrelated checks/inpu
     assert.equal(s.checks[id].status, "todo");
   assert.equal(s.checks["pr-submit"].status, "done");
   assert.equal(s.checks.agenda.status, "done");
-  assert.ok(!s.checks.seat);
+  assert.equal(s.checks.seat.status, "todo");
 });
 test("F: event and VIP changes remove stale tasks and do not resurrect completed checks", () => {
   let s = make({
@@ -320,19 +327,26 @@ test("all event examples contain meaningful roles, checks and scripts; stable id
     for (const venue of ["prime", "history", "department", "other", "unknown"])
       for (const vip of ["yes", "no", "unknown"])
         for (const nameplates of ["needed", "none", "later"]) {
-        const s = make({
-          event: event.id,
-          agenda: defaultAgenda(event.id),
-          venue,
-          vip,
-          nameplates,
-        });
-        assert.equal(new Set(ids(s)).size, ids(s).length);
-        assert.deepEqual(normalizeState(s), s);
-        assert.equal(ids(s).includes("press-request"), vip === "yes");
-        assert.equal(ids(s).includes("seat"), venue === "prime");
-        assert.equal(ids(s).includes("nameplate-file"), nameplates === "needed");
-      }
+          const s = make({
+            event: event.id,
+            agenda: defaultAgenda(event.id),
+            venue,
+            vip,
+            nameplates,
+          });
+          assert.equal(new Set(ids(s)).size, ids(s).length);
+          assert.deepEqual(normalizeState(s), s);
+          assert.equal(ids(s).includes("press-request"), vip === "yes");
+          assert.equal(ids(s).includes("seat"), true);
+          assert.equal(
+            buildChecklist(s).find((i) => i.id === "seat").link,
+            venue === "prime" ? "seat" : null,
+          );
+          assert.equal(
+            ids(s).includes("nameplate-file"),
+            nameplates === "needed",
+          );
+        }
 });
 test("rescheduling invalidates venue/request/support but preserves unrelated preparation", () => {
   let s = make({ venue: "prime", vip: "yes", date: "2026-10-01T10:00" });
@@ -390,4 +404,142 @@ test("H: a real temporary fixture path is read and verified, with no fake HWP sh
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("V0.2: Seoul routes only to its room tool; no seats when not needed", () => {
+  let s = make({
+    venue: "seoul",
+    event: "meeting",
+    agenda: defaultAgenda("meeting"),
+    vip: "no",
+    seating: "needed",
+    nameplates: "none",
+    publicity: "none",
+    outputs: [],
+    outputDecision: "none",
+  });
+  assert.equal(
+    buildChecklist(s).find((i) => i.id === "seat").link,
+    "seoulSeat",
+  );
+  assert.ok(!ids(s).some((id) => /^(press-|pr-|nameplate|output-)/.test(id)));
+  mark(s, "seat");
+  s = updateState(s, "venue", "prime");
+  assert.equal(s.checks.seat.status, "todo");
+  assert.equal(buildChecklist(s).find((i) => i.id === "seat").link, "seat");
+  s = updateState(s, "seating", "none");
+  assert.ok(!s.checks.seat);
+  s = updateState(s, "seating", "needed");
+  assert.equal(s.checks.seat.status, "todo");
+});
+
+test("V0.2: publicity remains independent of VIP and excludes unneeded work", () => {
+  for (const vip of ["yes", "no", "unknown"])
+    for (const publicity of ["needed", "none", "later"]) {
+      const s = make({ vip, publicity });
+      assert.equal(ids(s).includes("pr-submit"), publicity === "needed");
+      assert.equal(ids(s).includes("pr-decision"), publicity === "later");
+      assert.equal(ids(s).includes("press-request"), vip === "yes");
+    }
+  let s = make({ publicity: "needed" });
+  mark(s, "pr-submit");
+  s = updateState(s, "publicity", "none");
+  s = updateState(s, "publicity", "needed");
+  assert.equal(s.checks["pr-submit"].status, "todo");
+});
+
+test("V0.2: V0.1 migration preserves input, agenda and unrelated checked status", () => {
+  const old = make({
+    event: "award",
+    agenda: defaultAgenda("award"),
+    eventName: "보존 확인",
+    nameplates: "needed",
+  });
+  old.version = 1;
+  delete old.seating;
+  delete old.publicity;
+  mark(old, "agenda");
+  const migrated = normalizeState(old);
+  assert.equal(migrated.version, 2);
+  assert.equal(migrated.eventName, old.eventName);
+  assert.deepEqual(migrated.agenda, old.agenda);
+  assert.equal(migrated.checks.agenda.status, "done");
+  assert.equal(migrated.seating, "later");
+  assert.equal(migrated.publicity, "later");
+  assert.ok(!migrated.checks["pr-submit"]);
+});
+
+test("V0.2: shipped samples are actual UTF-8 files with correct markers and format", async () => {
+  const { templatesFor } = await import("../app.js");
+  assert.equal(TEMPLATES.length, 12);
+  for (const t of TEMPLATES) {
+    const content = await readFile(new URL(`../${t.path}`, import.meta.url));
+    assert.equal(
+      (await verifyTemplate(t, async () => new Response(content))).ready,
+      true,
+    );
+    assert.ok(content.toString().includes("학교 공식"));
+    assert.equal(t.status, "sample");
+    assert.equal(t.format, "txt");
+  }
+  let s = make({ event: "mou", agenda: defaultAgenda("mou") });
+  assert.ok(templatesFor(s).some((t) => t.id === "agreement-mou"));
+  s = updateState(
+    s,
+    "agenda",
+    s.agenda.map((a) =>
+      ["sign", "exchange"].includes(a.id) ? { ...a, included: false } : a,
+    ),
+  );
+  assert.ok(!templatesFor(s).some((t) => t.id === "agreement-mou"));
+  const txt = TEMPLATES[0];
+  for (const content of [
+    "<html>fallback</html>",
+    "내용이 있지만 임시 샘플 표시가 없는 잘못된 다운로드 파일입니다.",
+  ])
+    assert.equal(
+      (await verifyTemplate(txt, async () => new Response(content))).ready,
+      false,
+    );
+  assert.equal(
+    (await verifyTemplate({ ...txt, path: "assets/templates/../x.txt" })).ready,
+    false,
+  );
+});
+
+test("V0.2: 2430 event/venue/VIP/seat/publicity combinations reconcile consistently", () => {
+  for (const event of EVENTS)
+    for (const venue of [
+      "prime",
+      "seoul",
+      "history",
+      "department",
+      "other",
+      "unknown",
+    ])
+      for (const vip of ["yes", "no", "unknown"])
+        for (const seating of ["needed", "none", "later"])
+          for (const publicity of ["needed", "none", "later"])
+            for (const nameplates of ["needed", "none", "later"]) {
+              const s = make({
+                event: event.id,
+                agenda: defaultAgenda(event.id),
+                venue,
+                vip,
+                seating,
+                publicity,
+                nameplates,
+              });
+              assert.deepEqual(normalizeState(s), s);
+              assert.equal(ids(s).includes("seat"), seating === "needed");
+              assert.equal(
+                ids(s).includes("seat-decision"),
+                seating === "later",
+              );
+              assert.equal(
+                ids(s).includes("nameplate-file"),
+                nameplates === "needed",
+              );
+              assert.equal(new Set(ids(s)).size, ids(s).length);
+            }
 });

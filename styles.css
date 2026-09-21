@@ -1167,3 +1167,48 @@ dialog p {
     white-space: nowrap;
   }
 }
+
+/* V0.2: purpose-first controls and printable selected agenda. */
+.group-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.group-heading h2 {
+  margin-bottom: 12px;
+}
+.template {
+  gap: 16px;
+}
+.template > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.selected-agenda {
+  margin-top: 28px;
+}
+@media (max-width: 600px) {
+  .footer-nav .next {
+    grid-column: 2;
+    font-size: 13px;
+  }
+  .footer-nav .next:only-child {
+    grid-column: 1 / -1;
+  }
+  .template {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media print {
+  .selected-agenda {
+    break-inside: avoid;
+  }
+  .checklist-group {
+    break-inside: auto;
+  }
+  .group-heading {
+    break-after: avoid;
+  }
+}
