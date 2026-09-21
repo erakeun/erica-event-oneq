@@ -284,3 +284,97 @@ test("organizer: field flow preserves selected order and omits excluded rows", a
     "",
   );
 });
+
+test("campus: exact venue menus and no automatic place selection", async () => {
+  const { venuesForCampus } = await import("../operations.js");
+  let s = make({});
+  assert.equal(s.campus, "");
+  assert.deepEqual(venuesForCampus(s), []);
+  s = updateState(s, "campus", "seoul");
+  assert.deepEqual(
+    venuesForCampus(s).map((v) => v.id),
+    ["seoul", "department", "other", "unknown"],
+  );
+  assert.equal(s.venue, "unknown");
+  s = updateState(s, "campus", "erica");
+  assert.deepEqual(
+    venuesForCampus(s).map((v) => v.id),
+    ["prime", "history", "department", "other"],
+  );
+  assert.equal(s.venue, "unknown");
+});
+test("campus: old known venues infer campus; shared venues retain input without guessing", () => {
+  for (const [venue, campus] of [
+    ["seoul", "seoul"],
+    ["prime", "erica"],
+    ["history", "erica"],
+    ["department", ""],
+    ["other", ""],
+    ["unknown", ""],
+  ]) {
+    const old = { ...createState(), venue, otherVenue: "가상 회의실" };
+    delete old.campus;
+    const s = normalizeState(old);
+    assert.equal(s.campus, campus);
+    assert.equal(s.otherVenue, "가상 회의실");
+  }
+  const s = updateState(
+    make({ venue: "department", otherVenue: "가상 공유실" }),
+    "campus",
+    "seoul",
+  );
+  assert.equal(s.otherVenue, "가상 공유실");
+  assert.equal(s.venue, "department");
+});
+test("campus: changing campus clears old place information and relevant checks, preserves event and roles", () => {
+  let s = make({
+    campus: "seoul",
+    vip: "yes",
+    venue: "department",
+    otherVenue: "가상 A실",
+    venueDetail: "2층",
+    venueStatus: "secured",
+    parkingNote: "가상 주차",
+    foodPlace: "가상 테이블",
+    food: "snacks",
+    seating: "needed",
+    roles: { lead: "가상 총괄" },
+    eventName: "가상 행사",
+  });
+  s.checks.seat.status = "done";
+  s.checks["press-request"].status = "done";
+  s.checks.agenda.status = "done";
+  s.onsiteChecks.place.status = "done";
+  s.onsiteChecks.agenda.status = "done";
+  s = updateState(s, "campus", "erica");
+  assert.equal(s.venue, "unknown");
+  assert.equal(s.venueStatus, "unknown");
+  for (const f of ["otherVenue", "venueDetail", "parkingNote", "foodPlace"])
+    assert.equal(s[f], "");
+  assert.equal(s.checks.seat.status, "todo");
+  assert.equal(s.checks["press-request"].status, "todo");
+  assert.equal(s.onsiteChecks.place.status, "todo");
+  assert.equal(s.checks.agenda.status, "done");
+  assert.equal(s.onsiteChecks.agenda.status, "done");
+  assert.equal(s.roles.lead, "가상 총괄");
+  assert.equal(s.eventName, "가상 행사");
+});
+test("campus: shared venue invitations name the campus and incompatible stored venues are cleared", () => {
+  let s = make({
+    campus: "seoul",
+    venue: "department",
+    otherVenue: "가상 회의실",
+    external: "yes",
+  });
+  assert.match(invitationText(s), /서울캠퍼스 · 가상 회의실/);
+  s = normalizeState({
+    ...s,
+    campus: "erica",
+    venue: "seoul",
+    venueStatus: "secured",
+    venueDetail: "옛 회의실",
+  });
+  assert.equal(s.venue, "unknown");
+  assert.equal(s.venueDetail, "");
+  assert.equal(s.campus, "erica");
+});

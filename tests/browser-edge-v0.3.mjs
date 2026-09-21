@@ -12,6 +12,7 @@ await context.addInitScript(() => {
 });
 const page = await context.newPage();
 await page.goto("http://127.0.0.1:4173/");
+await page.locator("[name=campus][value=erica]").check();
 await page.locator("[name=venue][value=prime]").check();
 assert.ok(await page.locator("#storage-alert").isVisible());
 assert.match(await page.locator("#storage-alert").textContent(), /入力|입력/);

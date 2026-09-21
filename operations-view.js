@@ -3,7 +3,7 @@ import {
   GUEST_NEEDS,
   ROLE_TEMPLATES,
   EVENTS,
-} from "./data.js?v=0.3.1";
+} from "./data.js?v=0.3.2";
 import {
   matches,
   recommendedRoles,
@@ -14,7 +14,7 @@ import {
   invitationText,
   locationText,
   nextPreparation,
-} from "./operations.js?v=0.3.1";
+} from "./operations.js?v=0.3.2";
 export const esc = (v) =>
   String(v ?? "").replace(
     /[&<>"']/g,

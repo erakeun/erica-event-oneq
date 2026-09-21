@@ -1,5 +1,6 @@
 import {
   VENUES,
+  CAMPUSES,
   OUTPUTS,
   LINKS,
   FOOD_OPTIONS,
@@ -9,8 +10,9 @@ import {
   ONSITE_ITEMS,
   AFTER_ITEMS,
   PREP_PRIORITY,
-} from "./data.js?v=0.3.1";
+} from "./data.js?v=0.3.2";
 export const operationDefaults = () => ({
+  campus: "",
   external: "unknown",
   venueDetail: "",
   guestNeeds: [],
@@ -67,7 +69,36 @@ export function matches(s, when = "always") {
     return conditions.external && s.guestNeeds.includes(when.slice(6));
   return Boolean(conditions[when]);
 }
-const signature = (s, fields = []) => JSON.stringify(fields.map((f) => s[f]));
+const signature = (s, fields = []) =>
+  JSON.stringify(
+    (fields.includes("venue") ? ["campus", ...fields] : fields).map(
+      (f) => s[f],
+    ),
+  );
+export const campusName = (s) =>
+  CAMPUSES.find((c) => c.id === s.campus)?.name || "";
+export const venuesForCampus = (s) =>
+  (CAMPUSES.find((c) => c.id === s.campus)?.venues || []).map((id) =>
+    VENUES.find((v) => v.id === id),
+  );
+export function reconcileCampus(s) {
+  if (!CAMPUSES.some((c) => c.id === s.campus)) s.campus = "";
+  const inferred = VENUES.find((v) => v.id === s.venue)?.campus || "";
+  if (!s.campus) s.campus = inferred;
+  if (
+    s.campus &&
+    s.venue !== "unknown" &&
+    !venuesForCampus(s).some((v) => v.id === s.venue)
+  ) {
+    s.venue = "unknown";
+    s.venueStatus = "unknown";
+    s.otherVenue = "";
+    s.venueDetail = "";
+    s.parkingNote = "";
+    s.foodPlace = "";
+  }
+  return s;
+}
 const materialize = (s, items) =>
   items
     .filter((i) => matches(s, i.when))
@@ -182,6 +213,7 @@ export function reconcileOperations(s) {
 }
 export function unresolved(s) {
   return [
+    [!s.campus, "캠퍼스", 0],
     [
       s.venue === "unknown" ||
         (["other", "department"].includes(s.venue) && !s.otherVenue),
@@ -210,7 +242,11 @@ export function locationText(s) {
     : s.venue === "unknown"
       ? ""
       : VENUES.find((v) => v.id === s.venue)?.name;
-  return [base, s.venueDetail].filter(Boolean).join(" · ");
+  const place = [base, s.venueDetail].filter(Boolean).join(" · ");
+  const campus = campusName(s);
+  return place && campus && !place.startsWith(campus)
+    ? `${campus} · ${place}`
+    : place;
 }
 export function invitationText(s) {
   if (s.external !== "yes") return "";

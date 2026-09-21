@@ -2,20 +2,25 @@ import {
   STORAGE_KEY,
   STEPS,
   VENUES,
+  CAMPUSES,
   EVENTS,
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.3.1";
+} from "./data.js?v=0.3.2";
 import {
   operationDefaults,
+  campusName,
+  venuesForCampus,
+  reconcileCampus,
+  locationText,
   operationPrep,
   reconcileOperations,
   buildOnsite,
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.3.1";
+} from "./operations.js?v=0.3.2";
 import {
   logisticsView,
   photoChoices,
@@ -28,8 +33,8 @@ import {
   timelineView,
   invitationMissing,
   nextPreparationView,
-} from "./operations-view.js?v=0.3.1";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3.1";
+} from "./operations-view.js?v=0.3.2";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3.2";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -102,7 +107,7 @@ export const selectedAgenda = (state) =>
     .filter(Boolean);
 export function buildChecklist(state) {
   const items = [],
-    place = `${state.venue}|${state.otherVenue}|${state.venueStatus}|${state.date}${state.venueDetail ? "|" + state.venueDetail : ""}`,
+    place = `${state.venue}|${state.otherVenue}|${state.venueStatus}|${state.date}${state.venueDetail ? "|" + state.venueDetail : ""}|${state.campus}`,
     flow = `${state.event}|${state.agenda
       .filter((a) => a.included)
       .map((a) => a.id)
@@ -138,7 +143,7 @@ export function buildChecklist(state) {
     "장소·기본 준비",
     "참석자에게 장소·일정 안내",
     "일시와 도착 경로, 현장 안내 담당을 확인하세요.",
-    `${state.venue}|${state.otherVenue}|${state.date}`,
+    `${state.venue}|${state.otherVenue}|${state.date}|${state.campus}`,
   );
   if (!state.date)
     add(
@@ -246,7 +251,7 @@ export function buildChecklist(state) {
       "홍보·촬영 협조",
       "촬영·취재 협조 요청 여부 확인",
       "요청 화면을 열어도 접수되지 않습니다. 요청 여부를 직접 확인하세요.",
-      `${state.vip}|${state.date}`,
+      `${state.vip}|${state.date}|${state.campus}`,
       "press",
     );
     add(
@@ -254,7 +259,7 @@ export function buildChecklist(state) {
       "홍보·촬영 협조",
       "촬영·취재 지원 확정 여부 확인",
       "요청 여부와 지원 확정 여부를 별도로 확인하세요.",
-      `${state.vip}|${state.date}`,
+      `${state.vip}|${state.date}|${state.campus}`,
     );
   } else if (state.vip === "unknown")
     add(
@@ -283,6 +288,7 @@ export function buildChecklist(state) {
   return [...items, ...operationPrep(state)];
 }
 export function reconcile(state) {
+  reconcileCampus(state);
   const next = {};
   for (const item of buildChecklist(state)) {
     const old = state.checks[item.id];
@@ -306,6 +312,11 @@ export function normalizeState(raw) {
     raw.venue,
     VENUES.map((v) => v.id),
     "unknown",
+  );
+  s.campus = allowed(
+    raw.campus,
+    CAMPUSES.map((c) => c.id),
+    "",
   );
   s.venueStatus = allowed(
     raw.venueStatus,
@@ -413,6 +424,16 @@ export function clearState(storage) {
 }
 export function updateState(state, field, value) {
   const next = structuredClone(state);
+  if (field === "campus" && value !== state.campus && state.campus) {
+    next.venue = "unknown";
+    next.venueStatus = "unknown";
+    next.otherVenue = "";
+    next.venueDetail = "";
+    next.parkingNote = "";
+    next.foodPlace = "";
+  }
+  if (field === "venue" && VENUES.find((v) => v.id === value)?.campus)
+    next.campus = VENUES.find((v) => v.id === value).campus;
   if (field === "event" && value !== state.event)
     next.agenda = defaultAgenda(value);
   if (value !== state[field] && ["venue", "otherVenue"].includes(field)) {
@@ -488,9 +509,8 @@ const ext = (id, label, cls = "button secondary") =>
 const vipLabel = (s) =>
   ({ yes: "참석", no: "해당 없음", unknown: "아직 미정" })[s.vip];
 const placeLabel = (s) =>
-  ["other", "department"].includes(s.venue) && s.otherVenue
-    ? s.otherVenue
-    : venueFor(s).name;
+  locationText(s) ||
+  (campusName(s) ? `${campusName(s)} · 장소 미정` : "캠퍼스·장소 미정");
 const dateLabel = (s) => (s.date ? s.date.replace("T", " · ") : "아직 미정");
 let onlyRemaining = false,
   resetNotice = "",
@@ -514,14 +534,33 @@ function rentalInfo() {
   return `<div class="note"><strong>확인된 대관 안내</strong>${info.department ? `<p>담당 부서: ${esc(info.department)}</p>` : ""}${info.contact ? `<p>연락처: ${esc(info.contact)}</p>` : ""}${info.conditions ? `<p>${esc(info.conditions)}</p>` : ""}${info.url && /^https:\/\//.test(info.url) ? `<a href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">예약 창구 안내 열기 ↗</a>` : ""}</div>`;
 }
 function venueView() {
-  return `<h1>어디에서 진행하시나요?</h1><p class="intro">장소와 행사 종류를 선택하면<br>준비 순서와 필요한 도구를 안내해 드립니다.</p><fieldset style="margin:0"><legend class="sr-only">행사 장소</legend><div class="card-grid">${VENUES.map((v) => `<label class="choice ${v.id === "unknown" ? "wide" : ""}"><input type="radio" name="venue" value="${v.id}" ${v.id === state.venue ? "checked" : ""}><span class="symbol" aria-hidden="true">${v.symbol}</span><span><strong>${v.name}</strong><span class="description">${v.note}</span></span></label>`).join("")}</div></fieldset>${["other", "department"].includes(state.venue) ? `<div class="field"><label for="otherVenue">장소명 <span class="muted small">· 선택 입력</span></label><input class="input" id="otherVenue" name="otherVenue" maxlength="80" value="${esc(state.otherVenue)}" placeholder="장소가 정해지면 적어 주세요"></div>` : ""}<fieldset><legend>${state.venue === "department" ? "부서 내 장소를 확보하셨나요?" : "장소 확보 상태를 알려 주세요"}</legend>${radios(
-    "venueStatus",
-    [
-      ["secured", "이미 확보했어요"],
-      ["needed", "예약·협의가 필요해요"],
-      ["unknown", "아직 확인하지 않았어요"],
-    ],
-  )}</fieldset>${rentalInfo()}<p class="footnote">장소 선택은 예약 처리나 이용 허가가 아닙니다.</p>`;
+  const campusChoice = `<fieldset class="campus-choice"><legend>캠퍼스</legend>${radios(
+    "campus",
+    CAMPUSES.map((c) => [c.id, c.name]),
+  )}</fieldset>`;
+  if (!state.campus)
+    return `<h1>어느 캠퍼스에서 진행하시나요?</h1><p class="intro">캠퍼스를 고르면 해당 장소를 안내해 드려요.</p>${campusChoice}${state.otherVenue ? `<div class="note">저장한 장소명 <strong>${esc(state.otherVenue)}</strong>은 그대로 보관했어요. 캠퍼스를 선택해 이어서 준비하세요.</div>` : ""}`;
+  return `<h1>어디에서 진행하시나요?</h1><p class="intro">캠퍼스와 장소에 맞는 준비를 안내해 드려요.</p>${campusChoice}<fieldset><legend>${campusName(state)} 행사 장소</legend><div class="card-grid">${venuesForCampus(
+    state,
+  )
+    .map(
+      (v, i) =>
+        `<label class="choice"><input type="radio" name="venue" value="${v.id}" ${v.id === state.venue ? "checked" : ""}><span class="symbol" aria-hidden="true">${v.id === "unknown" ? "…" : String(i + 1).padStart(2, "0")}</span><span><strong>${v.name}</strong><span class="description">${v.note}</span></span></label>`,
+    )
+    .join(
+      "",
+    )}</div></fieldset>${["other", "department"].includes(state.venue) ? `<div class="field"><label for="otherVenue">장소명 <span class="muted small">· 선택 입력</span></label><input class="input" id="otherVenue" name="otherVenue" maxlength="80" value="${esc(state.otherVenue)}" placeholder="장소가 정해지면 적어 주세요"></div>` : ""}${
+    state.venue !== "unknown"
+      ? `<fieldset><legend>${state.venue === "department" ? "부서 내 장소를 확보하셨나요?" : "장소 확보 상태를 알려 주세요"}</legend>${radios(
+          "venueStatus",
+          [
+            ["secured", "이미 확보했어요"],
+            ["needed", "예약·협의가 필요해요"],
+            ["unknown", "아직 확인하지 않았어요"],
+          ],
+        )}</fieldset>`
+      : ""
+  }${rentalInfo()}<p class="footnote">장소 선택은 예약 처리나 이용 허가가 아닙니다.</p>`;
 }
 function eventView() {
   return `<h1>어떤 행사를 준비하시나요?</h1><p class="intro">정해진 내용만 알려 주세요. 나머지는 나중에 정하셔도 돼요.</p><fieldset style="margin:0"><legend class="field-label">행사 종류</legend><div class="card-grid">${EVENTS.map((e) => `<label class="choice ${e.id === "other" ? "wide" : ""}"><input type="radio" name="event" value="${e.id}" ${e.id === state.event ? "checked" : ""}><span><strong>${e.name}</strong><span class="description">${e.description}</span></span></label>`).join("")}</div></fieldset><div class="form-grid"><div class="field full"><label for="eventName">행사명 <span class="small muted">· 선택 입력</span></label><input class="input" name="eventName" id="eventName" maxlength="160" placeholder="예: 교류 협력 협약식" value="${esc(state.eventName)}"></div><div class="field"><label for="date">행사 일시 <span class="small muted">· 미정이면 비워 두세요</span></label><input class="input" type="datetime-local" name="date" id="date" value="${esc(state.date)}"></div><div class="field"><label for="people">예상 인원 <span class="small muted">· 선택 입력</span></label><input class="input" type="text" inputmode="numeric" name="people" id="people" value="${esc(state.people)}" placeholder="예: 20" aria-describedby="people-error"><div class="error" id="people-error" aria-live="polite"></div></div></div><fieldset><legend>부총장 이상 참석 여부</legend>${radios(
@@ -814,6 +853,7 @@ function handleChange(e) {
   if (
     el.type === "radio" &&
     [
+      "campus",
       "venue",
       "venueStatus",
       "event",
@@ -832,7 +872,7 @@ function handleChange(e) {
     const before = state;
     change(el.name, el.value, `input[name="${el.name}"][value="${el.value}"]`);
     if (
-      ["venue", "event", "vip"].includes(el.name) &&
+      ["campus", "venue", "event", "vip"].includes(el.name) &&
       before[el.name] !== el.value
     )
       announce(

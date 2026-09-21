@@ -1515,3 +1515,24 @@ textarea:focus-visible {
 .field-agenda li p {
   margin: 3px 0 0;
 }
+
+.campus-choice {
+  padding: 18px;
+  margin: 24px 0;
+  background: #eef4fd;
+  border-radius: 12px;
+}
+.campus-choice .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.campus-choice .choice {
+  min-height: 58px;
+  justify-content: center;
+  font-weight: 700;
+  background: white;
+}
+.campus-choice legend {
+  margin-bottom: 8px;
+}

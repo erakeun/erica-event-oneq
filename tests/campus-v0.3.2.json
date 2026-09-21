@@ -1,0 +1,10 @@
+{
+  "screens": 6,
+  "errors": [],
+  "menus": true,
+  "venueRouting": true,
+  "changeReset": true,
+  "invitation": true,
+  "legacyRestore": true,
+  "reset": true
+}

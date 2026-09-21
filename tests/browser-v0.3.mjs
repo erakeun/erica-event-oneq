@@ -12,8 +12,15 @@ page.on("pageerror", (e) => errors.push(e.message));
 const base = process.env.ONEQ_URL || "http://127.0.0.1:4173/";
 await mkdir("tests/browser-evidence", { recursive: true });
 const step = async (n) => page.locator(`#steps [data-step="${n}"]`).click();
-const radio = async (n, v) =>
-  page.locator(`[name="${n}"][value="${v}"]`).check();
+const radio = async (n, v) => {
+  if (n === "venue")
+    await page
+      .locator(
+        `[name="campus"][value="${["seoul", "unknown"].includes(v) ? "seoul" : "erica"}"]`,
+      )
+      .check();
+  await page.locator(`[name="${n}"][value="${v}"]`).check();
+};
 const view = async (v) => page.locator(`[data-view="${v}"]`).first().click();
 const noOverflow = async () => {
   assert.ok(

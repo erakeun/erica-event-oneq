@@ -10,9 +10,22 @@ export const STEPS = [
   "화면·안내물",
   "준비표",
 ];
+export const CAMPUSES = [
+  {
+    id: "seoul",
+    name: "서울캠퍼스",
+    venues: ["seoul", "department", "other", "unknown"],
+  },
+  {
+    id: "erica",
+    name: "ERICA",
+    venues: ["prime", "history", "department", "other"],
+  },
+];
 export const VENUES = [
   {
     id: "prime",
+    campus: "erica",
     name: "프라임 컨퍼런스홀",
     note: "프라임 전용 좌석배치 도구 연결",
     symbol: "01",
@@ -25,6 +38,7 @@ export const VENUES = [
   },
   {
     id: "seoul",
+    campus: "seoul",
     name: "서울캠퍼스 신본관 2층 회의실1",
     note: "메인 49석 + 배석 4석 · 전용 좌석배치 도구",
     symbol: "02",
@@ -37,6 +51,7 @@ export const VENUES = [
   },
   {
     id: "history",
+    campus: "erica",
     name: "히스토리라운지",
     note: "장소 확보 여부부터 확인해 주세요",
     symbol: "03",
