@@ -49,4 +49,18 @@
 
 인쇄 버튼으로 `window.print()` 실행을 시도했습니다. 내장 브라우저 자동화에 접근 가능한 실제 인쇄 미리보기는 나타나지 않았고 OS 인쇄 UI 접근은 도구에서 허용되지 않았습니다. 따라서 **인쇄 페이지 나눔·실물 출력은 미검증**으로 남깁니다. `@media print`에서 메뉴/버튼/select 숨김, 상태 텍스트 표시, A4 여백, 행 내부 분할 방지 코드는 적용되어 있습니다.
 
-실제 HWP 원본, 운영 폼 로그인·접수 성공, 실제 제작·송출, Safari/Firefox·실물 휴대전화, 실제 GitHub Pages 배포는 확인하지 않았습니다. 기존 운영 데이터·운영 저장소·개인 브라우저는 변경하지 않았습니다.
+실제 HWP 원본, 운영 폼 로그인·접수 성공, 실제 제작·송출, Safari/Firefox·실물 휴대전화, 최초 로컬 검증 당시 GitHub Pages 배포는 확인하지 않았습니다. 후속 배포 결과는 아래와 같습니다. 기존 운영 데이터·운영 저장소·개인 브라우저는 변경하지 않았습니다.
+
+## 후속 GitHub 업로드·공개 배포
+
+사용자 요청과 명시적 저장소 공개 전환 승인에 따라 전용 저장소를 Public으로 전환하고 GitHub Pages에 배포했습니다.
+
+- 저장소: https://github.com/erakeun/erica-event-oneq
+- 병합: PR #1 → main, 커밋 `9f2ab57`
+- 배포: https://erakeun.github.io/erica-event-oneq/
+- 최초 배포 성공: https://github.com/erakeun/erica-event-oneq/actions/runs/35565918180
+- 로그인 없는 HTTP 요청: index.html/styles.css/app.js/data.js 모두 200, 로컬 검증본과 바이트 일치
+- 공개 사이트의 프라임·협약식·참석 선택, 촬영 요청 링크 조건, 협약서 서명 준비 항목, 자동 완료 없음, 새로고침 복원 확인
+- 공개 사이트 브라우저 error 로그 없음
+
+기존 운영 도구에는 실제 제출·예약·발송을 하지 않았습니다. 인쇄 및 실제 HWP 미검증 범위는 위와 같습니다.

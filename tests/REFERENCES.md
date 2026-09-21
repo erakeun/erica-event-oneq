@@ -41,4 +41,4 @@
 
 ## 정적 호스팅 참고
 
-[GitHub Pages 공식 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)를 확인했습니다. HTML/CSS/JavaScript 정적 호스팅과 저장소 하위 경로 프로젝트 사이트를 지원하는 설명에 맞춰 원큐를 구성했습니다. 실제 Pages 배포는 수행하지 않았습니다.
+[GitHub Pages 공식 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)를 확인했습니다. HTML/CSS/JavaScript 정적 호스팅과 저장소 하위 경로 프로젝트 사이트를 지원하는 설명에 맞춰 원큐를 구성했습니다. 초기 조사 단계에서는 배포하지 않았으며, 이후 사용자의 추가 요청에 따른 공개 배포 결과는 VALIDATION.md에 기록했습니다.
