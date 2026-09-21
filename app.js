@@ -6,7 +6,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js";
+} from "./data.js?v=0.2";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -28,7 +28,7 @@ export const defaultAgenda = (event) =>
   }));
 export function createState() {
   return {
-    version: 1,
+    version: 2,
     step: 0,
     venue: "unknown",
     venueStatus: "unknown",
@@ -39,6 +39,8 @@ export function createState() {
     people: "",
     vip: "unknown",
     nameplates: "later",
+    seating: "later",
+    publicity: "later",
     outputs: [],
     outputDecision: "later",
     agenda: defaultAgenda("other"),
@@ -144,14 +146,25 @@ export function buildChecklist(state) {
       flow,
     ),
   );
-  if (state.venue === "prime")
+  const seatTool = venueFor(state).seatTool;
+  if (state.seating === "later")
+    add(
+      "seat-decision",
+      "좌석·명패",
+      "좌석 배치 필요 여부 정하기",
+      "지정 좌석이나 배치 조정이 필요한지 확인하세요.",
+      place,
+    );
+  if (state.seating === "needed")
     add(
       "seat",
       "좌석·명패",
       "좌석 배치 확인",
-      "프라임 전용 도구에서 배치한 좌석과 현장 동선을 확인하세요.",
+      seatTool
+        ? seatTool.note
+        : "전용 도면이 연결되지 않은 장소입니다. 현장 좌석과 이동 동선을 직접 확인하세요.",
       place,
-      "seat",
+      seatTool?.link || null,
     );
   if (state.nameplates === "later")
     add(
@@ -227,22 +240,22 @@ export function buildChecklist(state) {
       "참석 여부가 정해지면 촬영·취재 협조 요청 안내를 확인해 주세요.",
       state.vip,
     );
-  else
+  if (state.publicity === "later")
     add(
-      "self-photo",
+      "pr-decision",
       "홍보·촬영 협조",
-      "자체 촬영 준비 여부 확인",
-      "필요하다면 촬영 담당과 장비를 직접 준비하세요.",
-      state.vip,
+      "보도자료 제출 필요 여부 정하기",
+      "부총장 이상 참석 여부와 별개로 홍보 필요 여부를 검토하세요.",
     );
-  add(
-    "pr-submit",
-    "홍보·촬영 협조",
-    "보도자료 제출 여부 확인",
-    "홍보가 필요하면 기초자료 제출 화면을 이용하세요. 제출이 보도·게시 확정을 뜻하지는 않습니다.",
-    "shared",
-    "pr",
-  );
+  if (state.publicity === "needed")
+    add(
+      "pr-submit",
+      "홍보·촬영 협조",
+      "보도자료 제출 여부 확인",
+      "기초자료를 실제 제출했는지 직접 확인하세요. 제출이 보도·게시 확정을 뜻하지는 않습니다.",
+      "shared",
+      "pr",
+    );
   return items;
 }
 export function reconcile(state) {
@@ -260,7 +273,7 @@ export function reconcile(state) {
   return state;
 }
 export function normalizeState(raw) {
-  if (!raw || typeof raw !== "object" || raw.version !== 1)
+  if (!raw || typeof raw !== "object" || ![1, 2].includes(raw.version))
     throw new Error("unsupported-state");
   const s = createState();
   s.step =
@@ -285,6 +298,8 @@ export function normalizeState(raw) {
   s.date = validDate(raw.date) ? raw.date : "";
   s.people = validPeople(raw.people) ? raw.people : "";
   s.vip = allowed(raw.vip, ["yes", "no", "unknown"], "unknown");
+  s.seating = allowed(raw.seating, ["needed", "none", "later"], "later");
+  s.publicity = allowed(raw.publicity, ["needed", "none", "later"], "later");
   s.nameplates = allowed(raw.nameplates, ["needed", "none", "later"], "later");
   s.outputs = OUTPUTS.map((o) => o.id).filter(
     (id) => Array.isArray(raw.outputs) && raw.outputs.includes(id),
@@ -342,11 +357,17 @@ export function updateState(state, field, value) {
   next[field] = value;
   return reconcile(next);
 }
-export async function verifyTemplate(path, fetcher = globalThis.fetch) {
+export async function verifyTemplate(template, fetcher = globalThis.fetch) {
+  const path =
+    typeof template === "object" && template ? template.path : template;
+  const format =
+    typeof template === "object" && template ? template.format : "hwp";
   if (path === null) return { ready: false, reason: "자료 준비 중" };
   if (
     typeof path !== "string" ||
-    !/^assets\/templates\/[\p{L}\p{N}_ /.-]+\.hwp$/u.test(path) ||
+    !/^assets\/templates\/[\p{L}\p{N}_ /.-]+\.(hwp|txt|docx)$/u.test(path) ||
+    !["hwp", "txt", "docx"].includes(format) ||
+    !path.endsWith(`.${format}`) ||
     path.split("/").some((p) => p === "." || p === "..") ||
     path.includes("//")
   )
@@ -360,8 +381,27 @@ export async function verifyTemplate(path, fetcher = globalThis.fetch) {
     if (!response.ok) return { ready: false, reason: "자료 파일 확인 필요" };
     const bytes = new Uint8Array(await response.arrayBuffer());
     const signature = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
-    if (bytes.length < 512 || !signature.every((b, i) => bytes[i] === b))
-      return { ready: false, reason: "HWP 파일 확인 필요" };
+    let valid = false;
+    if (format === "hwp")
+      valid = bytes.length >= 512 && signature.every((b, i) => bytes[i] === b);
+    if (format === "docx")
+      valid =
+        bytes.length >= 100 &&
+        bytes[0] === 0x50 &&
+        bytes[1] === 0x4b &&
+        bytes[2] === 3 &&
+        bytes[3] === 4;
+    if (format === "txt") {
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      valid =
+        text.trim().length > 30 && !/<(?:!doctype|html|body)\b/i.test(text);
+      if (template.status === "sample")
+        valid &&=
+          text.includes("V0.2 프로토타입용 임시 샘플") &&
+          text.includes("실제 양식으로 추후 교체 예정");
+    }
+    if (!valid)
+      return { ready: false, reason: `${format.toUpperCase()} 파일 확인 필요` };
     return { ready: true, path: `./${path}` };
   } catch {
     return { ready: false, reason: "자료 연결 확인 필요" };
@@ -422,7 +462,34 @@ function eventView() {
   )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>실제 참석자 명단·연락처·서명자 개인정보·기부금액은 입력하지 마세요. 명단 작업은 필요한 기존 제작기에서 진행해 주세요.</p></details>`;
 }
 function requestsView() {
-  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">외부 협조가 필요한 일부터 확인하면 준비가 한결 수월해져요.</p><article class="panel featured"><span class="tag">모든 행사 공통 안내</span><h2>행사 소식을 알리고 싶으신가요?</h2><p>행사의 홍보가 필요하면 보도자료 기초자료 제출 화면을 이용하세요.</p>${ext("pr", "보도자료 제출 화면 열기", "button")}<p class="footnote">제출이 보도나 게시 확정을 뜻하지는 않습니다.</p></article>${state.vip === "yes" ? `<article class="panel"><span class="tag">부총장 이상 참석 선택</span><h2>촬영·취재 협조가 필요하신가요?</h2><p>촬영·취재 협조 요청 경로를 확인해 주세요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기")}<p class="footnote">요청 여부와 지원 확정 여부를 별도로 확인하세요.</p></article>` : state.vip === "unknown" ? '<div class="note"><strong>참석 여부가 아직 미정이에요</strong><br>참석 여부가 정해지면 촬영·취재 협조 요청 안내를 확인해 주세요.</div>' : '<div class="note"><strong>자체 촬영 준비를 확인해 주세요</strong><br>촬영이 필요하다면 촬영 담당과 장비를 직접 준비해 주세요.</div>'}<details class="help"><summary>요청 화면을 열고 나서 확인할 일</summary><p>화면을 여는 것만으로 예약·접수·메일 발송이 이루어지지 않아요. 실제 요청 여부는 해당 화면에서 확인한 뒤 준비표에 직접 표시해 주세요. 지원 여부와 준비 상태도 자동으로 확인되지 않습니다.</p></details>`;
+  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">촬영 지원과 보도자료 제출은 서로 다른 일이에요.</p>${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>정해지면 행사 정보에서 바꿔 주세요. 필요한 촬영·취재 안내를 이어 드릴게요.</div>' : '<div class="note">촬영이 필요한 순서를 포함했다면 촬영 담당과 장비를 직접 준비해 주세요.</div>'}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
+    "publicity",
+    [
+      ["needed", "제출을 검토할게요"],
+      ["none", "홍보가 필요 없어요"],
+      ["later", "아직 미정이에요"],
+    ],
+  )}</fieldset>${state.publicity === "needed" ? `<p>행사 홍보를 위한 기초자료 제출 화면을 이용하세요.</p>${ext("pr", "보도자료 제출 화면 열기")}<p class="footnote">제출이 보도나 게시 확정을 뜻하지는 않습니다.</p>` : `<p class="small muted">${state.publicity === "none" ? "보도자료 제출을 준비표에서 제외했어요." : "준비표에 홍보 필요 여부 확인을 남겨 둘게요."}</p><details class="help"><summary>보도자료 제출 경로 참고</summary>${ext("pr", "보도자료 제출 화면 열기")}</details>`}</article><div class="note">링크를 열어도 요청·제출이 완료되지 않아요. 실제 처리 후 준비표에 직접 표시해 주세요.</div>`;
+}
+export function templatesFor(s) {
+  const included = selectedAgenda(s).map((a) => a.id);
+  return TEMPLATES.filter(
+    (t) =>
+      t.events.includes(s.event) &&
+      (!t.agendaIds || t.agendaIds.some((id) => included.includes(id))),
+  );
+}
+function templatesView() {
+  return `<section class="gap"><h2>내려받아 참고하기</h2><p class="small muted">V0.2 프로토타입용 임시 샘플 · 실제 양식으로 추후 교체 예정</p><p class="small">학교 공식 문서나 확정된 진행문이 아닙니다. 다운로드는 기본 예시이며, 화면에서 바꾼 식순은 준비표 인쇄에 반영돼요.</p>${templatesFor(
+    state,
+  )
+    .map((t) => {
+      const result = templateStatus.get(t.id);
+      return `<div class="template"><span><strong>${t.label}</strong><br><span class="muted small">${t.format.toUpperCase()} · ${t.status === "sample" ? "임시 샘플" : "등록 양식"}</span></span>${result?.ready ? `<a href="${esc(result.path)}" download class="button subtle" aria-label="${t.label} 다운로드">다운로드</a>` : `<span class="pending" aria-disabled="true">${result?.reason || "파일 확인 중"}</span>`}</div>`;
+    })
+    .join(
+      "",
+    )}<details class="help"><summary>환영사·사회자 예시 활용 방법</summary><p>내려받은 예시에서 행사 목적, 확인된 호칭과 발언 순서, 진행 시간을 직접 바꿔 주세요. 학교 공식 인사말이나 최종 대본이 아니며, 자동 생성 기능은 없습니다.</p></details></section>`;
 }
 function agendaView() {
   const event = eventFor(state);
@@ -442,32 +509,32 @@ function agendaView() {
           )
           .join("")}</ul>`
       : "<p>포함한 식순이 없어요. 필요한 순서를 선택해 주세요.</p>"
-  }</details><section class="gap"><h2>필요한 양식</h2><p class="small muted">실제 양식이 등록되면 여기서 내려받을 수 있어요.</p>${TEMPLATES.filter(
-    (t) => t.event === state.event,
-  )
-    .map((t) => {
-      const result = templateStatus.get(t.id);
-      return `<div class="template"><span>${t.label} <span class="muted small">HWP</span></span>${result?.ready ? `<a href="${esc(result.path)}" download class="button subtle">다운로드</a>` : `<span class="pending" aria-disabled="true">${result?.reason || "자료 준비 중"}</span>`}</div>`;
-    })
-    .join(
-      "",
-    )}</section><p class="footnote">발언 순서·서명권자·의전 서열은 자동으로 정하지 않아요.</p>`;
+  }</details>${templatesView()}<p class="footnote">발언 순서·서명권자·의전 서열은 자동으로 정하지 않아요.</p>`;
 }
 function seatsView() {
-  return `<h1>좌석과 명패를 준비해 볼까요?</h1><p class="intro">${state.venue === "prime" ? "프라임 전용 좌석배치 도구와 명패 제작기를 이용해 보세요." : "명패가 필요하다면 기존 제작기를 이용해 보세요."}</p><fieldset style="margin:0"><legend>명패가 필요하신가요?</legend>${radios(
+  const venue = venueFor(state),
+    tool = venue.seatTool;
+  return `<h1>좌석과 명패를 준비해 볼까요?</h1><p class="intro">좌석 배치와 명패는 각각 필요한 것만 선택하세요.</p><fieldset><legend>좌석 배치를 정해야 하나요?</legend>${radios(
+    "seating",
+    [
+      ["needed", "좌석 배치가 필요해요"],
+      ["none", "좌석 배치가 필요 없어요"],
+      ["later", "좌석은 나중에 정할게요"],
+    ],
+  )}</fieldset>${state.seating === "needed" ? (tool ? `<article class="panel featured"><span class="tag">${venue.name} 전용</span><h2>선택한 장소의 좌석 배치</h2><p>${tool.note}</p>${ext(tool.link, tool.label, "button")}</article>` : '<div class="note">이 장소의 전용 좌석 도면은 연결되어 있지 않아요. 현장 좌석과 동선을 직접 확인해 주세요.</div>') : ""}<fieldset><legend>명패가 필요하신가요?</legend>${radios(
     "nameplates",
     [
       ["needed", "명패가 필요해요"],
       ["none", "명패가 필요 없어요"],
-      ["later", "나중에 선택할게요"],
+      ["later", "명패는 나중에 정할게요"],
     ],
-  )}</fieldset>${state.venue === "prime" ? `<article class="panel featured"><span class="tag">프라임 컨퍼런스홀 전용</span><h2>좌석 배치하고 명패 만들기</h2><p>좌석과 현장 동선을 살펴보고, 필요한 명패 작업을 이어가세요.</p>${ext("seat", "좌석배치 도구 열기", "button")}</article>` : '<div class="note">이 장소의 전용 좌석 도면은 연결되어 있지 않아요. 현장 배치와 동선을 별도로 확인해 주세요.</div>'}${state.nameplates !== "none" ? `<article class="panel"><h2>명패만 만들고 싶으신가요?</h2><p>필요한 이름과 직함은 명패 제작기에서 직접 입력해 주세요.</p>${ext("nameplate", "명패 제작기 열기")}</article>` : '<div class="note">명패 파일 제작과 인쇄·배치 항목을 준비표에서 제외했어요.</div>'}<p class="footnote">새 탭에서 기존 도구가 열려요. 원큐의 입력 내용은 자동으로 전달되지 않습니다.</p>`;
+  )}</fieldset>${state.nameplates === "needed" ? `<article class="panel"><h2>명패 만들기</h2><p>좌석 도면 없이도 사용할 수 있어요. 필요한 이름과 직함은 기존 제작기에서 직접 입력해 주세요.</p>${ext("nameplate", "명패 제작기 열기")}</article>` : state.nameplates === "none" ? '<div class="note">명패 파일 제작과 인쇄·배치 항목을 준비표에서 제외했어요.</div>' : ""}<p class="footnote">새 탭에서 기존 도구가 열려요. 원큐의 입력 내용은 자동으로 전달되지 않습니다.</p>`;
 }
 function outputCard(o) {
-  return `<article class="panel"><h2>${o.title}</h2><p>${o.description}</p><span class="small muted">${LINKS[o.id].name}</span><label class="tool-check"><input type="checkbox" data-output="${o.id}" ${state.outputs.includes(o.id) ? "checked" : ""}>이 결과물이 필요해요</label>${ext(o.id, `${LINKS[o.id].name} 열기`)}</article>`;
+  return `<article class="panel"><h2>${o.title}</h2><p>${o.description}</p><span class="small muted">${LINKS[o.id].name}</span><label class="tool-check"><input type="checkbox" data-output="${o.id}" ${state.outputs.includes(o.id) ? "checked" : ""}>이 결과물이 필요해요</label>${state.outputs.includes(o.id) ? ext(o.id, `${LINKS[o.id].name} 열기`) : ""}</article>`;
 }
 function outputsView() {
-  return `<h1>어떤 화면과 안내물이 필요한가요?</h1><p class="intro">필요한 결과물만 골라 주세요. 제작과 현장 확인을 각각 준비표에 담아 드려요.</p><div class="note output-note">장소와 장비의 대응 정보는 아직 확인되지 않았어요. 설치 장소·화면 규격을 먼저 확인해 주세요.</div><div class="tool-grid">${OUTPUTS.slice(0, 3).map(outputCard).join("")}</div><details class="help"><summary>다른 제작 도구 보기</summary>${outputCard(OUTPUTS[3])}<p class="footnote">프라임 컨퍼런스홀용으로 확인된 도구는 아닙니다.</p></details><div class="row gap"><button class="button secondary" data-action="skip-outputs">화면·안내물 필요 없어요</button><button class="text-button" data-action="later-outputs">나중에 선택할게요</button></div>${state.outputDecision === "none" ? '<p class="small muted">화면·안내물 단계를 건너뛰었어요.</p>' : ""}<p class="footnote">제작한 파일은 원큐에 업로드하거나 보관하지 않아요.</p>`;
+  return `<h1>어떤 화면과 안내물이 필요한가요?</h1><p class="intro">필요한 결과물만 골라 주세요. 제작과 현장 확인을 각각 준비표에 담아 드려요.</p><div class="row gap"><button class="button secondary" data-action="skip-outputs">화면·안내물 필요 없어요</button><button class="text-button" data-action="later-outputs">나중에 선택할게요</button></div><div class="note output-note">장소와 장비의 대응 정보는 아직 확인되지 않았어요. 설치 장소·화면 규격을 먼저 확인해 주세요.</div><div class="tool-grid">${OUTPUTS.slice(0, 3).map(outputCard).join("")}</div><details class="help"><summary>다른 제작 도구 보기</summary>${outputCard(OUTPUTS[3])}<p class="footnote">현재 선택한 장소와의 호환 여부가 확인되지 않았어요. 필요한 경우 규격을 확인한 뒤 선택하세요.</p></details>${state.outputDecision === "none" ? '<p class="small muted">화면·안내물 단계를 건너뛰었어요.</p>' : ""}<p class="footnote">제작한 파일은 원큐에 업로드하거나 보관하지 않아요.</p>`;
 }
 function checklistView() {
   const items = buildChecklist(state),
@@ -476,7 +543,7 @@ function checklistView() {
   return `<h1>내 행사 준비표</h1><p class="intro">직접 확인한 항목만 표시해 주세요.<br>요청 여부와 지원 확정 여부는 별도로 확인해 주세요.</p><dl class="event-facts"><div><dt>행사명</dt><dd>${esc(state.eventName) || "아직 미정"}</dd></div><div><dt>일시</dt><dd>${esc(dateLabel(state))}</dd></div><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>예상 인원</dt><dd>${state.people ? esc(state.people) + "명" : "아직 미정"}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div></dl><div class="row no-print"><button class="button" data-action="print">준비표 인쇄</button><button class="button secondary" data-step="0">선택 내용 수정</button></div><p class="check-summary">직접 확인 완료 <strong>${done}개</strong> · 할 일 ${items.filter((i) => state.checks[i.id].status === "todo").length}개 · 해당 없음 ${items.filter((i) => state.checks[i.id].status === "na").length}개</p>${groups
     .map(
       (group) =>
-        `<section class="checklist-group"><h2>${group}</h2>${items
+        `<section class="checklist-group"><div class="group-heading"><h2>${group}</h2><button class="text-button no-print" data-step="${{ "장소·기본 준비": 0, "식순·현장 준비": 3, "좌석·명패": 4, "화면·안내물": 5, "홍보·촬영 협조": 2 }[group]}">선택 수정</button></div>${items
           .filter((i) => i.group === group)
           .map(
             (i) =>
@@ -495,13 +562,13 @@ function checklistView() {
     )
     .join(
       "",
-    )}<details class="help no-print"><summary>내가 선택한 식순 보기</summary><ol>${selectedAgenda(
+    )}<section class="selected-agenda"><h2>내가 선택한 식순</h2><ol>${selectedAgenda(
     state,
   )
     .map((a) => `<li class="small">${a.title}</li>`)
     .join(
       "",
-    )}</ol></details><div class="note">이 준비표는 직접 확인을 돕는 안내입니다. 실제 예약·접수·지원 상태와 행사 준비 완료를 자동으로 확인하지 않습니다.</div>`;
+    )}</ol></section><div class="note">이 준비표는 직접 확인을 돕는 안내입니다. 실제 예약·접수·지원 상태와 행사 준비 완료를 자동으로 확인하지 않습니다.</div>`;
 }
 function summaryRender() {
   document.querySelector("#summary").innerHTML =
@@ -525,7 +592,7 @@ function render(focus = null) {
     checklistView,
   ];
   document.querySelector("#main").innerHTML =
-    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="text-button skip-later" data-step="${state.step + 1}">나중에 정할게요</button><button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : "다음 단계"} <span aria-hidden="true">→</span></button>` : ""}</div>`;
+    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
   summaryRender();
   for (const el of document.querySelectorAll("details"))
     if (openDetails.has(el.querySelector("summary")?.textContent))
@@ -545,8 +612,10 @@ function change(field, value, focus) {
   persist();
   render(focus);
 }
-function navigate(step) {
+function navigate(step, record = true) {
   if (step < 0 || step > 6) return;
+  if (record && step !== state.step)
+    history.pushState({ oneqStep: step }, "", `#step-${step + 1}`);
   state.step = step;
   persist();
   render();
@@ -591,7 +660,15 @@ function handleChange(e) {
   const el = e.target;
   if (
     el.type === "radio" &&
-    ["venue", "venueStatus", "event", "vip", "nameplates"].includes(el.name)
+    [
+      "venue",
+      "venueStatus",
+      "event",
+      "vip",
+      "nameplates",
+      "seating",
+      "publicity",
+    ].includes(el.name)
   ) {
     const before = state;
     change(el.name, el.value, `input[name="${el.name}"][value="${el.value}"]`);
@@ -672,6 +749,7 @@ function handleClick(e) {
       () => {
         const success = clearState(storage);
         state = reconcile(createState());
+        history.replaceState({ oneqStep: 0 }, "", "#step-1");
         storageMessage = success
           ? "원큐의 저장 내용만 지웠어요."
           : "저장 내용을 지우지 못했어요. 새로고침하면 이전 선택이 다시 나타날 수 있어요.";
@@ -688,6 +766,12 @@ async function boot() {
     storage = null;
   }
   ({ state, message: storageMessage } = loadState(storage));
+  const hashStep = /^#step-([1-7])$/.exec(location.hash);
+  if (hashStep) state.step = Number(hashStep[1]) - 1;
+  history.replaceState({ oneqStep: state.step }, "", `#step-${state.step + 1}`);
+  window.addEventListener("popstate", (e) => {
+    if (Number.isInteger(e.state?.oneqStep)) navigate(e.state.oneqStep, false);
+  });
   render();
   document.addEventListener("input", handleInput);
   document.addEventListener("change", handleChange);
@@ -698,7 +782,7 @@ async function boot() {
   });
   await Promise.all(
     TEMPLATES.map(async (t) =>
-      templateStatus.set(t.id, await verifyTemplate(t.path)),
+      templateStatus.set(t.id, await verifyTemplate(t)),
     ),
   );
   if (state.step === 3) render();

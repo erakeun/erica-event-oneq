@@ -1,0 +1,156 @@
+[
+  {
+    "id": "mach",
+    "url": "https://erakeun.github.io/ERICAAI/",
+    "status": 200,
+    "bytes": 90773,
+    "sampleMarkers": null
+  },
+  {
+    "id": "seat",
+    "url": "https://erakeun.github.io/erica-seat-planner/",
+    "status": 200,
+    "bytes": 18186,
+    "sampleMarkers": null
+  },
+  {
+    "id": "seoulSeat",
+    "url": "https://erakeun.github.io/seoul-seat-planner/",
+    "status": 200,
+    "bytes": 18594,
+    "sampleMarkers": null
+  },
+  {
+    "id": "nameplate",
+    "url": "https://erakeun.github.io/nameplate-maker/",
+    "status": 200,
+    "bytes": 146402,
+    "sampleMarkers": null
+  },
+  {
+    "id": "welcome",
+    "url": "https://erakeun.github.io/welcome-board-maker/",
+    "status": 200,
+    "bytes": 68470,
+    "sampleMarkers": null
+  },
+  {
+    "id": "signage",
+    "url": "https://erakeun.github.io/digital-signage-maker/",
+    "status": 200,
+    "bytes": 138046,
+    "sampleMarkers": null
+  },
+  {
+    "id": "notice",
+    "url": "https://erakeun.github.io/notice-maker/",
+    "status": 200,
+    "bytes": 92717,
+    "sampleMarkers": null
+  },
+  {
+    "id": "led",
+    "url": "https://erakeun.github.io/conference-hall-led-maker/",
+    "status": 200,
+    "bytes": 23771,
+    "sampleMarkers": null
+  },
+  {
+    "id": "pr",
+    "url": "https://erakeun.github.io/erica-pr-request/",
+    "status": 200,
+    "bytes": 99840,
+    "sampleMarkers": null
+  },
+  {
+    "id": "press",
+    "url": "https://erakeun.github.io/erica-press/",
+    "status": 200,
+    "bytes": 932,
+    "sampleMarkers": null
+  },
+  {
+    "id": "agenda-mou",
+    "url": "http://127.0.0.1:4173/assets/templates/agenda-mou.txt",
+    "status": 200,
+    "bytes": 1852,
+    "sampleMarkers": true
+  },
+  {
+    "id": "script-mou",
+    "url": "http://127.0.0.1:4173/assets/templates/script-mou.txt",
+    "status": 200,
+    "bytes": 1903,
+    "sampleMarkers": true
+  },
+  {
+    "id": "agenda-donation",
+    "url": "http://127.0.0.1:4173/assets/templates/agenda-donation.txt",
+    "status": 200,
+    "bytes": 1813,
+    "sampleMarkers": true
+  },
+  {
+    "id": "script-donation",
+    "url": "http://127.0.0.1:4173/assets/templates/script-donation.txt",
+    "status": 200,
+    "bytes": 1880,
+    "sampleMarkers": true
+  },
+  {
+    "id": "agenda-meeting",
+    "url": "http://127.0.0.1:4173/assets/templates/agenda-meeting.txt",
+    "status": 200,
+    "bytes": 1552,
+    "sampleMarkers": true
+  },
+  {
+    "id": "script-meeting",
+    "url": "http://127.0.0.1:4173/assets/templates/script-meeting.txt",
+    "status": 200,
+    "bytes": 1578,
+    "sampleMarkers": true
+  },
+  {
+    "id": "agenda-award",
+    "url": "http://127.0.0.1:4173/assets/templates/agenda-award.txt",
+    "status": 200,
+    "bytes": 1568,
+    "sampleMarkers": true
+  },
+  {
+    "id": "script-award",
+    "url": "http://127.0.0.1:4173/assets/templates/script-award.txt",
+    "status": 200,
+    "bytes": 1607,
+    "sampleMarkers": true
+  },
+  {
+    "id": "agenda-other",
+    "url": "http://127.0.0.1:4173/assets/templates/agenda-other.txt",
+    "status": 200,
+    "bytes": 1169,
+    "sampleMarkers": true
+  },
+  {
+    "id": "script-other",
+    "url": "http://127.0.0.1:4173/assets/templates/script-other.txt",
+    "status": 200,
+    "bytes": 1203,
+    "sampleMarkers": true
+  },
+  {
+    "id": "agreement-mou",
+    "url": "http://127.0.0.1:4173/assets/templates/agreement-mou.txt",
+    "status": 200,
+    "bytes": 1296,
+    "sampleMarkers": true
+  },
+  {
+    "id": "welcome-speech",
+    "url": "http://127.0.0.1:4173/assets/templates/welcome-speech.txt",
+    "status": 200,
+    "bytes": 1235,
+    "sampleMarkers": true
+  }
+]
