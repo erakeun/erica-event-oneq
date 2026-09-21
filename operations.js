@@ -8,7 +8,8 @@ import {
   FOOD_PREP,
   ONSITE_ITEMS,
   AFTER_ITEMS,
-} from "./data.js?v=0.3";
+  PREP_PRIORITY,
+} from "./data.js?v=0.3.1";
 export const operationDefaults = () => ({
   external: "unknown",
   venueDetail: "",
@@ -243,4 +244,22 @@ export function fieldSummary(s) {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+// 준비 상태만 참고합니다. 링크 열기와 현장 확인은 완료로 계산하지 않습니다.
+export function nextPreparation(s, items) {
+  return items
+    .filter((item) => s.checks[item.id]?.status === "todo")
+    .map((item, index) => ({
+      item,
+      index,
+      rank: PREP_PRIORITY.indexOf(item.id),
+    }))
+    .sort(
+      (a, b) =>
+        (a.rank < 0 ? PREP_PRIORITY.length : a.rank) -
+          (b.rank < 0 ? PREP_PRIORITY.length : b.rank) || a.index - b.index,
+    )
+    .slice(0, 3)
+    .map(({ item }) => item);
 }

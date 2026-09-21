@@ -724,3 +724,26 @@ export const AFTER_ITEMS = [
     depends: ["followupAdmin", "date"],
   },
 ];
+
+// 일정을 고정하지 않고, 먼저 협의할 일을 안내하는 표시 순서입니다.
+export const PREP_PRIORITY = [
+  "date",
+  "venue",
+  "rental",
+  "vip-confirm",
+  "press-request",
+  "press-support",
+  "guest-decision",
+  "food-decision",
+  "food-count",
+  "food-order",
+  "agenda",
+  "roles",
+  "attendee-guide",
+  "guest-invite",
+  "guest-parking",
+  "guest-arrival",
+  "guest-contact",
+  "photo-plan",
+  "food-arrival",
+];

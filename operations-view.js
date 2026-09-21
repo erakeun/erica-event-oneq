@@ -1,4 +1,9 @@
-import { FOOD_OPTIONS, GUEST_NEEDS, ROLE_TEMPLATES } from "./data.js?v=0.3";
+import {
+  FOOD_OPTIONS,
+  GUEST_NEEDS,
+  ROLE_TEMPLATES,
+  EVENTS,
+} from "./data.js?v=0.3.1";
 import {
   matches,
   recommendedRoles,
@@ -8,7 +13,8 @@ import {
   unresolved,
   invitationText,
   locationText,
-} from "./operations.js?v=0.3";
+  nextPreparation,
+} from "./operations.js?v=0.3.1";
 export const esc = (v) =>
   String(v ?? "").replace(
     /[&<>"']/g,
@@ -90,7 +96,7 @@ export const eventHeading = (s) =>
 export function onsiteView(s, onlyRemaining) {
   const items = buildOnsite(s),
     done = items.filter((i) => s.onsiteChecks[i.id].status === "done").length;
-  return `<h1>행사 시작 전 최종점검</h1><p class="intro">준비한 것이 현장에 있고, 실제로 작동하는지 확인하세요.</p>${eventHeading(s)}${unresolvedView(s)}<div class="field-progress"><p role="status">완료 <strong>${done}</strong> / ${items.length}개 · 남음 <strong>${items.length - done}</strong>개</p><progress max="${items.length}" value="${done}" aria-label="현장점검 완료"></progress><label class="tool-check no-print"><input type="checkbox" id="remaining-only" ${onlyRemaining ? "checked" : ""}>미완료만 보기</label></div><div class="field-checks">${items.map((i) => `<label class="field-check ${s.onsiteChecks[i.id].status === "done" ? "checked" : ""} ${onlyRemaining && s.onsiteChecks[i.id].status === "done" ? "filtered" : ""}"><input type="checkbox" data-onsite="${i.id}" ${s.onsiteChecks[i.id].status === "done" ? "checked" : ""}><span><strong>${i.title}</strong>${i.detail ? `<small>${esc(i.detail)}</small>` : ""}<span class="print-status">${s.onsiteChecks[i.id].status === "done" ? "확인 완료" : "미확인"}</span></span></label>`).join("")}</div>${done === items.length ? '<p class="note" role="status">선택한 항목을 모두 확인했어요. 변경된 사항이 없는지 행사 시작 전에 한 번 더 살펴보세요.</p>' : ""}<div class="row gap no-print"><button class="button" data-action="print">현장점검 인쇄</button><button class="button secondary" data-action="copy-field">현장 요약 복사</button></div><p class="copy-status small" role="status"></p><p class="footnote">일반적인 확인 예시입니다. 학교 공식 의전규정이 아닙니다.</p>`;
+  return `<h1>행사 시작 전 최종점검</h1><p class="intro">준비한 것이 현장에 있고, 실제로 작동하는지 확인하세요.</p>${eventHeading(s)}${unresolvedView(s)}${fieldAgendaView(s)}<div class="field-progress"><p role="status">완료 <strong>${done}</strong> / ${items.length}개 · 남음 <strong>${items.length - done}</strong>개</p><progress max="${items.length}" value="${done}" aria-label="현장점검 완료"></progress><label class="tool-check no-print"><input type="checkbox" id="remaining-only" ${onlyRemaining ? "checked" : ""}>미완료만 보기</label></div><div class="field-checks">${items.map((i) => `<label class="field-check ${s.onsiteChecks[i.id].status === "done" ? "checked" : ""} ${onlyRemaining && s.onsiteChecks[i.id].status === "done" ? "filtered" : ""}"><input type="checkbox" data-onsite="${i.id}" ${s.onsiteChecks[i.id].status === "done" ? "checked" : ""}><span><strong>${i.title}</strong>${i.detail ? `<small>${esc(i.detail)}</small>` : ""}<span class="print-status">${s.onsiteChecks[i.id].status === "done" ? "확인 완료" : "미확인"}</span></span></label>`).join("")}</div>${done === items.length ? '<p class="note" role="status">선택한 항목을 모두 확인했어요. 변경된 사항이 없는지 행사 시작 전에 한 번 더 살펴보세요.</p>' : ""}<div class="row gap no-print"><button class="button" data-action="print">현장점검 인쇄</button><button class="button secondary" data-action="copy-field">현장 요약 복사</button></div><p class="copy-status small" role="status"></p><p class="footnote">일반적인 확인 예시입니다. 학교 공식 의전규정이 아닙니다.</p>`;
 }
 export function roleView(s) {
   const roles = assignedRoles(s);
@@ -119,3 +125,17 @@ export function afterView(s) {
 }
 export const timelineView = () =>
   `<div class="timeline" aria-label="준비 시기 안내"><span>미리 준비<small>장소·지원 협의</small></span><span>행사 전까지<small>자료·역할·안내</small></span><button data-view="onsite">행사 직전 현장<small>실물·작동 확인 →</small></button><button data-view="after">행사 종료 후<small>자료·물품 정리 →</small></button></div>`;
+
+export function nextPreparationView(s, items) {
+  const next = nextPreparation(s, items);
+  return `<section class="next-preparation no-print" aria-labelledby="next-preparation-title"><h2 id="next-preparation-title">먼저 확인할 일</h2><p class="small muted">일정·장소와 사전 협의가 필요한 일을 먼저 모았어요. 행사 상황에 맞춰 순서를 조정하세요.</p>${next.length ? `<ol>${next.map((item) => `<li><button data-item-focus="${item.id}">${esc(item.title)} <span aria-hidden="true">↓</span></button></li>`).join("")}</ol>` : "<p>준비표에 남은 할 일이 없어요. 행사 직전에는 실제 배치·작동을 따로 확인하세요.</p>"}</section>`;
+}
+export function fieldAgendaView(s) {
+  const event = EVENTS.find((e) => e.id === s.event);
+  const rows = s.agenda
+    .filter((a) => a.included)
+    .map((a) => event.agenda.find((row) => row.id === a.id))
+    .filter(Boolean);
+  if (!rows.length) return "";
+  return `<details class="help field-agenda no-print"><summary>선택한 식순 펼쳐보기 · ${rows.length}개</summary><p class="small muted">${s.checks.agenda?.status === "done" ? "준비표에서 확인한 식순이에요." : "준비표의 최종 식순 확인이 아직 남아 있어요."} 확정된 진행문은 따로 확인하세요.</p><ol>${rows.map((row) => `<li><strong>${row.title}</strong><p class="small">${row.what}</p></li>`).join("")}</ol><button class="text-button" data-step="3">식순 수정하기 →</button></details>`;
+}

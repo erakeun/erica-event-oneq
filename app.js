@@ -6,7 +6,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.3";
+} from "./data.js?v=0.3.1";
 import {
   operationDefaults,
   operationPrep,
@@ -15,7 +15,7 @@ import {
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.3";
+} from "./operations.js?v=0.3.1";
 import {
   logisticsView,
   photoChoices,
@@ -27,8 +27,9 @@ import {
   afterView,
   timelineView,
   invitationMissing,
-} from "./operations-view.js?v=0.3";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3";
+  nextPreparationView,
+} from "./operations-view.js?v=0.3.1";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3.1";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -615,7 +616,7 @@ function checklistView() {
   const items = buildChecklist(state),
     groups = [...new Set(items.map((i) => i.group))],
     done = items.filter((i) => state.checks[i.id].status === "done").length;
-  return `${operationTabs(state)}<h1>내 행사 준비표</h1>${timelineView()}${unresolvedView(state)}<p class="intro">행사 전에 무엇을 준비해야 하는지 확인해요.<br>실제 배치·작동은 별도의 현장점검에서 확인하세요.</p><dl class="event-facts"><div><dt>행사명</dt><dd>${esc(state.eventName) || "아직 미정"}</dd></div><div><dt>일시</dt><dd>${esc(dateLabel(state))}</dd></div><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>예상 인원</dt><dd>${state.people ? esc(state.people) + "명" : "아직 미정"}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div></dl><div class="row no-print"><button class="button" data-view="onsite">행사 시작 전 최종점검 →</button><button class="button secondary" data-action="print">준비표 인쇄</button><button class="button secondary" data-step="0">선택 내용 수정</button></div><p class="check-summary">직접 확인 완료 <strong>${done}개</strong> · 할 일 ${items.filter((i) => state.checks[i.id].status === "todo").length}개 · 해당 없음 ${items.filter((i) => state.checks[i.id].status === "na").length}개</p>${groups
+  return `${operationTabs(state)}<h1>내 행사 준비표</h1>${nextPreparationView(state, items)}${timelineView()}${unresolvedView(state)}<p class="intro">행사 전에 무엇을 준비해야 하는지 확인해요.<br>실제 배치·작동은 별도의 현장점검에서 확인하세요.</p><dl class="event-facts"><div><dt>행사명</dt><dd>${esc(state.eventName) || "아직 미정"}</dd></div><div><dt>일시</dt><dd>${esc(dateLabel(state))}</dd></div><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>예상 인원</dt><dd>${state.people ? esc(state.people) + "명" : "아직 미정"}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div></dl><div class="row no-print"><button class="button" data-view="onsite">행사 시작 전 최종점검 →</button><button class="button secondary" data-action="print">준비표 인쇄</button><button class="button secondary" data-step="0">선택 내용 수정</button></div><p class="check-summary">직접 확인 완료 <strong>${done}개</strong> · 할 일 ${items.filter((i) => state.checks[i.id].status === "todo").length}개 · 해당 없음 ${items.filter((i) => state.checks[i.id].status === "na").length}개</p>${groups
     .map(
       (group) =>
         `<section class="checklist-group"><div class="group-heading"><h2>${group}</h2><button class="text-button no-print" data-step="${{ "장소·기본 준비": 0, "식순·현장 준비": 3, "좌석·명패": 4, "화면·안내물": 5, "홍보·촬영 협조": 2, "외부 참석자 안내": 1, "다과·식사": 1 }[group]}">선택 수정</button></div>${items
@@ -894,6 +895,12 @@ function handleChange(e) {
 function handleClick(e) {
   const button = e.target.closest("button");
   if (!button) return;
+  if (button.dataset.itemFocus) {
+    const target = document.getElementById(`check-${button.dataset.itemFocus}`);
+    target?.scrollIntoView({ behavior: "instant", block: "center" });
+    target?.focus({ preventScroll: true });
+    return;
+  }
   if (button.dataset.view) {
     navigate(6, true, button.dataset.view);
     return;

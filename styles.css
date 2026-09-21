@@ -1477,3 +1477,41 @@ textarea:focus-visible {
   display: block;
   text-align: left;
 }
+
+.next-preparation {
+  padding: 20px;
+  margin: 22px 0;
+  border-left: 4px solid var(--blue);
+  background: #eef4fd;
+  border-radius: 0 10px 10px 0;
+}
+.next-preparation h2 {
+  margin-bottom: 6px;
+}
+.next-preparation ol {
+  padding-left: 22px;
+  margin-bottom: 0;
+}
+.next-preparation li {
+  padding-left: 3px;
+}
+.next-preparation button {
+  display: block;
+  background: transparent;
+  color: var(--navy);
+  font-weight: 650;
+  padding: 10px 4px;
+  min-height: 44px;
+  text-align: left;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.field-agenda ol {
+  padding-left: 24px;
+}
+.field-agenda li {
+  padding: 6px 0;
+}
+.field-agenda li p {
+  margin: 3px 0 0;
+}

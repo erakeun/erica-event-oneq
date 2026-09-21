@@ -248,3 +248,39 @@ test("V0.3 exchange without signing still requires agreement documents; room cha
   s = updateState(s, "venueDetail", "2층");
   assert.equal(s.onsiteChecks.award.status, "todo");
 });
+
+test("organizer: next work is limited to three remaining preparation tasks and updates after completion", async () => {
+  const { nextPreparation } = await import("../operations.js");
+  const s = make({ food: "snacks" });
+  const items = buildChecklist(s);
+  assert.deepEqual(
+    nextPreparation(s, items).map((i) => i.id),
+    ["date", "venue", "vip-confirm"],
+  );
+  s.checks.date.status = "done";
+  s.checks.venue.status = "na";
+  assert.ok(
+    !nextPreparation(s, items).some((i) => ["date", "venue"].includes(i.id)),
+  );
+  for (const value of Object.values(s.checks)) value.status = "done";
+  assert.deepEqual(nextPreparation(s, items), []);
+});
+test("organizer: field flow preserves selected order and omits excluded rows", async () => {
+  const { fieldAgendaView } = await import("../operations-view.js");
+  const s = make({
+    event: "mou",
+    agenda: defaultAgenda("mou")
+      .reverse()
+      .map((a) => ({ ...a, included: a.id !== "sign" })),
+  });
+  const html = fieldAgendaView(s);
+  assert.ok(!html.includes("협약서 서명"));
+  assert.ok(html.indexOf("폐회") < html.indexOf("개회"));
+  assert.equal(
+    fieldAgendaView({
+      ...s,
+      agenda: s.agenda.map((a) => ({ ...a, included: false })),
+    }),
+    "",
+  );
+});
