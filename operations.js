@@ -1,4 +1,5 @@
-import { agendaFingerprint } from "./agenda.js?v=0.4.0";
+import { rosterDependency, cueSignature } from "./event-workspace.js?v=0.5.0";
+import { agendaFingerprint } from "./agenda.js?v=0.5.0";
 import {
   VENUES,
   CAMPUSES,
@@ -11,7 +12,7 @@ import {
   ONSITE_ITEMS,
   AFTER_ITEMS,
   PREP_PRIORITY,
-} from "./data.js?v=0.4.0";
+} from "./data.js?v=0.5.0";
 export const PARKING_LABELS = {
   done: "완료",
   pending: "아직 안 함",
@@ -182,36 +183,50 @@ export const foodDetails = (s) =>
   ]
     .filter(Boolean)
     .join(" · ");
-export const buildOnsite = (s) => [
-  ...materialize(s, ONSITE_ITEMS).map((i) =>
-    i.id === "food"
-      ? { ...i, detail: foodDetails(s) }
-      : i.id === "parking-registration"
-        ? {
-            ...i,
-            detail: `등록 상태: ${PARKING_LABELS[s.parkingStatus]} · 실제 등록 내역은 별도로 확인하세요.`,
-          }
-        : i,
-  ),
-  ...OUTPUTS.filter((o) => s.outputs.includes(o.id)).map((o) => ({
-    id: `output-${o.id}`,
-    title:
-      o.id === "notice"
-        ? "안내문이 실제 입구·이동 위치에 부착됐나요?"
-        : `${LINKS[o.id].name.replace(" 제작기", "")}를 실제 화면에 정상 송출했나요?`,
-    detail:
-      o.id === "notice"
-        ? "방문객의 이동 방향에서 읽히는지 확인하세요."
-        : "파일 열기, 화면 비율·글자와 케이블 연결을 확인하세요.",
-    signature: signature(s, [
-      "venue",
-      "otherVenue",
-      "venueDetail",
-      "date",
-      "eventName",
-    ]),
-  })),
-];
+export const buildOnsite = (s) =>
+  rosterDependency(
+    s,
+    [
+      ...(s.cues?.length
+        ? [
+            {
+              id: "cue",
+              title: "담당자가 최신 큐시트를 갖고 있나요?",
+              signature: cueSignature(s) + "|" + agendaFingerprint(s.cues),
+            },
+          ]
+        : []),
+      ...materialize(s, ONSITE_ITEMS).map((i) =>
+        i.id === "food"
+          ? { ...i, detail: foodDetails(s) }
+          : i.id === "parking-registration"
+            ? {
+                ...i,
+                detail: `등록 상태: ${PARKING_LABELS[s.parkingStatus]} · 실제 등록 내역은 별도로 확인하세요.`,
+              }
+            : i,
+      ),
+      ...OUTPUTS.filter((o) => s.outputs.includes(o.id)).map((o) => ({
+        id: `output-${o.id}`,
+        title:
+          o.id === "notice"
+            ? "안내문이 실제 입구·이동 위치에 부착됐나요?"
+            : `${LINKS[o.id].name.replace(" 제작기", "")}를 실제 화면에 정상 송출했나요?`,
+        detail:
+          o.id === "notice"
+            ? "방문객의 이동 방향에서 읽히는지 확인하세요."
+            : "파일 열기, 화면 비율·글자와 케이블 연결을 확인하세요.",
+        signature: signature(s, [
+          "venue",
+          "otherVenue",
+          "venueDetail",
+          "date",
+          "eventName",
+        ]),
+      })),
+    ],
+    true,
+  );
 export const buildAfter = (s) => materialize(s, AFTER_ITEMS);
 export const recommendedRoles = (s) =>
   ROLE_TEMPLATES.filter((r) => matches(s, r.when));

@@ -148,7 +148,7 @@ test("V0.3 backward migration preserves V0.2 data and never invents field comple
   old.checks.agenda.status = "done";
   delete old.onsiteChecks;
   const s = normalizeState(old);
-  assert.equal(s.version, 4);
+  assert.equal(s.version, 5);
   assert.equal(s.checks.agenda.status, "done");
   assert.ok(Object.values(s.onsiteChecks).every((v) => v.status === "todo"));
   assert.equal(s.external, "unknown");

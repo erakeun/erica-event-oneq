@@ -1615,3 +1615,280 @@ textarea:focus-visible {
     content-visibility: visible !important;
   }
 }
+
+/* V0.5 local event workspace */
+.operation-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.record-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.record-card {
+  border: 1px solid var(--line, #dce3ec);
+  border-radius: 14px;
+  padding: 18px;
+  background: #fff;
+  min-width: 0;
+}
+.record-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.record-heading strong {
+  flex: 1;
+  min-width: 90px;
+}
+.badge,
+.group-badge {
+  background: #eef3fa;
+  color: #254568;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.85rem;
+}
+.group-badge {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.row-tools {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.record-card summary {
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+.record-card .field {
+  min-width: 0;
+}
+.record-card textarea {
+  resize: vertical;
+}
+.roster-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px;
+  background: #f0f5fa;
+  border-radius: 12px;
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+.work-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  margin: 16px 0;
+  font-size: 0.88rem;
+}
+.work-table caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 8px 0;
+}
+.work-table th,
+.work-table td {
+  padding: 10px 8px;
+  border: 1px solid #d6dfeb;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.work-table th {
+  background: #edf2f8;
+}
+.packet-section {
+  margin-top: 28px;
+  border-top: 1px solid #ccd8e6;
+  padding-top: 14px;
+}
+.packet-section h2 {
+  margin: 8px 0 12px;
+}
+.packet-section p,
+.packet-section li {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.packet-status {
+  padding: 10px 12px;
+  border-left: 4px solid #557799;
+  background: #f1f5fa;
+}
+.day-mode .workspace > #steps,
+.day-mode #summary,
+.day-mode .footer-nav {
+  display: none;
+}
+.day-mode .workspace {
+  display: block;
+  max-width: 1000px;
+  margin: auto;
+}
+.day-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: white;
+  padding: 8px 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+.day-mode main {
+  overflow: visible;
+}
+.day-tabs button {
+  min-height: 54px;
+  padding: 10px 6px;
+  border: 1px solid #c5d3e3;
+  border-radius: 10px;
+  background: #edf3fa;
+  color: #153356;
+  font-weight: 700;
+}
+.day-tabs button[aria-current] {
+  background: #153356;
+  color: white;
+}
+.day-content {
+  min-width: 0;
+}
+.day-content .field-check,
+.arrival-check {
+  min-height: 48px;
+}
+.arrival-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.day-script {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+.import-preview {
+  border: 2px solid #567a9e;
+  max-height: 70vh;
+  overflow: auto;
+}
+.empty-state {
+  padding: 28px 18px;
+  background: #f5f7fa;
+  border: 1px dashed #bac9da;
+  border-radius: 12px;
+}
+@media screen and (max-width: 700px) {
+  .work-table caption {
+    display: block;
+    width: 100%;
+  }
+  .record-card {
+    padding: 14px;
+  }
+  .record-card .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .work-table,
+  .work-table tbody,
+  .work-table tr,
+  .work-table td {
+    display: block;
+    width: 100%;
+  }
+  .work-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .work-table tr {
+    margin-bottom: 14px;
+    border: 1px solid #cbd7e5;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .work-table td {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 8px;
+    border: 0;
+    border-bottom: 1px solid #edf0f5;
+  }
+  .work-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #506680;
+  }
+  .day-mode .workspace {
+    padding: 12px;
+  }
+  .day-tabs {
+    gap: 6px;
+  }
+  .row-tools {
+    flex-shrink: 0;
+  }
+}
+@media print {
+  .operation-packet {
+    font-size: 10pt;
+  }
+  .operation-packet .packet-section {
+    break-inside: auto;
+  }
+  .operation-packet h2,
+  .work-table caption {
+    break-after: avoid;
+  }
+  .work-table {
+    display: table;
+    table-layout: fixed;
+    font-size: 9pt;
+  }
+  .work-table thead {
+    display: table-header-group;
+  }
+  .work-table tbody {
+    display: table-row-group;
+  }
+  .work-table tr {
+    display: table-row;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .work-table th,
+  .work-table td {
+    display: table-cell;
+    padding: 5px;
+  }
+  .work-table td::before {
+    display: none;
+  }
+  .operation-packet .roster-summary {
+    background: white;
+    padding: 0;
+  }
+  button,
+  .row-tools,
+  .record-card details,
+  .import-preview {
+    display: none !important;
+  }
+  .day-mode .workspace {
+    max-width: none;
+  }
+}

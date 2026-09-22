@@ -1,0 +1,461 @@
+{
+  "app": "erica-event-oneq",
+  "schemaVersion": 5,
+  "exportedAt": "2026-09-22T01:02:22.093Z",
+  "state": {
+    "campus": "erica",
+    "external": "yes",
+    "parkingStatus": "done",
+    "venueDetail": "",
+    "guestNeeds": [],
+    "parkingNote": "",
+    "arrivalNote": "",
+    "contactNote": "",
+    "food": "snacks",
+    "foodPeople": "12",
+    "foodTime": "",
+    "foodPlace": "",
+    "diet": false,
+    "photography": "auto",
+    "audio": "later",
+    "roles": {
+      "lead": "가상 운영팀",
+      "host": "가상 사회팀"
+    },
+    "onsiteChecks": {
+      "cue": {
+        "status": "done",
+        "signature": "1985:2989866622:2396825302|169:2639130572:2027830002"
+      },
+      "parking-registration": {
+        "status": "done",
+        "signature": "[\"erica\",\"yes\",\"done\",\"prime\",\"\",\"2026-10-22T14:00\"]|roster:1084:127581229:1138017471"
+      },
+      "place": {
+        "status": "done",
+        "signature": "[\"erica\",\"prime\",\"\",\"\",\"2026-10-22T14:00\"]"
+      },
+      "seats": {
+        "status": "done",
+        "signature": "[\"erica\",\"prime\",\"\",\"\",\"2026-10-22T14:00\",\"needed\",\"12\"]|roster:1084:127581229:1138017471"
+      },
+      "nameplates": {
+        "status": "done",
+        "signature": "[\"erica\",\"prime\",\"\",\"\",\"2026-10-22T14:00\",\"needed\",\"12\"]|roster:1084:127581229:1138017471"
+      },
+      "agenda": {
+        "status": "done",
+        "signature": "[\"mou\",\"1936:1426175098:760798324\",\"2026-10-22T14:00\",{\"lead\":\"가상 운영팀\",\"host\":\"가상 사회팀\"}]"
+      },
+      "vip": {
+        "status": "done",
+        "signature": "[\"erica\",\"yes\",\"2026-10-22T14:00\",\"prime\",\"\"]|roster:1084:127581229:1138017471"
+      },
+      "photo": {
+        "status": "done",
+        "signature": "[\"erica\",\"auto\",\"mou\",\"1936:1426175098:760798324\",{\"lead\":\"가상 운영팀\",\"host\":\"가상 사회팀\"},\"2026-10-22T14:00\",\"prime\",\"\",\"\"]|roster:1084:127581229:1138017471"
+      },
+      "guests": {
+        "status": "done",
+        "signature": "[\"erica\",\"yes\",\"2026-10-22T14:00\",\"prime\",\"\",\"\",[],\"\",\"\",\"\",{\"lead\":\"가상 운영팀\",\"host\":\"가상 사회팀\"}]|roster:1084:127581229:1138017471"
+      },
+      "food": {
+        "status": "done",
+        "signature": "[\"erica\",\"snacks\",\"12\",\"12\",\"\",\"\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]|roster:1084:127581229:1138017471"
+      },
+      "mou-docs": {
+        "status": "done",
+        "signature": "[\"erica\",\"mou\",\"1936:1426175098:760798324\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]"
+      },
+      "mou-pen": {
+        "status": "done",
+        "signature": "[\"erica\",\"mou\",\"1936:1426175098:760798324\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]"
+      },
+      "mou-flow": {
+        "status": "done",
+        "signature": "[\"erica\",\"mou\",\"1936:1426175098:760798324\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]"
+      },
+      "output-welcome": {
+        "status": "done",
+        "signature": "[\"erica\",\"prime\",\"\",\"\",\"2026-10-22T14:00\",\"가상 V0.5 협약식\"]"
+      }
+    },
+    "afterChecks": {
+      "photos": {
+        "status": "done",
+        "signature": "[\"2026-10-22T14:00\",\"auto\",\"mou\"]"
+      },
+      "publicity": {
+        "status": "done",
+        "signature": "[\"needed\",\"2026-10-22T14:00\"]"
+      },
+      "cleanup": {
+        "status": "done",
+        "signature": "[\"erica\",\"snacks\",\"2026-10-22T14:00\",\"prime\"]"
+      },
+      "archive": {
+        "status": "done",
+        "signature": "[\"mou\",\"2026-10-22T14:00\"]"
+      }
+    },
+    "borrowed": "unknown",
+    "followupAdmin": "unknown",
+    "afterNote": "",
+    "view": "prep",
+    "attendees": [
+      {
+        "id": "p1",
+        "group": "가상 대학",
+        "org": "가상 부서 1",
+        "title": "가상 담당",
+        "name": "가상 참석자 01",
+        "note": "",
+        "arrived": true
+      },
+      {
+        "id": "p2",
+        "group": "가상 대학",
+        "org": "가상 부서 2",
+        "title": "가상 담당",
+        "name": "가상 참석자 02",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p3",
+        "group": "가상 대학",
+        "org": "가상 부서 3",
+        "title": "가상 담당",
+        "name": "가상 참석자 03",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p4",
+        "group": "가상 대학",
+        "org": "가상 부서 1",
+        "title": "가상 담당",
+        "name": "가상 참석자 04",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p5",
+        "group": "가상 대학",
+        "org": "가상 부서 2",
+        "title": "가상 담당",
+        "name": "가상 참석자 05",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p6",
+        "group": "가상 대학",
+        "org": "가상 부서 3",
+        "title": "가상 담당",
+        "name": "가상 참석자 06",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p7",
+        "group": "가상 협력기관",
+        "org": "가상 부서 1",
+        "title": "가상 담당",
+        "name": "가상 참석자 07",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p8",
+        "group": "가상 협력기관",
+        "org": "가상 부서 2",
+        "title": "가상 담당",
+        "name": "가상 참석자 08",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p9",
+        "group": "가상 협력기관",
+        "org": "가상 부서 3",
+        "title": "가상 담당",
+        "name": "가상 참석자 09",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p10",
+        "group": "가상 협력기관",
+        "org": "가상 부서 1",
+        "title": "가상 담당",
+        "name": "가상 참석자 10",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p11",
+        "group": "가상 협력기관",
+        "org": "가상 부서 2",
+        "title": "가상 담당",
+        "name": "가상 참석자 11",
+        "note": "",
+        "arrived": false
+      },
+      {
+        "id": "p12",
+        "group": "가상 협력기관",
+        "org": "가상 부서 3",
+        "title": "가상 담당",
+        "name": "가상 참석자 12",
+        "note": "",
+        "arrived": false
+      }
+    ],
+    "cues": [
+      {
+        "id": "cue1",
+        "time": "13:00",
+        "title": "가상 세팅",
+        "owner": "가상 운영팀",
+        "action": "마이크 점검",
+        "note": ""
+      },
+      {
+        "id": "cue2",
+        "time": "14:00",
+        "title": "가상 개회",
+        "owner": "",
+        "action": "",
+        "note": ""
+      }
+    ],
+    "cueBasis": "1985:2989866622:2396825302",
+    "version": 5,
+    "agendaMigrated": false,
+    "step": 0,
+    "venue": "prime",
+    "venueStatus": "unknown",
+    "otherVenue": "",
+    "event": "mou",
+    "eventName": "가상 V0.5 협약식",
+    "date": "2026-10-22T14:00",
+    "people": "12",
+    "vip": "yes",
+    "nameplates": "needed",
+    "seating": "needed",
+    "publicity": "needed",
+    "outputs": [
+      "welcome"
+    ],
+    "outputDecision": "chosen",
+    "agenda": [
+      {
+        "id": "open",
+        "included": true,
+        "title": "개회사",
+        "role": "[사회자]",
+        "what": "사회자 소개와 전체 순서를 안내합니다.",
+        "check": "행사명·사회자·전체 순서·시작 신호 확인",
+        "script": "안녕하십니까. 오늘 [행사명]의 진행을 맡은 [사회자]입니다. 지금부터 행사를 시작하겠습니다. [전체 식순 안내]"
+      },
+      {
+        "id": "introduce",
+        "included": true,
+        "title": "참석자 소개",
+        "role": "[사회자]",
+        "what": "대학 측과 상대기관 측 참석자를 소개합니다.",
+        "check": "호칭·대학 측/상대기관 측 소개 순서 사전 협의",
+        "script": "먼저 대학 측 참석자를 소개하겠습니다. [대학 측 참석자 소개]. 이어서 [상대기관명] 측 참석자를 소개하겠습니다. [상대기관 측 참석자 소개]. 바쁘신 가운데 함께해 주신 여러분께 감사드립니다."
+      },
+      {
+        "id": "welcome",
+        "included": true,
+        "title": "환영사",
+        "role": "[대학 대표]",
+        "what": "대학 측 대표의 환영사를 듣습니다.",
+        "check": "발언자·호칭·발언 시간·마이크 확인",
+        "script": "다음은 [대학 대표]의 환영사가 있겠습니다. 말씀 부탁드립니다. [환영사 후] 좋은 말씀 감사합니다."
+      },
+      {
+        "id": "reply",
+        "included": true,
+        "title": "답사",
+        "role": "[상대기관 대표]",
+        "what": "상대기관 대표의 답사를 듣습니다.",
+        "check": "발언자·호칭·발언 순서 확인",
+        "script": "이어서 [상대기관명]의 [상대기관 대표]께서 답사를 해 주시겠습니다. [답사 후] 귀한 말씀 감사합니다."
+      },
+      {
+        "id": "institution",
+        "included": true,
+        "title": "협약기관 소개",
+        "role": "[사회자 또는 소개 담당]",
+        "what": "상대기관의 성격·역할·주요 기능을 소개합니다.",
+        "check": "공개 가능한 기관 소개 내용·영상 또는 자료 사용 여부 확인",
+        "script": "다음은 [상대기관명]을 소개하는 시간입니다. [기관 소개: 성격·역할·주요 기능]. 소개 내용은 상대기관이 확인한 자료를 바탕으로 준비해 주세요."
+      },
+      {
+        "id": "sign",
+        "included": true,
+        "title": "협약서 서명 및 교환",
+        "role": "[대학 대표] · [상대기관 대표] · 서류 담당",
+        "what": "양 기관 대표가 협약서에 서명하고 교환합니다.",
+        "check": "최종 협약서·서명 권한·서명 위치·부수·펜·서류 배치·교환 동선 확인",
+        "script": "이제 협약서 서명 및 교환을 진행하겠습니다. [대학 대표]와 [상대기관 대표]께서는 안내에 따라 서명 자리로 이동해 주시기 바랍니다. 이번 협약의 주요 협력내용은 [협력내용]입니다. 준비된 협약서에 서명해 주시기 바랍니다. 서명이 끝나면 협약서를 교환해 주시기 바랍니다."
+      },
+      {
+        "id": "photo",
+        "included": true,
+        "title": "기념촬영",
+        "role": "촬영 담당 · 진행 담당",
+        "what": "대표 촬영 후 전체 참석자 촬영을 진행합니다.",
+        "check": "대표/전체 촬영 인원·[촬영 위치]·문서 방향·동선 확인",
+        "script": "기념촬영을 진행하겠습니다. 먼저 양 기관 대표께서는 [촬영 위치]에서 정면을 바라봐 주시기 바랍니다. 이어서 전체 참석자 여러분께서는 진행 담당의 안내에 따라 함께 자리해 주시기 바랍니다."
+      },
+      {
+        "id": "close",
+        "included": true,
+        "title": "폐회사",
+        "role": "[사회자]",
+        "what": "협약 의미와 참석 감사, 후속 이동을 안내합니다.",
+        "check": "최종 안내·후속 일정·퇴장 동선 확인",
+        "script": "오늘 협약을 계기로 [협력의 의미]를 함께 이어가기를 기대합니다. 참석해 주신 모든 분께 감사드립니다. 양 기관의 지속적인 협력을 바라며 이상으로 [행사명]을 마치겠습니다. [종료 후 이동 안내]."
+      }
+    ],
+    "checks": {
+      "venue": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica"
+      },
+      "rental": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica"
+      },
+      "equipment": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|welcome"
+      },
+      "attendee-guide": {
+        "status": "done",
+        "signature": "prime||2026-10-22T14:00|erica"
+      },
+      "agenda": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "roles": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-open": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-introduce": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324|roster:1084:127581229:1138017471"
+      },
+      "material-mou-welcome": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-reply": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-institution": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-sign": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "material-mou-photo": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324|roster:1084:127581229:1138017471"
+      },
+      "material-mou-close": {
+        "status": "done",
+        "signature": "mou|1936:1426175098:760798324"
+      },
+      "seat": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|roster:1084:127581229:1138017471"
+      },
+      "nameplate-file": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|needed|roster:1084:127581229:1138017471"
+      },
+      "nameplate-placement": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|needed|roster:1084:127581229:1138017471"
+      },
+      "output-welcome-file": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|welcome"
+      },
+      "output-welcome-onsite": {
+        "status": "done",
+        "signature": "prime||unknown|2026-10-22T14:00|erica|welcome"
+      },
+      "press-request": {
+        "status": "done",
+        "signature": "yes|2026-10-22T14:00|erica"
+      },
+      "press-support": {
+        "status": "done",
+        "signature": "yes|2026-10-22T14:00|erica"
+      },
+      "pr-submit": {
+        "status": "done",
+        "signature": "shared"
+      },
+      "guest-invite": {
+        "status": "done",
+        "signature": "[\"erica\",\"가상 V0.5 협약식\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]"
+      },
+      "parking-registration": {
+        "status": "done",
+        "signature": "[\"erica\",\"yes\",\"done\",\"prime\",\"\",\"2026-10-22T14:00\"]|roster:1084:127581229:1138017471"
+      },
+      "food-count": {
+        "status": "done",
+        "signature": "[\"snacks\",\"12\",\"12\"]|roster:1084:127581229:1138017471"
+      },
+      "food-order": {
+        "status": "done",
+        "signature": "[\"snacks\",\"12\",\"12\",\"2026-10-22T14:00\"]|roster:1084:127581229:1138017471"
+      },
+      "food-arrival": {
+        "status": "done",
+        "signature": "[\"erica\",\"snacks\",\"\",\"\",\"2026-10-22T14:00\",\"prime\",\"\",\"\"]"
+      },
+      "food-cleanup": {
+        "status": "done",
+        "signature": "[\"erica\",\"snacks\",\"prime\",\"\"]"
+      },
+      "photo-plan": {
+        "status": "done",
+        "signature": "[\"auto\",\"mou\",\"1936:1426175098:760798324\",\"2026-10-22T14:00\"]"
+      },
+      "audio-decision": {
+        "status": "done",
+        "signature": "later"
+      },
+      "attendee-intro": {
+        "status": "done",
+        "signature": "1084:127581229:1138017471|roster:1084:127581229:1138017471"
+      },
+      "cue-review": {
+        "status": "done",
+        "signature": "1985:2989866622:2396825302|169:2639130572:2027830002"
+      },
+      "operation-pack": {
+        "status": "done",
+        "signature": "4064:1360251828:3097295248"
+      }
+    }
+  }
+}

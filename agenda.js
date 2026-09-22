@@ -1,5 +1,5 @@
-import { EVENTS } from "./data.js?v=0.4.0";
-import { LEGACY_AGENDAS } from "./legacy-agendas.js?v=0.4.0";
+import { EVENTS } from "./data.js?v=0.5.0";
+import { LEGACY_AGENDAS } from "./legacy-agendas.js?v=0.5.0";
 export const AGENDA_LIMIT = 50;
 const clean = (v, n) => (typeof v === "string" ? v.slice(0, n) : "");
 const fields = { title: 100, role: 160, what: 400, check: 600, script: 2400 };

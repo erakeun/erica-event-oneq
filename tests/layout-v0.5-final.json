@@ -1,0 +1,92 @@
+[
+  {
+    "width": 1440,
+    "view": "참석자",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "view": "큐시트",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "view": "운영본",
+    "captionWidths": [
+      788,
+      788
+    ],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "view": "day-attendees",
+    "captionWidths": [
+      838
+    ],
+    "navTop": 0,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "view": "참석자",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "view": "큐시트",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "view": "운영본",
+    "captionWidths": [
+      316,
+      316
+    ],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "view": "day-attendees",
+    "captionWidths": [
+      324
+    ],
+    "navTop": 0.234375,
+    "overflow": false
+  },
+  {
+    "width": 412,
+    "view": "참석자",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 412,
+    "view": "큐시트",
+    "captionWidths": [],
+    "overflow": false
+  },
+  {
+    "width": 412,
+    "view": "운영본",
+    "captionWidths": [
+      338,
+      338
+    ],
+    "overflow": false
+  },
+  {
+    "width": 412,
+    "view": "day-attendees",
+    "captionWidths": [
+      346
+    ],
+    "navTop": 0.234375,
+    "overflow": false
+  }
+]
