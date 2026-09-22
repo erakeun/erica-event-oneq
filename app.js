@@ -1,4 +1,38 @@
 import {
+  workspaceDefaults,
+  normalizeRows,
+  rosterDependency,
+  workspacePrep,
+  changeExplanation,
+  rosterFingerprint,
+  cueSignature,
+  cuesFromAgenda,
+  newPerson,
+  newCue,
+  moveRow,
+  validTime,
+  importAttendeesCSV,
+  exportAttendeesCSV,
+  importEventJSON,
+  exportEventJSON,
+  duplicateEvent,
+  PERSON_FIELDS,
+  CUE_FIELDS,
+  ATTENDEE_LIMIT,
+  CUE_LIMIT,
+  CSV_LIMIT,
+  JSON_LIMIT,
+} from "./event-workspace.js?v=0.5.0";
+import {
+  attendeesView,
+  cuesView,
+  packetView,
+  filesView,
+  dayView,
+  rosterSummary,
+  cueNotice,
+} from "./workspace-view.js?v=0.5.0";
+import {
   STORAGE_KEY,
   STEPS,
   VENUES,
@@ -7,7 +41,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.4.0";
+} from "./data.js?v=0.5.0";
 import {
   operationDefaults,
   campusName,
@@ -20,7 +54,7 @@ import {
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.4.0";
+} from "./operations.js?v=0.5.0";
 import {
   logisticsView,
   photoChoices,
@@ -33,8 +67,8 @@ import {
   timelineView,
   invitationMissing,
   nextPreparationView,
-} from "./operations-view.js?v=0.4.0";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.4.0";
+} from "./operations-view.js?v=0.5.0";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.5.0";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -49,7 +83,7 @@ export const eventFor = (state) =>
   EVENTS.find((e) => e.id === state.event) || EVENTS.at(-1);
 export const venueFor = (state) =>
   VENUES.find((v) => v.id === state.venue) || VENUES.at(-1);
-export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.4.0";
+export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.5.0";
 import {
   defaultAgenda,
   selectedAgenda,
@@ -60,11 +94,12 @@ import {
   scenarioText,
   AGENDA_LIMIT,
   agendaFingerprint,
-} from "./agenda.js?v=0.4.0";
+} from "./agenda.js?v=0.5.0";
 export function createState() {
   return {
     ...operationDefaults(),
-    version: 4,
+    ...workspaceDefaults(),
+    version: 5,
     agendaMigrated: false,
     step: 0,
     venue: "unknown",
@@ -285,7 +320,11 @@ export function buildChecklist(state) {
       "shared",
       "pr",
     );
-  return [...items, ...operationPrep(state)];
+  return rosterDependency(state, [
+    ...items,
+    ...operationPrep(state),
+    ...workspacePrep(state),
+  ]);
 }
 export function reconcile(state) {
   reconcileCampus(state);
@@ -310,9 +349,12 @@ export function reconcile(state) {
   return reconcileOperations(state);
 }
 export function normalizeState(raw) {
-  if (!raw || typeof raw !== "object" || ![1, 2, 3, 4].includes(raw.version))
+  if (!raw || typeof raw !== "object" || ![1, 2, 3, 4, 5].includes(raw.version))
     throw new Error("unsupported-state");
   const s = createState();
+  s.attendees = normalizeRows(raw.attendees, "attendees");
+  s.cues = normalizeRows(raw.cues, "cues");
+  s.cueBasis = safeText(raw.cueBasis, 100);
   s.step =
     Number.isInteger(raw.step) && raw.step >= 0 && raw.step < 7 ? raw.step : 0;
   s.venue = allowed(
@@ -362,7 +404,17 @@ export function normalizeState(raw) {
     audio: ["needed", "none", "later"],
     borrowed: ["yes", "no", "unknown"],
     followupAdmin: ["yes", "no", "unknown"],
-    view: ["prep", "onsite", "roles", "after"],
+    view: [
+      "prep",
+      "onsite",
+      "roles",
+      "after",
+      "attendees",
+      "cues",
+      "packet",
+      "files",
+      "day",
+    ],
   }))
     s[field] = allowed(raw[field], values, s[field]);
   for (const [field, max] of Object.entries({
@@ -381,9 +433,12 @@ export function normalizeState(raw) {
   );
   s.diet = raw.diet === true;
   s.roles = Object.fromEntries(
-    ROLE_TEMPLATES.filter((r) => safeText(raw.roles?.[r.id], 60).trim()).map(
-      (r) => [r.id, safeText(raw.roles[r.id], 60)],
-    ),
+    Object.entries(raw.roles && typeof raw.roles === "object" ? raw.roles : {})
+      .filter(
+        ([id, value]) =>
+          ROLE_TEMPLATES.some((r) => r.id === id) && safeText(value, 60).trim(),
+      )
+      .map(([id, value]) => [id, safeText(value, 60)]),
   );
   s.onsiteChecks =
     raw.onsiteChecks && typeof raw.onsiteChecks === "object"
@@ -455,6 +510,27 @@ export function updateState(state, field, value) {
     if (field === "venue") next.otherVenue = "";
   }
   next[field] = value;
+  if (field === "cues" && !state.cues.length && value.length)
+    next.cueBasis = cueSignature(next);
+  if (
+    ["date", "venue", "campus", "otherVenue", "venueDetail"].includes(field) &&
+    value !== state[field]
+  )
+    next.attendees = next.attendees.map((p) => ({ ...p, arrived: false }));
+  if (field === "attendees")
+    next.attendees = next.attendees.map((p) => {
+      const old = state.attendees.find((r) => r.id === p.id);
+      return old &&
+        ["name", "title", "group", "org"].some((k) => old[k] !== p[k])
+        ? { ...p, arrived: false }
+        : p;
+    });
+  if (
+    field === "attendees" &&
+    rosterFingerprint(next) !== rosterFingerprint(state) &&
+    next.external === "yes"
+  )
+    next.parkingStatus = "unknown";
   return reconcile(next);
 }
 export async function verifyTemplate(template, fetcher = globalThis.fetch) {
@@ -527,6 +603,8 @@ const dateLabel = (s) => (s.date ? s.date.replace("T", " · ") : "아직 미정"
 let onlyRemaining = false,
   resetNotice = "",
   storageFailed = false;
+let pendingCSV = null,
+  dayPanel = "home";
 let state,
   storage,
   storageMessage,
@@ -582,7 +660,7 @@ function eventView() {
       ["no", "부총장 미만 / 참석 없음"],
       ["unknown", "아직 미정"],
     ],
-  )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>실제 참석자 명단·서명자 개인정보·기부금액은 입력하지 마세요. 명단 작업은 필요한 기존 제작기에서 진행해 주세요.</p></details>${logisticsView(state)}`;
+  )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>명단 입력은 선택사항이며 이 브라우저에만 저장됩니다. 서명·차량번호·기부금액 등 불필요한 민감정보는 적지 마세요.</p></details><div class="panel"><h2>참석자 명단 · 선택 입력</h2><p>입력 ${state.attendees.length}명 · 기관·직책·성명을 명단과 운영본에서 함께 사용해요.</p><button class="button secondary" data-view="attendees">참석자 명단 관리</button></div>${logisticsView(state)}`;
 }
 function requestsView() {
   return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">${state.vip === "yes" ? "촬영 지원과 보도자료 제출은 서로 다른 일이에요." : "행사소식과 외부 협조가 필요한 일을 확인하세요."}</p>${photoChoices(state)}${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>부총장 이상 참석 여부가 확정되면 촬영·취재 요청 가능 여부를 확인하세요.</div>' : ""}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
@@ -622,7 +700,7 @@ function agendaView() {
     })
     .join(
       "",
-    )}</ol>${!state.agenda.length ? '<p class="note">아직 식순이 없어요. 항목을 추가하거나 기본 추천을 복원하세요.</p>' : ""}<div class="row gap no-print"><button class="button secondary" data-action="add-agenda" ${state.agenda.length >= AGENDA_LIMIT ? "disabled" : ""}>+ 식순 추가</button><button class="text-button" data-action="restore-agenda">기본 추천 식순으로 복원</button></div><p class="small muted">최대 ${AGENDA_LIMIT}개 · 복원 전 확인을 받습니다.</p></section><details class="help scenario-panel" id="scenario-panel"><summary>진행 시나리오 · 선택한 식순 ${selectedAgenda(state).length}개</summary><p class="small">항목명과 멘트는 식순 카드에서 수정하세요. [치환 항목]을 실제 행사에 맞게 확인하고, 개회 멘트의 전체 순서 안내도 최종 식순과 대조하세요.</p><pre id="scenario-content">${esc(scenarioText(state))}</pre><div class="row no-print"><button class="button" data-action="copy-scenario">시나리오 복사</button><button class="button secondary" data-action="print">식순·시나리오 인쇄</button></div></details>${roleEditor(state)}<p class="footnote">기본 추천과 진행문은 작성 참고용이며 고정 규칙이나 확정 공식 원고가 아닙니다.</p>`;
+    )}</ol>${!state.agenda.length ? '<p class="note">아직 식순이 없어요. 항목을 추가하거나 기본 추천을 복원하세요.</p>' : ""}<div class="row gap no-print"><button class="button secondary" data-action="add-agenda" ${state.agenda.length >= AGENDA_LIMIT ? "disabled" : ""}>+ 식순 추가</button><button class="text-button" data-action="restore-agenda">기본 추천 식순으로 복원</button></div><p class="small muted">최대 ${AGENDA_LIMIT}개 · 복원 전 확인을 받습니다.</p></section><details class="help scenario-panel" id="scenario-panel"><summary>진행 시나리오 · 선택한 식순 ${selectedAgenda(state).length}개</summary><p class="small">항목명과 멘트는 식순 카드에서 수정하세요. [치환 항목]을 실제 행사에 맞게 확인하고, 개회 멘트의 전체 순서 안내도 최종 식순과 대조하세요.</p><pre id="scenario-content">${esc(scenarioText(state))}</pre><div class="row no-print"><button class="button" data-action="copy-scenario">시나리오 복사</button><button class="button secondary" data-action="print">식순·시나리오 인쇄</button></div></details><div class="panel"><h2>현장 행동은 큐시트로</h2><p>시간·담당·행동을 정하고 운영본으로 모아 보세요.</p><button class="button secondary" data-view="cues">진행 큐시트 작성</button></div>${roleEditor(state)}<p class="footnote">기본 추천과 진행문은 작성 참고용이며 고정 규칙이나 확정 공식 원고가 아닙니다.</p>`;
 }
 function seatsView() {
   const venue = venueFor(state),
@@ -650,6 +728,13 @@ function outputsView() {
   return `<h1>어떤 화면과 안내물이 필요한가요?</h1><p class="intro">필요한 결과물만 골라 주세요. 파일 준비는 준비표에, 실제 송출·부착은 현장점검에 담아 드려요.</p><div class="row gap"><button class="button secondary" data-action="skip-outputs">화면·안내물 필요 없어요</button><button class="text-button" data-action="later-outputs">나중에 선택할게요</button></div><div class="note output-note">장소와 장비의 대응 정보는 아직 확인되지 않았어요. 설치 장소·화면 규격을 먼저 확인해 주세요.</div><div class="tool-grid">${OUTPUTS.slice(0, 3).map(outputCard).join("")}</div><details class="help"><summary>다른 제작 도구 보기</summary>${outputCard(OUTPUTS[3])}<p class="footnote">현재 선택한 장소와의 호환 여부가 확인되지 않았어요. 필요한 경우 규격을 확인한 뒤 선택하세요.</p></details>${state.outputDecision === "none" ? '<p class="small muted">화면·안내물 단계를 건너뛰었어요.</p>' : ""}<p class="footnote">제작한 파일은 원큐에 업로드하거나 보관하지 않아요.</p>`;
 }
 function checklistView() {
+  if (state.view === "day") return dayView(state, dayPanel, onlyRemaining);
+  if (state.view === "attendees")
+    return operationTabs(state) + attendeesView(state, pendingCSV);
+  if (state.view === "cues") return operationTabs(state) + cuesView(state);
+  if (state.view === "packet")
+    return operationTabs(state) + packetView(state, buildChecklist(state));
+  if (state.view === "files") return operationTabs(state) + filesView();
   if (state.view === "onsite")
     return operationTabs(state) + onsiteView(state, onlyRemaining);
   if (state.view === "roles") return operationTabs(state) + roleView(state);
@@ -699,9 +784,13 @@ function summaryRender() {
       : "";
   }
   document.querySelector("#summary").innerHTML =
-    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-view="prep">내 행사 준비표 보기 →</button><button class="text-button" data-view="onsite">행사 당일 현장점검 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
+    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-view="prep">내 행사 준비표 보기 →</button><button class="text-button" data-view="day">행사 당일 모드 →</button><button class="text-button" data-view="packet">행사 운영본 →</button><button class="text-button" data-view="files">JSON 저장·복원 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
 }
 function render(focus = null) {
+  document.body.classList.toggle(
+    "day-mode",
+    state.step === 6 && state.view === "day",
+  );
   const openDetails = new Set(
     [...document.querySelectorAll("details[open]")].map(
       (el) =>
@@ -722,7 +811,7 @@ function render(focus = null) {
     checklistView,
   ];
   document.querySelector("#main").innerHTML =
-    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${resetNotice ? `<div class="note warning no-print" role="status">${esc(resetNotice)}</div>` : ""}${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
+    `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p><div id="change-notice" class="note warning no-print" role="status" ${resetNotice ? "" : "hidden"}>${esc(resetNotice)}</div>${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
   summaryRender();
   for (const el of document.querySelectorAll("details"))
     if (
@@ -750,6 +839,7 @@ function change(field, value, focus) {
   render(focus);
 }
 function updateWithNotice(field, value) {
+  const changed = JSON.stringify(state[field]) !== JSON.stringify(value);
   const before = state.onsiteChecks;
   state = updateState(state, field, value);
   const count = Object.entries(before).filter(
@@ -758,6 +848,13 @@ function updateWithNotice(field, value) {
   ).length;
   if (count)
     resetNotice = `선택이 바뀌어 관련 현장점검 ${count}개를 미확인으로 되돌렸어요.`;
+  if (changed && changeExplanation(field))
+    resetNotice = changeExplanation(field);
+  const notice = document.querySelector("#change-notice");
+  if (notice) {
+    notice.textContent = resetNotice;
+    notice.hidden = !resetNotice;
+  }
 }
 function navigate(step, record = true, view = "prep") {
   if (step < 0 || step > 6) return;
@@ -790,6 +887,47 @@ function confirmation(title, description, action) {
 }
 function handleInput(e) {
   const el = e.target;
+  if (el.dataset.record) {
+    const kind = el.dataset.record,
+      key = el.dataset.field;
+    const fields = kind === "attendees" ? PERSON_FIELDS : CUE_FIELDS;
+    if (!Object.hasOwn(fields, key)) return;
+    if (key === "time") {
+      const valid = validTime(el.value);
+      el.setAttribute("aria-invalid", String(!valid));
+      document.querySelector(
+        `[data-time-error="${el.dataset.id}"]`,
+      ).textContent = valid
+        ? ""
+        : "HH:MM (00:00–23:59) 또는 빈칸으로 입력하세요. 아직 저장하지 않았습니다.";
+      if (!valid) return;
+    }
+    updateWithNotice(
+      kind,
+      state[kind].map((r) =>
+        r.id === el.dataset.id
+          ? { ...r, [key]: el.value.slice(0, fields[key]) }
+          : r,
+      ),
+    );
+    persist();
+    summaryRender();
+    const row = state[kind].find((r) => r.id === el.dataset.id);
+    const heading = document.querySelector(`[data-record-heading="${row.id}"]`);
+    if (heading)
+      heading.textContent =
+        kind === "attendees"
+          ? row.name || "성명 입력"
+          : row.title || "업무 입력";
+    const group = document.querySelector(`[data-group-heading="${row.id}"]`);
+    if (group) group.textContent = row.group || "구분 미입력";
+    if (kind === "attendees")
+      document.querySelector(".roster-summary").outerHTML =
+        rosterSummary(state);
+    const cueNotices = document.querySelector("#cue-notices");
+    if (cueNotices) cueNotices.innerHTML = cueNotice(state);
+    return;
+  }
   if (el.dataset.agendaField) {
     updateWithNotice(
       "agenda",
@@ -898,6 +1036,20 @@ function handleInput(e) {
 }
 function handleChange(e) {
   const el = e.target;
+  if (el.id === "csv-file" || el.id === "json-file") {
+    readWorkspaceFile(el);
+    return;
+  }
+  if (el.dataset.arrived) {
+    state.attendees = state.attendees.map((p) =>
+      p.id === el.dataset.arrived ? { ...p, arrived: el.checked } : p,
+    );
+    persist();
+    render(`[data-arrived="${el.dataset.arrived}"]`);
+    return;
+  }
+  if (el.dataset.check === "cue-review" && el.value === "done")
+    state.cueBasis = cueSignature(state);
   if (
     el.type === "radio" &&
     [
@@ -992,6 +1144,20 @@ function handleChange(e) {
 function handleClick(e) {
   const button = e.target.closest("button");
   if (!button) return;
+  if (button.dataset.day) {
+    dayPanel = button.dataset.day;
+    render();
+    document.querySelector(".day-tabs")?.scrollIntoView({ block: "start" });
+    return;
+  }
+  if (
+    button.dataset.work ||
+    button.dataset.rowMove ||
+    button.dataset.rowDelete
+  ) {
+    handleWorkspaceClick(button);
+    return;
+  }
   if (button.dataset.itemFocus) {
     const target = document.getElementById(`check-${button.dataset.itemFocus}`);
     target?.scrollIntoView({ behavior: "instant", block: "center" });
@@ -1098,6 +1264,8 @@ function handleClick(e) {
         const success = clearState(storage);
         state = reconcile(createState());
         onlyRemaining = false;
+        pendingCSV = null;
+        dayPanel = "home";
         resetNotice = "";
         storageFailed = !success;
         history.replaceState({ oneqStep: 0 }, "", "#step-1");
@@ -1154,9 +1322,10 @@ async function boot() {
     storage = null;
   }
   ({ state, message: storageMessage } = loadState(storage));
-  const hashStep = /^#step-([1-7])(?:\/(prep|onsite|roles|after))?$/.exec(
-    location.hash,
-  );
+  const hashStep =
+    /^#step-([1-7])(?:\/(prep|onsite|roles|after|attendees|cues|packet|files|day))?$/.exec(
+      location.hash,
+    );
   if (hashStep) {
     state.step = Number(hashStep[1]) - 1;
     if (hashStep[2]) state.view = hashStep[2];
@@ -1186,6 +1355,245 @@ async function boot() {
   if (state.step === 3) {
     const downloads = document.querySelector(".agenda-downloads");
     if (downloads) downloads.outerHTML = templatesView();
+  }
+}
+function workspaceMessage(message) {
+  resetNotice = message;
+  render();
+  announce(message);
+}
+function downloadLocal(content, filename, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  workspaceMessage(
+    `${filename} 저장을 요청했어요. 브라우저 다운로드 목록에서 확인하세요.`,
+  );
+}
+async function readWorkspaceFile(input) {
+  const file = input.files?.[0],
+    isCSV = input.id === "csv-file";
+  input.value = "";
+  if (!file) return;
+  const original = JSON.stringify(state);
+  try {
+    if (file.size > (isCSV ? CSV_LIMIT : JSON_LIMIT))
+      throw Error(
+        isCSV
+          ? "CSV는 1MB 이하로 선택하세요."
+          : "JSON은 3MB 이하로 선택하세요.",
+      );
+    if (!file.name.toLowerCase().endsWith(isCSV ? ".csv" : ".json"))
+      throw Error("선택한 파일 확장자를 확인하세요.");
+    const source = new TextDecoder("utf-8", { fatal: true }).decode(
+      await file.arrayBuffer(),
+    );
+    if (JSON.stringify(state) !== original)
+      throw Error(
+        "파일을 읽는 동안 행사가 바뀌었습니다. 현재 데이터를 보존했으니 파일을 다시 선택하세요.",
+      );
+    if (isCSV) {
+      pendingCSV = importAttendeesCSV(
+        source,
+        () => `person-${crypto.randomUUID()}`,
+      );
+      navigate(6, true, "attendees");
+      document
+        .querySelector(".import-preview")
+        ?.scrollIntoView({ block: "start" });
+    } else {
+      const next = importEventJSON(source, normalizeState, createState());
+      confirmation(
+        "저장본으로 현재 행사를 교체할까요?",
+        `불러올 행사: ${next.eventName || "행사명 미정"} · 참석자 ${next.attendees.length}명 · 큐시트 ${next.cues.length}행. 현재 행사 입력은 교체됩니다. 취소 후 JSON으로 먼저 보관할 수 있어요.`,
+        () => {
+          state = next;
+          pendingCSV = null;
+          dayPanel = "home";
+          resetNotice =
+            "JSON 저장본을 복원했어요. 현재 브라우저에만 저장합니다.";
+          navigate(6, true, "packet");
+        },
+      );
+    }
+  } catch (error) {
+    workspaceMessage(
+      `가져오지 못했어요. ${error.message} 현재 행사 데이터는 유지했습니다.`,
+    );
+  }
+}
+function handleWorkspaceClick(button) {
+  const kind = button.dataset.kind;
+  if (button.dataset.rowMove && ["attendees", "cues"].includes(kind)) {
+    change(
+      kind,
+      moveRow(state[kind], button.dataset.rowMove, Number(button.dataset.dir)),
+    );
+    document
+      .querySelector(`[data-row-move="${button.dataset.rowMove}"]`)
+      ?.focus({ preventScroll: true });
+    return;
+  }
+  if (button.dataset.rowDelete && ["attendees", "cues"].includes(kind)) {
+    confirmation(
+      kind === "attendees" ? "참석자를 삭제할까요?" : "큐시트 행을 삭제할까요?",
+      "이 행의 입력이 삭제됩니다. 삭제 전에는 취소할 수 있어요.",
+      () => {
+        change(
+          kind,
+          state[kind].filter((r) => r.id !== button.dataset.rowDelete),
+        );
+        document
+          .querySelector(
+            `[data-work="${kind === "attendees" ? "add-person" : "add-cue"}"]`,
+          )
+          ?.focus();
+      },
+    );
+    return;
+  }
+  switch (button.dataset.work) {
+    case "add-person":
+    case "add-cue": {
+      const person = button.dataset.work === "add-person",
+        key = person ? "attendees" : "cues",
+        limit = person ? ATTENDEE_LIMIT : CUE_LIMIT;
+      if (state[key].length >= limit) {
+        workspaceMessage(`최대 ${limit}행까지 입력할 수 있어요.`);
+        return;
+      }
+      const id = `${person ? "person" : "cue"}-${crypto.randomUUID()}`;
+      change(key, [...state[key], person ? newPerson(id) : newCue(id)]);
+      const el = document.querySelector(
+        `[data-record="${key}"][data-id="${id}"][data-field="${person ? "name" : "title"}"]`,
+      );
+      el?.focus();
+      el?.scrollIntoView({ block: "center" });
+      break;
+    }
+    case "csv-import":
+      document.querySelector("#csv-file").click();
+      break;
+    case "json-import":
+      document.querySelector("#json-file").click();
+      break;
+    case "csv-cancel":
+      pendingCSV = null;
+      render();
+      break;
+    case "csv-append":
+    case "csv-replace": {
+      if (!pendingCSV) return;
+      const replace = button.dataset.work === "csv-replace";
+      if (
+        (replace ? 0 : state.attendees.length) + pendingCSV.attendees.length >
+        ATTENDEE_LIMIT
+      ) {
+        workspaceMessage("추가 후 300명을 초과합니다. 기존 명단을 확인하세요.");
+        return;
+      }
+      const apply = () => {
+        const rows = replace
+          ? pendingCSV.attendees
+          : [...state.attendees, ...pendingCSV.attendees];
+        pendingCSV = null;
+        change("attendees", rows);
+        announce("CSV 명단을 적용했어요.");
+      };
+      if (replace)
+        confirmation(
+          "현재 명단 전체를 교체할까요?",
+          `현재 ${state.attendees.length}명을 가져온 ${pendingCSV.attendees.length}명으로 교체합니다. 기존 명단은 CSV/JSON으로 먼저 보관할 수 있어요.`,
+          apply,
+        );
+      else apply();
+      break;
+    }
+    case "csv-export":
+    case "csv-nameplate": {
+      if (!state.attendees.length) {
+        workspaceMessage("내보낼 참석자가 없습니다.");
+        return;
+      }
+      if (state.attendees.some((p) => !p.name.trim())) {
+        workspaceMessage("성명이 비어 있는 참석자를 먼저 확인하세요.");
+        return;
+      }
+      const nameplate = button.dataset.work === "csv-nameplate";
+      confirmation(
+        "참석자 CSV를 저장할까요?",
+        "참석자 이름 등 행사정보가 포함됩니다. 보관·공유에 주의하세요. 명단은 서버로 보내지 않습니다.",
+        () =>
+          downloadLocal(
+            exportAttendeesCSV(
+              state.attendees,
+              nameplate ? "nameplate" : "oneq",
+            ),
+            nameplate ? "원큐-명패용.csv" : "원큐-참석자.csv",
+            "text/csv;charset=utf-8",
+          ),
+      );
+      break;
+    }
+    case "cue-from-agenda":
+      confirmation(
+        "식순에서 큐시트 초안을 다시 만들까요?",
+        "기존 큐시트의 시간·담당·현장 행동·비고가 모두 교체됩니다. 현재 선택한 식순 제목만 가져오고 나머지는 빈칸으로 시작합니다.",
+        () => {
+          state.cueBasis = cueSignature(state);
+          change(
+            "cues",
+            cuesFromAgenda(state, () => `cue-${crypto.randomUUID()}`),
+          );
+        },
+      );
+      break;
+    case "cue-reviewed":
+      state.cueBasis = cueSignature(state);
+      state.checks["cue-review"].status = "done";
+      persist();
+      render();
+      announce("큐시트를 대조한 것으로 표시했어요.");
+      break;
+    case "packet-reviewed":
+      state.checks["operation-pack"].status = "done";
+      persist();
+      render();
+      break;
+    case "json-export":
+      confirmation(
+        "현재 행사를 JSON으로 저장할까요?",
+        "이 파일에는 참석자 이름 등 행사정보가 포함될 수 있습니다. 보관·공유에 주의하세요.",
+        () =>
+          downloadLocal(
+            exportEventJSON(state),
+            "원큐-행사저장본.json",
+            "application/json;charset=utf-8",
+          ),
+      );
+      break;
+    case "duplicate-keep":
+    case "duplicate-clear": {
+      const keep = button.dataset.work === "duplicate-keep";
+      confirmation(
+        "새 행사로 복제할까요?",
+        `현재 행사 대신 새 준비를 시작합니다. 참석자는 ${keep ? "유지" : "비우기"}합니다. 날짜·담당 배정·모든 완료 상태·주차등록·도착 확인을 초기화합니다. 기존 행사는 JSON으로 먼저 저장하세요.`,
+        () => {
+          state = duplicateEvent(state, keep, normalizeState);
+          pendingCSV = null;
+          dayPanel = "home";
+          resetNotice =
+            "새 행사로 복제했어요. 날짜·담당·인원·완료 상태를 다시 확인하세요.";
+          navigate(1);
+        },
+      );
+      break;
+    }
   }
 }
 if (typeof document !== "undefined") boot();

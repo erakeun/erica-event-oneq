@@ -1,10 +1,10 @@
-import { selectedAgenda } from "./agenda.js?v=0.4.0";
+import { selectedAgenda } from "./agenda.js?v=0.5.0";
 import {
   FOOD_OPTIONS,
   GUEST_NEEDS,
   ROLE_TEMPLATES,
   EVENTS,
-} from "./data.js?v=0.4.0";
+} from "./data.js?v=0.5.0";
 import {
   matches,
   recommendedRoles,
@@ -15,7 +15,7 @@ import {
   invitationText,
   locationText,
   nextPreparation,
-} from "./operations.js?v=0.4.0";
+} from "./operations.js?v=0.5.0";
 export const esc = (v) =>
   String(v ?? "").replace(
     /[&<>"']/g,
@@ -48,9 +48,9 @@ export function logisticsView(s) {
             ["na", "해당 없음"],
             ["unknown", "확인 필요"],
           ],
-        )}<p class="small muted">상태만 기록합니다. 차량번호 등 개인 차량정보는 입력하지 마세요.</p></fieldset><h3>방문객에게 안내할 내용</h3><p class="small">행사 일시와 정확한 장소를 확인하세요. 필요한 안내만 선택해 주세요.</p>${input(s, "venueDetail", "건물·층·회의실 등 상세 위치", "확인한 상세 위치만 입력", 120)}${GUEST_NEEDS.map((n) => `<label class="tool-check"><input type="checkbox" data-guest="${n.id}" ${s.guestNeeds.includes(n.id) ? "checked" : ""}>${n.label} 필요</label>${s.guestNeeds.includes(n.id) ? input(s, n.field, n.label + " 내용 · 선택 입력", n.placeholder, 240) : ""}`).join("")}<p class="small muted">주차 가능 여부·출입 방법은 직접 확인한 내용만 적으세요. 참석자 명단은 입력하지 않습니다.</p><label for="invitation">행사 안내문 미리보기</label><textarea class="input message-preview" id="invitation" readonly rows="6">${esc(invitationText(s))}</textarea><p class="small muted" id="invitation-missing">${invitationMissing(s)}</p><button class="button secondary" data-action="copy-invitation">안내문 복사</button><p class="copy-status small" role="status"></p></div>`
+        )}<p class="small muted">상태만 기록합니다. 차량번호 등 개인 차량정보는 입력하지 마세요.</p></fieldset><h3>방문객에게 안내할 내용</h3><p class="small">행사 일시와 정확한 장소를 확인하세요. 필요한 안내만 선택해 주세요.</p>${input(s, "venueDetail", "건물·층·회의실 등 상세 위치", "확인한 상세 위치만 입력", 120)}${GUEST_NEEDS.map((n) => `<label class="tool-check"><input type="checkbox" data-guest="${n.id}" ${s.guestNeeds.includes(n.id) ? "checked" : ""}>${n.label} 필요</label>${s.guestNeeds.includes(n.id) ? input(s, n.field, n.label + " 내용 · 선택 입력", n.placeholder, 240) : ""}`).join("")}<p class="small muted">주차 가능 여부·출입 방법은 직접 확인한 내용만 적으세요. 참석자 명단은 별도 명단 화면에서 관리해요.</p><label for="invitation">행사 안내문 미리보기</label><textarea class="input message-preview" id="invitation" readonly rows="6">${esc(invitationText(s))}</textarea><p class="small muted" id="invitation-missing">${invitationMissing(s)}</p><button class="button secondary" data-action="copy-invitation">안내문 복사</button><p class="copy-status small" role="status"></p></div>`
       : ""
-  }<fieldset><legend>다과·식사가 필요한가요?</legend>${choices(s, "food", FOOD_OPTIONS)}</fieldset>${matches(s, "food") ? `<div class="panel"><div class="form-grid">${input(s, "foodPeople", "제공 예상 인원 · 비우면 행사 인원 사용", "예: 20", 9)}${input(s, "foodTime", "수령·배달 시간 · 선택 입력", "예: 행사 당일 13:30", 80)}${input(s, "foodPlace", "배치 장소 · 선택 입력", "예: 회의실 입구 테이블", 120)}</div><p class="error" id="foodPeople-error" aria-live="polite"></p><label class="tool-check"><input type="checkbox" name="diet" ${s.diet ? "checked" : ""}>식이 제한 별도 확인이 필요해요</label><p class="small muted">개인별 알레르기·건강정보는 입력하지 마세요. 주문·예약과 정리 항목은 준비표에 표시해요.</p></div>` : ""}<details class="help"><summary>현장 장비 · 마이크/음향 ${s.audio === "needed" ? "사용" : s.audio === "none" ? "없음" : "미정"}</summary><fieldset><legend>마이크·음향을 사용하나요?</legend>${choices(
+  }<p class="small">현재 명단 ${s.attendees?.length || 0}명 · 주차 대상과 다과 제공 인원은 별도로 확인하세요.</p><fieldset><legend>다과·식사가 필요한가요?</legend>${choices(s, "food", FOOD_OPTIONS)}</fieldset>${matches(s, "food") ? `<div class="panel"><div class="form-grid">${input(s, "foodPeople", "제공 예상 인원 · 비우면 행사 인원 사용", "예: 20", 9)}${input(s, "foodTime", "수령·배달 시간 · 선택 입력", "예: 행사 당일 13:30", 80)}${input(s, "foodPlace", "배치 장소 · 선택 입력", "예: 회의실 입구 테이블", 120)}</div><p class="error" id="foodPeople-error" aria-live="polite"></p><label class="tool-check"><input type="checkbox" name="diet" ${s.diet ? "checked" : ""}>식이 제한 별도 확인이 필요해요</label><p class="small muted">개인별 알레르기·건강정보는 입력하지 마세요. 주문·예약과 정리 항목은 준비표에 표시해요.</p></div>` : ""}<details class="help"><summary>현장 장비 · 마이크/음향 ${s.audio === "needed" ? "사용" : s.audio === "none" ? "없음" : "미정"}</summary><fieldset><legend>마이크·음향을 사용하나요?</legend>${choices(
     s,
     "audio",
     [
@@ -89,6 +89,11 @@ export function roleEditor(s) {
 export function operationTabs(s) {
   return `<nav class="operation-tabs no-print" aria-label="행사 운영 화면">${[
     ["prep", "준비표"],
+    ["attendees", "참석자"],
+    ["cues", "큐시트"],
+    ["packet", "운영본"],
+    ["day", "당일 모드"],
+    ["files", "저장·복원"],
     ["onsite", "현장점검"],
     ["roles", "역할표"],
     ["after", "사후정리"],

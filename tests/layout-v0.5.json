@@ -1,0 +1,1850 @@
+[
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "1 장소",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "2 행사 정보",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "4 식순·양식",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "5 좌석·명패",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "6 화면·안내물",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "7 준비표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "참석자",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "큐시트",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "운영본",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "저장·복원",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "현장점검",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "역할표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "사후정리",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-한눈에",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-식순·시나리오",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-큐시트",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-참석자",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-역할표",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 1440,
+    "view": "day-현장점검",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "1 장소",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "2 행사 정보",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "4 식순·양식",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "5 좌석·명패",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "6 화면·안내물",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "7 준비표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "참석자",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "큐시트",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "운영본",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "저장·복원",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "현장점검",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "역할표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "사후정리",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-한눈에",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-식순·시나리오",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-큐시트",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-참석자",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-역할표",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 390,
+    "view": "day-현장점검",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "1 장소",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "2 행사 정보",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "4 식순·양식",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "5 좌석·명패",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "6 화면·안내물",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "7 준비표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "참석자",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "큐시트",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "운영본",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "저장·복원",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "현장점검",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "역할표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "사후정리",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-한눈에",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-식순·시나리오",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-큐시트",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-참석자",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-역할표",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "A",
+    "width": 412,
+    "view": "day-현장점검",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "1 장소",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "2 행사 정보",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "4 식순·양식",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "5 좌석·명패",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "6 화면·안내물",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "7 준비표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "참석자",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "큐시트",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "운영본",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "저장·복원",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "현장점검",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "역할표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "사후정리",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-한눈에",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-식순·시나리오",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-큐시트",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-참석자",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-역할표",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 1440,
+    "view": "day-현장점검",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "1 장소",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "2 행사 정보",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "4 식순·양식",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "5 좌석·명패",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "6 화면·안내물",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "7 준비표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "참석자",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "큐시트",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "운영본",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "저장·복원",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "현장점검",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "역할표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "사후정리",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-한눈에",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-식순·시나리오",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-큐시트",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-참석자",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-역할표",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 390,
+    "view": "day-현장점검",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "1 장소",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "2 행사 정보",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "4 식순·양식",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "5 좌석·명패",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "6 화면·안내물",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "7 준비표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "참석자",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "큐시트",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "운영본",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "저장·복원",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "현장점검",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "역할표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "사후정리",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-한눈에",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-식순·시나리오",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-큐시트",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-참석자",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-역할표",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "B",
+    "width": 412,
+    "view": "day-현장점검",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "1 장소",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "2 행사 정보",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "4 식순·양식",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "5 좌석·명패",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "6 화면·안내물",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "7 준비표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "참석자",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "큐시트",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "운영본",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "저장·복원",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "현장점검",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "역할표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "사후정리",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-한눈에",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-식순·시나리오",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-큐시트",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-참석자",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-역할표",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 1440,
+    "view": "day-현장점검",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "1 장소",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "2 행사 정보",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "4 식순·양식",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "5 좌석·명패",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "6 화면·안내물",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "7 준비표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "참석자",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "큐시트",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "운영본",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "저장·복원",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "현장점검",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "역할표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "사후정리",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-한눈에",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-식순·시나리오",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-큐시트",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-참석자",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-역할표",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 390,
+    "view": "day-현장점검",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "1 장소",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "2 행사 정보",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "4 식순·양식",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "5 좌석·명패",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "6 화면·안내물",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "7 준비표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "참석자",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "큐시트",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "운영본",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "저장·복원",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "현장점검",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "역할표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "사후정리",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-한눈에",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-식순·시나리오",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-큐시트",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-참석자",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-역할표",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "C",
+    "width": 412,
+    "view": "day-현장점검",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "1 장소",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "2 행사 정보",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "4 식순·양식",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "5 좌석·명패",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "6 화면·안내물",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "7 준비표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "참석자",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "큐시트",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "운영본",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "저장·복원",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "현장점검",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "역할표",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "사후정리",
+    "actualWidth": 1440,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-한눈에",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-식순·시나리오",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-큐시트",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-참석자",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-역할표",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 1440,
+    "view": "day-현장점검",
+    "actualWidth": 1440,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "1 장소",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "2 행사 정보",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "4 식순·양식",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "5 좌석·명패",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "6 화면·안내물",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "7 준비표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "참석자",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "큐시트",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "운영본",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "저장·복원",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "현장점검",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "역할표",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "사후정리",
+    "actualWidth": 390,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-한눈에",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-식순·시나리오",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-큐시트",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-참석자",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-역할표",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 390,
+    "view": "day-현장점검",
+    "actualWidth": 390,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "1 장소",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "2 행사 정보",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "3 먼저 요청할 일",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "4 식순·양식",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "5 좌석·명패",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "6 화면·안내물",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "7 준비표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "참석자",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "큐시트",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "운영본",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "저장·복원",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "현장점검",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "역할표",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "사후정리",
+    "actualWidth": 412,
+    "clipped": [],
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-한눈에",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-식순·시나리오",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-큐시트",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-참석자",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-역할표",
+    "actualWidth": 412,
+    "overflow": false
+  },
+  {
+    "case": "D",
+    "width": 412,
+    "view": "day-현장점검",
+    "actualWidth": 412,
+    "overflow": false
+  }
+]
