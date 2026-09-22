@@ -1536,3 +1536,82 @@ textarea:focus-visible {
 .campus-choice legend {
   margin-bottom: 8px;
 }
+
+/* V0.4: editable running order and distinct original files / scripts. */
+.agenda-downloads {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f7faff;
+}
+.agenda-downloads .button {
+  white-space: normal;
+}
+.agenda-edit {
+  margin: 16px 0;
+}
+.agenda-edit .field {
+  margin-top: 14px;
+}
+.agenda-edit summary {
+  font-weight: 650;
+  color: #234b7a;
+  cursor: pointer;
+}
+.agenda-item .danger {
+  margin-top: 10px;
+  color: #934347;
+}
+.scenario-panel pre {
+  font-family: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.agenda-title {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .agenda-downloads {
+    padding: 14px;
+  }
+  .agenda-downloads .template .button {
+    width: 100%;
+    text-align: left;
+  }
+  .agenda-top {
+    grid-template-columns: 28px minmax(0, 1fr) 36px 36px;
+  }
+}
+@media print {
+  .agenda-downloads,
+  .agenda-edit,
+  .agenda-item > .danger {
+    display: none !important;
+  }
+  .scenario-panel > :not(summary),
+  .field-agenda > :not(summary) {
+    display: block !important;
+  }
+  .scenario-panel .no-print {
+    display: none !important;
+  }
+  .scenario-panel pre {
+    font-size: 10pt;
+  }
+  .agenda-item {
+    break-inside: avoid;
+  }
+}
+
+@media print {
+  .agenda-item.excluded,
+  .agenda-top button,
+  .agenda-top input {
+    display: none !important;
+  }
+  .scenario-panel::details-content,
+  .field-agenda::details-content {
+    content-visibility: visible !important;
+  }
+}

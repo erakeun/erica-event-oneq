@@ -1,0 +1,332 @@
+
+> erica-event-oneq@0.4.0 test
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: V0.4 source-based MOU and donation each have the requested eight steps
+ok 1 - V0.4 source-based MOU and donation each have the requested eight steps
+  ---
+  duration_ms: 1.097584
+  type: 'test'
+  ...
+# Subtest: V0.4 add, rename, role, memo, reorder and delete stay consistent after reload
+ok 2 - V0.4 add, rename, role, memo, reorder and delete stay consistent after reload
+  ---
+  duration_ms: 4.767583
+  type: 'test'
+  ...
+# Subtest: V0.4 empty and removed agenda rows never resurrect on reload
+ok 3 - V0.4 empty and removed agenda rows never resurrect on reload
+  ---
+  duration_ms: 0.798959
+  type: 'test'
+  ...
+# Subtest: V0.4 V0.3 ID-only MOU migration keeps its old titles, order and exclusions across repeated reload
+ok 4 - V0.4 V0.3 ID-only MOU migration keeps its old titles, order and exclusions across repeated reload
+  ---
+  duration_ms: 0.499166
+  type: 'test'
+  ...
+# Subtest: V0.4 malformed custom row data is bounded and safe at HTML consumers
+ok 5 - V0.4 malformed custom row data is bounded and safe at HTML consumers
+  ---
+  duration_ms: 0.462375
+  type: 'test'
+  ...
+# Subtest: V0.4 parking requires external guests, maps explicit states and resets when place/date changes
+ok 6 - V0.4 parking requires external guests, maps explicit states and resets when place/date changes
+  ---
+  duration_ms: 3.062959
+  type: 'test'
+  ...
+# Subtest: V0.4 press strictly follows senior attendance, publicity is independent
+ok 7 - V0.4 press strictly follows senior attendance, publicity is independent
+  ---
+  duration_ms: 0.596834
+  type: 'test'
+  ...
+# Subtest: V0.4 only supplied venue phone information is registered
+ok 8 - V0.4 only supplied venue phone information is registered
+  ---
+  duration_ms: 0.048584
+  type: 'test'
+  ...
+# Subtest: V0.4 actual HWP bytes match the untouched user-provided originals
+ok 9 - V0.4 actual HWP bytes match the untouched user-provided originals
+  ---
+  duration_ms: 23.909
+  type: 'test'
+  ...
+# Subtest: V0.4 fifty long scripts fit comfortably in browser storage without repeated full-text signatures
+ok 10 - V0.4 fifty long scripts fit comfortably in browser storage without repeated full-text signatures
+  ---
+  duration_ms: 4.768833
+  type: 'test'
+  ...
+# Subtest: A: PRIME + MOU + VIP: seat, separate request/support, MOU materials
+ok 11 - A: PRIME + MOU + VIP: seat, separate request/support, MOU materials
+  ---
+  duration_ms: 2.277542
+  type: 'test'
+  ...
+# Subtest: B: department + meeting + no VIP: no rental/press, nameplates independent
+ok 12 - B: department + meeting + no VIP: no rental/press, nameplates independent
+  ---
+  duration_ms: 0.764
+  type: 'test'
+  ...
+# Subtest: C: history + donation + undecided VIP retains attendance task
+ok 13 - C: history + donation + undecided VIP retains attendance task
+  ---
+  duration_ms: 0.78275
+  type: 'test'
+  ...
+# Subtest: D: other + awards + no nameplates removes every nameplate item
+ok 14 - D: other + awards + no nameplates removes every nameplate item
+  ---
+  duration_ms: 0.232458
+  type: 'test'
+  ...
+# Subtest: E: no basic information and undecided venue yields usable checklist
+ok 15 - E: no basic information and undecided venue yields usable checklist
+  ---
+  duration_ms: 0.124875
+  type: 'test'
+  ...
+# Subtest: F: venue changes invalidate related checks, preserve unrelated checks/inputs
+ok 16 - F: venue changes invalidate related checks, preserve unrelated checks/inputs
+  ---
+  duration_ms: 0.3965
+  type: 'test'
+  ...
+# Subtest: F: event and VIP changes remove stale tasks and do not resurrect completed checks
+ok 17 - F: event and VIP changes remove stale tasks and do not resurrect completed checks
+  ---
+  duration_ms: 0.414375
+  type: 'test'
+  ...
+# Subtest: agenda exclude/reorder prunes ghost rows and invalidates flow checks
+ok 18 - agenda exclude/reorder prunes ghost rows and invalidates flow checks
+  ---
+  duration_ms: 0.615583
+  type: 'test'
+  ...
+# Subtest: nameplate and output deselection prunes completed ghost items
+ok 19 - nameplate and output deselection prunes completed ghost items
+  ---
+  duration_ms: 0.393542
+  type: 'test'
+  ...
+# Subtest: G: navigation does not complete tasks; links contain no user-input parameters
+ok 20 - G: navigation does not complete tasks; links contain no user-input parameters
+  ---
+  duration_ms: 0.426917
+  type: 'test'
+  ...
+# Subtest: H: missing, unsafe, nonexistent, HTML fallback and network-failed files stay disabled
+ok 21 - H: missing, unsafe, nonexistent, HTML fallback and network-failed files stay disabled
+  ---
+  duration_ms: 22.069334
+  type: 'test'
+  ...
+# Subtest: H: simulated valid compound-file response activates a validated relative HWP path
+ok 22 - H: simulated valid compound-file response activates a validated relative HWP path
+  ---
+  duration_ms: 0.656
+  type: 'test'
+  ...
+# Subtest: I: save/restore/reset preserves another application storage key
+ok 23 - I: save/restore/reset preserves another application storage key
+  ---
+  duration_ms: 0.994583
+  type: 'test'
+  ...
+# Subtest: I: malformed JSON and blocked storage never break default guidance
+ok 24 - I: malformed JSON and blocked storage never break default guidance
+  ---
+  duration_ms: 0.226084
+  type: 'test'
+  ...
+# Subtest: I: partially corrupt stored state sanitizes unsupported ids, duplicates and forged checks
+ok 25 - I: partially corrupt stored state sanitizes unsupported ids, duplicates and forged checks
+  ---
+  duration_ms: 0.138458
+  type: 'test'
+  ...
+# Subtest: input validation accepts only optional positive safe integers
+ok 26 - input validation accepts only optional positive safe integers
+  ---
+  duration_ms: 0.051875
+  type: 'test'
+  ...
+# Subtest: all event examples contain meaningful roles, checks and scripts; stable ids unique
+ok 27 - all event examples contain meaningful roles, checks and scripts; stable ids unique
+  ---
+  duration_ms: 38.829583
+  type: 'test'
+  ...
+# Subtest: rescheduling invalidates venue/request/support but preserves unrelated preparation
+ok 28 - rescheduling invalidates venue/request/support but preserves unrelated preparation
+  ---
+  duration_ms: 0.20025
+  type: 'test'
+  ...
+# Subtest: corrupt non-calendar dates are removed during restoration
+ok 29 - corrupt non-calendar dates are removed during restoration
+  ---
+  duration_ms: 0.296042
+  type: 'test'
+  ...
+# Subtest: H: a real temporary fixture path is read and verified, with no fake HWP shipped
+ok 30 - H: a real temporary fixture path is read and verified, with no fake HWP shipped
+  ---
+  duration_ms: 6.565792
+  type: 'test'
+  ...
+# Subtest: V0.2: Seoul routes only to its room tool; no seats when not needed
+ok 31 - V0.2: Seoul routes only to its room tool; no seats when not needed
+  ---
+  duration_ms: 0.367333
+  type: 'test'
+  ...
+# Subtest: V0.2: publicity remains independent of VIP and excludes unneeded work
+ok 32 - V0.2: publicity remains independent of VIP and excludes unneeded work
+  ---
+  duration_ms: 0.475541
+  type: 'test'
+  ...
+# Subtest: V0.2: V0.1 migration preserves input, agenda and unrelated checked status
+ok 33 - V0.2: V0.1 migration preserves input, agenda and unrelated checked status
+  ---
+  duration_ms: 0.17025
+  type: 'test'
+  ...
+# Subtest: V0.2: shipped samples are actual UTF-8 files with correct markers and format
+ok 34 - V0.2: shipped samples are actual UTF-8 files with correct markers and format
+  ---
+  duration_ms: 7.46975
+  type: 'test'
+  ...
+# Subtest: V0.2: 2430 event/venue/VIP/seat/publicity combinations reconcile consistently
+ok 35 - V0.2: 2430 event/venue/VIP/seat/publicity combinations reconcile consistently
+  ---
+  duration_ms: 249.617
+  type: 'test'
+  ...
+# Subtest: V0.3 A: rich MOU field work, roles and aftercare are conditional
+ok 36 - V0.3 A: rich MOU field work, roles and aftercare are conditional
+  ---
+  duration_ms: 3.433625
+  type: 'test'
+  ...
+# Subtest: V0.3 B: simple meeting removes guest/food/media questions and field tasks
+ok 37 - V0.3 B: simple meeting removes guest/food/media questions and field tasks
+  ---
+  duration_ms: 0.896709
+  type: 'test'
+  ...
+# Subtest: V0.3 C/D: awards and donation need selected materials; undecided is not done
+ok 38 - V0.3 C/D: awards and donation need selected materials; undecided is not done
+  ---
+  duration_ms: 1.427416
+  type: 'test'
+  ...
+# Subtest: V0.3 invitation excludes missing values, hidden notes and unconfirmed defaults
+ok 39 - V0.3 invitation excludes missing values, hidden notes and unconfirmed defaults
+  ---
+  duration_ms: 0.591792
+  type: 'test'
+  ...
+# Subtest: V0.3 relevant field checks reset, unrelated checks persist, removed work cannot resurrect
+ok 40 - V0.3 relevant field checks reset, unrelated checks persist, removed work cannot resurrect
+  ---
+  duration_ms: 0.794292
+  type: 'test'
+  ...
+# Subtest: V0.3 backward migration preserves V0.2 data and never invents field completion
+ok 41 - V0.3 backward migration preserves V0.2 data and never invents field completion
+  ---
+  duration_ms: 0.434541
+  type: 'test'
+  ...
+# Subtest: V0.3 corrupt nested and overlong data normalize safely
+ok 42 - V0.3 corrupt nested and overlong data normalize safely
+  ---
+  duration_ms: 0.135625
+  type: 'test'
+  ...
+# Subtest: V0.3 aftercare choices add only relevant work and preserve memo
+ok 43 - V0.3 aftercare choices add only relevant work and preserve memo
+  ---
+  duration_ms: 0.301125
+  type: 'test'
+  ...
+# Subtest: V0.3 field summary includes only entered roles and incomplete checks
+ok 44 - V0.3 field summary includes only entered roles and incomplete checks
+  ---
+  duration_ms: 0.286
+  type: 'test'
+  ...
+# Subtest: V0.3 450 venue/event/guest/food combinations have stable unique IDs and serialization
+ok 45 - V0.3 450 venue/event/guest/food combinations have stable unique IDs and serialization
+  ---
+  duration_ms: 92.031334
+  type: 'test'
+  ...
+# Subtest: V0.3 location changes clear stale room/parking information and recheck availability
+ok 46 - V0.3 location changes clear stale room/parking information and recheck availability
+  ---
+  duration_ms: 0.284833
+  type: 'test'
+  ...
+# Subtest: V0.3 exchange without signing still requires agreement documents; room change resets movement checks
+ok 47 - V0.3 exchange without signing still requires agreement documents; room change resets movement checks
+  ---
+  duration_ms: 0.333667
+  type: 'test'
+  ...
+# Subtest: organizer: next work is limited to three remaining preparation tasks and updates after completion
+ok 48 - organizer: next work is limited to three remaining preparation tasks and updates after completion
+  ---
+  duration_ms: 0.264
+  type: 'test'
+  ...
+# Subtest: organizer: field flow preserves selected order and omits excluded rows
+ok 49 - organizer: field flow preserves selected order and omits excluded rows
+  ---
+  duration_ms: 0.660333
+  type: 'test'
+  ...
+# Subtest: campus: exact venue menus and no automatic place selection
+ok 50 - campus: exact venue menus and no automatic place selection
+  ---
+  duration_ms: 0.256875
+  type: 'test'
+  ...
+# Subtest: campus: old known venues infer campus; shared venues retain input without guessing
+ok 51 - campus: old known venues infer campus; shared venues retain input without guessing
+  ---
+  duration_ms: 0.299291
+  type: 'test'
+  ...
+# Subtest: campus: changing campus clears old place information and relevant checks, preserves event and roles
+ok 52 - campus: changing campus clears old place information and relevant checks, preserves event and roles
+  ---
+  duration_ms: 0.242625
+  type: 'test'
+  ...
+# Subtest: campus: shared venue invitations name the campus and incompatible stored venues are cleared
+ok 53 - campus: shared venue invitations name the campus and incompatible stored venues are cleared
+  ---
+  duration_ms: 0.149
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 405.904625

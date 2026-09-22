@@ -17,6 +17,7 @@ import {
   fieldSummary,
   matches,
 } from "../operations.js";
+import { LEGACY_AGENDAS } from "../legacy-agendas.js";
 import { EVENTS, VENUES } from "../data.js";
 const make = (values) => reconcile({ ...createState(), ...values });
 const ids = (s) => buildOnsite(s).map((i) => i.id);
@@ -147,7 +148,7 @@ test("V0.3 backward migration preserves V0.2 data and never invents field comple
   old.checks.agenda.status = "done";
   delete old.onsiteChecks;
   const s = normalizeState(old);
-  assert.equal(s.version, 3);
+  assert.equal(s.version, 4);
   assert.equal(s.checks.agenda.status, "done");
   assert.ok(Object.values(s.onsiteChecks).every((v) => v.status === "todo"));
   assert.equal(s.external, "unknown");
@@ -232,10 +233,12 @@ test("V0.3 location changes clear stale room/parking information and recheck ava
 test("V0.3 exchange without signing still requires agreement documents; room change resets movement checks", () => {
   let s = make({
     event: "mou",
-    agenda: defaultAgenda("mou").map((a) => ({
-      ...a,
-      included: a.id === "exchange",
-    })),
+    agenda: LEGACY_AGENDAS.mou
+      .map((a) => ({ ...a, included: true }))
+      .map((a) => ({
+        ...a,
+        included: a.id === "exchange",
+      })),
   });
   assert.ok(ids(s).includes("mou-docs"));
   assert.ok(!ids(s).includes("mou-pen"));

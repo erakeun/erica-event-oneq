@@ -1,0 +1,53 @@
+[
+  {
+    "scenario": "B",
+    "press": 0,
+    "pr": 1,
+    "requestArea": false
+  },
+  {
+    "scenario": "B-prep",
+    "press": 0
+  },
+  {
+    "scenario": "unknown-vip",
+    "press": 0,
+    "notice": true
+  },
+  {
+    "scenario": "C-contact",
+    "text": "01 / 장소\n\n어디에서 진행하시나요?\n\n캠퍼스와 장소에 맞는 준비를 안내해 드려요.\n\n캠퍼스\n서울캠퍼스\nERICA\nERICA 행사 장소\n01\n프라임 컨퍼런스홀\n대관 4415 / 4418 · 세팅 문의 4289\n02\n히스토리라운지\n대관 문의 · 교내전화 4415 / 4418\n03\n부서 자체 장소\n부서에서 사용하는 회의실·행사 공간\n04\n기타 장소\n사용하실 장소를 직접 적어 주세요\n장소 확보 상태를 알려 주세요\n이미 확보했어요\n예약·협의가 필요해요\n아직 확인하지 않았어요\n확인된 대관 안내\n\n대관 문의: 교내전화 4415 / 4418\n\n문의는 예약 완료나 지원 확정이 아닙니다.\n\n장소 선택은 예약 처리나 이용 허가가 아닙니다.\n\n다음: 행사 정보\n→"
+  },
+  {
+    "scenario": "C-script",
+    "clipboard": true
+  },
+  {
+    "scenario": "C-parking",
+    "status": "done"
+  },
+  {
+    "scenario": "C-after",
+    "note": "가상 점검: 다음에는 안내판을 먼저 준비"
+  },
+  {
+    "scenario": "D-seat",
+    "href": "https://erakeun.github.io/seoul-seat-planner/"
+  },
+  {
+    "scenario": "D-simple",
+    "parkingControls": 0
+  },
+  {
+    "scenario": "D-invitation",
+    "copied": true
+  },
+  {
+    "scenario": "D-role",
+    "text": "총괄\n가상 총괄팀"
+  },
+  {
+    "scenario": "parking-state-sync",
+    "selected": "na"
+  }
+]

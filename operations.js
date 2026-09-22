@@ -1,3 +1,4 @@
+import { agendaFingerprint } from "./agenda.js?v=0.4.0";
 import {
   VENUES,
   CAMPUSES,
@@ -10,10 +11,17 @@ import {
   ONSITE_ITEMS,
   AFTER_ITEMS,
   PREP_PRIORITY,
-} from "./data.js?v=0.3.2";
+} from "./data.js?v=0.4.0";
+export const PARKING_LABELS = {
+  done: "완료",
+  pending: "아직 안 함",
+  na: "해당 없음",
+  unknown: "확인 필요",
+};
 export const operationDefaults = () => ({
   campus: "",
   external: "unknown",
+  parkingStatus: "unknown",
   venueDetail: "",
   guestNeeds: [],
   parkingNote: "",
@@ -40,6 +48,7 @@ export function matches(s, when = "always") {
   const conditions = {
     always: true,
     external: s.external === "yes",
+    parking: s.external === "yes" && s.parkingStatus !== "na",
     food: ["snacks", "meal", "both"].includes(s.food),
     diet: ["snacks", "meal", "both"].includes(s.food) && s.diet,
     agenda: ids.length > 0,
@@ -71,8 +80,8 @@ export function matches(s, when = "always") {
 }
 const signature = (s, fields = []) =>
   JSON.stringify(
-    (fields.includes("venue") ? ["campus", ...fields] : fields).map(
-      (f) => s[f],
+    (fields.includes("venue") ? ["campus", ...fields] : fields).map((f) =>
+      f === "agenda" ? agendaFingerprint(s.agenda) : s[f],
     ),
   );
 export const campusName = (s) =>
@@ -108,6 +117,20 @@ export function operationPrep(s) {
     ...i,
     group: "외부 참석자 안내",
   }));
+  if (s.external === "yes")
+    items.push({
+      id: "parking-registration",
+      group: "외부 참석자 안내",
+      title: "외부 참석자 주차등록 확인",
+      detail: `현재 상태: ${PARKING_LABELS[s.parkingStatus]} · 차량번호를 원큐에 입력하지 마세요. 실제 등록 여부를 직접 확인합니다.`,
+      signature: signature(s, [
+        "external",
+        "parkingStatus",
+        "venue",
+        "otherVenue",
+        "date",
+      ]),
+    });
   if (s.external === "unknown")
     items.push({
       id: "guest-decision",
@@ -161,7 +184,14 @@ export const foodDetails = (s) =>
     .join(" · ");
 export const buildOnsite = (s) => [
   ...materialize(s, ONSITE_ITEMS).map((i) =>
-    i.id === "food" ? { ...i, detail: foodDetails(s) } : i,
+    i.id === "food"
+      ? { ...i, detail: foodDetails(s) }
+      : i.id === "parking-registration"
+        ? {
+            ...i,
+            detail: `등록 상태: ${PARKING_LABELS[s.parkingStatus]} · 실제 등록 내역은 별도로 확인하세요.`,
+          }
+        : i,
   ),
   ...OUTPUTS.filter((o) => s.outputs.includes(o.id)).map((o) => ({
     id: `output-${o.id}`,
@@ -225,6 +255,11 @@ export function unresolved(s) {
     [!s.date, "행사 일시", 1],
     [!s.people, "예상 인원", 1],
     [s.external === "unknown", "외부 참석 여부", 1],
+    [
+      s.external === "yes" && ["unknown", "pending"].includes(s.parkingStatus),
+      "외부 참석자 주차등록",
+      1,
+    ],
     [s.food === "unknown", "다과·식사", 1],
     [s.vip === "unknown", "주요 참석 여부", 1],
     [s.audio === "later", "마이크·음향", 1],
