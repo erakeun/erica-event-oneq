@@ -1,0 +1,86 @@
+[
+  {
+    "id": "agenda-mou",
+    "status": 200,
+    "bytes": 198144,
+    "matches_local": true,
+    "sha256": "2d9cc6fde5aca760782132d3649cd844944c3963e5a4733f0fed6eccc0f2d226"
+  },
+  {
+    "id": "script-mou",
+    "status": 200,
+    "bytes": 2799,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "agenda-donation",
+    "status": 200,
+    "bytes": 320000,
+    "matches_local": true,
+    "sha256": "d391857ee16550d4dc228b3eb2b2e0c61cb940f24a7ec484c8c6b896682a4e13"
+  },
+  {
+    "id": "script-donation",
+    "status": 200,
+    "bytes": 2624,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "agenda-meeting",
+    "status": 200,
+    "bytes": 1552,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "script-meeting",
+    "status": 200,
+    "bytes": 1578,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "agenda-award",
+    "status": 200,
+    "bytes": 1568,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "script-award",
+    "status": 200,
+    "bytes": 1607,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "agenda-other",
+    "status": 200,
+    "bytes": 1169,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "script-other",
+    "status": 200,
+    "bytes": 1203,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "agreement-mou",
+    "status": 200,
+    "bytes": 1296,
+    "matches_local": true,
+    "sha256": null
+  },
+  {
+    "id": "welcome-speech",
+    "status": 200,
+    "bytes": 1235,
+    "matches_local": true,
+    "sha256": null
+  }
+]

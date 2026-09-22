@@ -296,7 +296,7 @@ test("I: partially corrupt stored state sanitizes unsupported ids, duplicates an
   assert.equal(s.venue, "unknown");
   assert.equal(s.people, "");
   assert.deepEqual(s.outputs, ["led"]);
-  assert.equal(new Set(s.agenda.map((a) => a.id)).size, 3);
+  assert.equal(new Set(s.agenda.map((a) => a.id)).size, 1);
   assert.ok(!s.checks.ghost);
   assert.equal(s.checks.venue.status, "todo");
 });
@@ -460,7 +460,7 @@ test("V0.2: V0.1 migration preserves input, agenda and unrelated checked status"
   delete old.publicity;
   mark(old, "agenda");
   const migrated = normalizeState(old);
-  assert.equal(migrated.version, 3);
+  assert.equal(migrated.version, 4);
   assert.equal(migrated.eventName, old.eventName);
   assert.deepEqual(migrated.agenda, old.agenda);
   assert.equal(migrated.checks.agenda.status, "done");
@@ -472,7 +472,7 @@ test("V0.2: V0.1 migration preserves input, agenda and unrelated checked status"
 test("V0.2: shipped samples are actual UTF-8 files with correct markers and format", async () => {
   const { templatesFor } = await import("../app.js");
   assert.equal(TEMPLATES.length, 12);
-  for (const t of TEMPLATES) {
+  for (const t of TEMPLATES.filter((t) => t.status === "sample")) {
     const content = await readFile(new URL(`../${t.path}`, import.meta.url));
     assert.equal(
       (await verifyTemplate(t, async () => new Response(content))).ready,
@@ -492,7 +492,7 @@ test("V0.2: shipped samples are actual UTF-8 files with correct markers and form
     ),
   );
   assert.ok(!templatesFor(s).some((t) => t.id === "agreement-mou"));
-  const txt = TEMPLATES[0];
+  const txt = TEMPLATES.find((t) => t.format === "txt");
   for (const content of [
     "<html>fallback</html>",
     "내용이 있지만 임시 샘플 표시가 없는 잘못된 다운로드 파일입니다.",

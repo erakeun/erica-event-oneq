@@ -7,7 +7,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.3.2";
+} from "./data.js?v=0.4.0";
 import {
   operationDefaults,
   campusName,
@@ -20,7 +20,7 @@ import {
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.3.2";
+} from "./operations.js?v=0.4.0";
 import {
   logisticsView,
   photoChoices,
@@ -33,8 +33,8 @@ import {
   timelineView,
   invitationMissing,
   nextPreparationView,
-} from "./operations-view.js?v=0.3.2";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.3.2";
+} from "./operations-view.js?v=0.4.0";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.4.0";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -49,15 +49,23 @@ export const eventFor = (state) =>
   EVENTS.find((e) => e.id === state.event) || EVENTS.at(-1);
 export const venueFor = (state) =>
   VENUES.find((v) => v.id === state.venue) || VENUES.at(-1);
-export const defaultAgenda = (event) =>
-  EVENTS.find((e) => e.id === event).agenda.map((a) => ({
-    id: a.id,
-    included: true,
-  }));
+export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.4.0";
+import {
+  defaultAgenda,
+  selectedAgenda,
+  resolveAgendaRow,
+  normalizeAgenda,
+  newAgendaRow,
+  editAgendaRow,
+  scenarioText,
+  AGENDA_LIMIT,
+  agendaFingerprint,
+} from "./agenda.js?v=0.4.0";
 export function createState() {
   return {
     ...operationDefaults(),
-    version: 3,
+    version: 4,
+    agendaMigrated: false,
     step: 0,
     venue: "unknown",
     venueStatus: "unknown",
@@ -100,18 +108,10 @@ export function validPeople(value) {
     (/^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)))
   );
 }
-export const selectedAgenda = (state) =>
-  state.agenda
-    .filter((a) => a.included)
-    .map((a) => eventFor(state).agenda.find((row) => row.id === a.id))
-    .filter(Boolean);
 export function buildChecklist(state) {
   const items = [],
     place = `${state.venue}|${state.otherVenue}|${state.venueStatus}|${state.date}${state.venueDetail ? "|" + state.venueDetail : ""}|${state.campus}`,
-    flow = `${state.event}|${state.agenda
-      .filter((a) => a.included)
-      .map((a) => a.id)
-      .join(",")}`;
+    flow = `${state.event}|${agendaFingerprint(selectedAgenda(state))}`;
   const add = (id, group, title, detail, signature = "shared", link = null) =>
     items.push({ id, group, title, detail, signature, link });
   add(
@@ -299,11 +299,18 @@ export function reconcile(state) {
         ? old
         : { status: "todo", signature: item.signature };
   }
+  if (next["parking-registration"])
+    next["parking-registration"].status = {
+      done: "done",
+      na: "na",
+      pending: "todo",
+      unknown: "todo",
+    }[state.parkingStatus];
   state.checks = next;
   return reconcileOperations(state);
 }
 export function normalizeState(raw) {
-  if (!raw || typeof raw !== "object" || ![1, 2, 3].includes(raw.version))
+  if (!raw || typeof raw !== "object" || ![1, 2, 3, 4].includes(raw.version))
     throw new Error("unsupported-state");
   const s = createState();
   s.step =
@@ -342,16 +349,14 @@ export function normalizeState(raw) {
   s.outputDecision = s.outputs.length
     ? "chosen"
     : allowed(raw.outputDecision, ["later", "none"], "later");
-  const defaults = defaultAgenda(s.event),
-    ids = defaults.map((a) => a.id),
-    seen = new Set();
-  s.agenda = (Array.isArray(raw.agenda) ? raw.agenda : [])
-    .filter((a) => a && ids.includes(a.id) && !seen.has(a.id) && seen.add(a.id))
-    .map((a) => ({ id: a.id, included: a.included !== false }));
-  s.agenda.push(...defaults.filter((a) => !seen.has(a.id)));
+  s.agenda = normalizeAgenda(raw.agenda, s.event, raw.version);
+  s.agendaMigrated =
+    raw.agendaMigrated === true ||
+    (raw.version < 4 && ["mou", "donation"].includes(s.event));
   s.checks = raw.checks && typeof raw.checks === "object" ? raw.checks : {};
   for (const [field, values] of Object.entries({
     external: ["yes", "no", "unknown"],
+    parkingStatus: ["done", "pending", "na", "unknown"],
     food: ["none", "snacks", "meal", "both", "unknown"],
     photography: ["auto", "needed", "none"],
     audio: ["needed", "none", "later"],
@@ -434,8 +439,15 @@ export function updateState(state, field, value) {
   }
   if (field === "venue" && VENUES.find((v) => v.id === value)?.campus)
     next.campus = VENUES.find((v) => v.id === value).campus;
-  if (field === "event" && value !== state.event)
+  if (field === "event" && value !== state.event) {
     next.agenda = defaultAgenda(value);
+    next.agendaMigrated = false;
+  }
+  if (
+    ["venue", "campus", "otherVenue", "date", "external"].includes(field) &&
+    value !== state[field]
+  )
+    next.parkingStatus = "unknown";
   if (value !== state[field] && ["venue", "otherVenue"].includes(field)) {
     next.venueStatus = "unknown";
     next.venueDetail = "";
@@ -531,7 +543,7 @@ function rentalInfo() {
     return '<div class="note">장소가 정해지지 않아도 이후 안내를 살펴볼 수 있어요. 준비표에 장소 확인을 남겨 드릴게요.</div>';
   if (!info || !Object.values(info).some(Boolean))
     return '<div class="note"><strong>대관 안내 정보 확인 필요</strong><br>확인된 담당 창구와 이용 조건을 아직 등록하지 않았어요.</div>';
-  return `<div class="note"><strong>확인된 대관 안내</strong>${info.department ? `<p>담당 부서: ${esc(info.department)}</p>` : ""}${info.contact ? `<p>연락처: ${esc(info.contact)}</p>` : ""}${info.conditions ? `<p>${esc(info.conditions)}</p>` : ""}${info.url && /^https:\/\//.test(info.url) ? `<a href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">예약 창구 안내 열기 ↗</a>` : ""}</div>`;
+  return `<div class="note"><strong>확인된 대관 안내</strong>${info.department ? `<p>담당 부서: ${esc(info.department)}</p>` : ""}${info.contact ? `<p>대관 문의: ${esc(info.contact)}</p>` : ""}${venue.setupContact ? `<p><strong>행사장 세팅 지원 문의: ${esc(venue.setupContact)}</strong><br>행사장 세팅이 필요한 경우 문의하세요.</p>` : ""}<p class="small">문의는 예약 완료나 지원 확정이 아닙니다.</p>${info.conditions ? `<p>${esc(info.conditions)}</p>` : ""}${info.url && /^https:\/\//.test(info.url) ? `<a href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">예약 창구 안내 열기 ↗</a>` : ""}</div>`;
 }
 function venueView() {
   const campusChoice = `<fieldset class="campus-choice"><legend>캠퍼스</legend>${radios(
@@ -567,13 +579,13 @@ function eventView() {
     "vip",
     [
       ["yes", "참석"],
-      ["no", "해당 없음"],
+      ["no", "부총장 미만 / 참석 없음"],
       ["unknown", "아직 미정"],
     ],
   )}</fieldset><details class="help"><summary>이 정보는 어디에 쓰이나요?</summary><p>참석 여부에 맞춰 촬영·취재 협조 요청 경로를 안내해요. 이 분기는 원큐의 안내 기준이며, 확인된 학교 공식 규정을 뜻하지 않습니다.</p><p>실제 참석자 명단·서명자 개인정보·기부금액은 입력하지 마세요. 명단 작업은 필요한 기존 제작기에서 진행해 주세요.</p></details>${logisticsView(state)}`;
 }
 function requestsView() {
-  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">촬영 지원과 보도자료 제출은 서로 다른 일이에요.</p>${photoChoices(state)}${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>정해지면 행사 정보에서 바꿔 주세요. 필요한 촬영·취재 안내를 이어 드릴게요.</div>' : '<div class="note">촬영이 필요한 순서를 포함했다면 촬영 담당과 장비를 직접 준비해 주세요.</div>'}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
+  return `<h1>먼저 요청할 일을 살펴보세요</h1><p class="intro">${state.vip === "yes" ? "촬영 지원과 보도자료 제출은 서로 다른 일이에요." : "행사소식과 외부 협조가 필요한 일을 확인하세요."}</p>${photoChoices(state)}${state.vip === "yes" ? `<article class="panel featured"><span class="tag">먼저 확인 · 부총장 이상 참석</span><h2>촬영·취재 협조 요청을 확인하세요</h2><p>행사 전에 협조 가능 여부를 확인하세요. 요청과 지원 확정은 별도로 확인해야 해요.</p>${ext("press", "촬영·취재 협조 요청 화면 열기", "button")}</article>` : state.vip === "unknown" ? '<div class="note"><strong>부총장 이상 참석 여부가 아직 미정이에요</strong><br>부총장 이상 참석 여부가 확정되면 촬영·취재 요청 가능 여부를 확인하세요.</div>' : ""}<article class="panel"><span class="tag">참석 여부와 관계없이 별도로 선택</span><h2>행사 소식을 알리고 싶으신가요?</h2><fieldset><legend>보도자료 제출을 검토하시나요?</legend>${radios(
     "publicity",
     [
       ["needed", "제출을 검토할게요"],
@@ -590,37 +602,27 @@ export function templatesFor(s) {
       (!t.agendaIds || t.agendaIds.some((id) => included.includes(id))),
   );
 }
+function templateLink(t) {
+  const result = templateStatus.get(t.id);
+  const label = `${t.label} ${t.format.toUpperCase()} 다운로드`;
+  return `<div class="template"><span><strong>${esc(t.label)}</strong><br><span class="muted small">${t.format.toUpperCase()} · ${t.status === "sample" ? "임시 샘플" : "사용자 제공 원본 예시"}</span></span>${result?.ready ? `<a href="${esc(result.path)}" download="${esc(t.label)}.${t.format}" class="button ${t.status === "real" ? "secondary" : "subtle"}" aria-label="${esc(label)}">${t.status === "real" ? esc(label) : "다운로드"}</a>` : `<span class="pending" aria-disabled="true">${result?.reason || "파일 확인 중"}</span>`}</div>`;
+}
 function templatesView() {
-  return `<section class="gap"><h2>내려받아 참고하기</h2><p class="small muted">V0.2 프로토타입용 임시 샘플 · 실제 양식으로 추후 교체 예정</p><p class="small">학교 공식 문서나 확정된 진행문이 아닙니다. 다운로드는 기본 예시이며, 화면에서 바꾼 식순은 준비표 인쇄에 반영돼요.</p>${templatesFor(
-    state,
-  )
-    .map((t) => {
-      const result = templateStatus.get(t.id);
-      return `<div class="template"><span><strong>${t.label}</strong><br><span class="muted small">${t.format.toUpperCase()} · ${t.status === "sample" ? "임시 샘플" : "등록 양식"}</span></span>${result?.ready ? `<a href="${esc(result.path)}" download class="button subtle" aria-label="${t.label} 다운로드">다운로드</a>` : `<span class="pending" aria-disabled="true">${result?.reason || "파일 확인 중"}</span>`}</div>`;
-    })
-    .join(
-      "",
-    )}<details class="help"><summary>환영사·사회자 예시 활용 방법</summary><p>내려받은 예시에서 행사 목적, 확인된 호칭과 발언 순서, 진행 시간을 직접 바꿔 주세요. 학교 공식 인사말이나 최종 대본이 아니며, 자동 생성 기능은 없습니다.</p></details></section>`;
+  const templates = templatesFor(state),
+    originals = templates.filter((t) => t.status === "real"),
+    samples = templates.filter((t) => t.status === "sample");
+  return `<section class="agenda-downloads"><h2>식순지와 참고 자료</h2><p class="small">식순지는 행사 순서를 정리한 문서예요. 아래의 진행 시나리오는 사회자가 읽을 참고 원고예요.</p>${originals.map(templateLink).join("")}${originals.length ? '<p class="small muted">사용자 제공 HWP 원본을 그대로 내려받습니다. 화면에서 편집한 식순은 HWP 원본을 바꾸지 않으며, 준비표·시나리오·인쇄에 반영돼요.</p>' : ""}<details class="help"><summary>그 밖의 작성 참고 자료</summary><p class="small muted">임시 샘플은 학교 공식 양식이 아닙니다. 실제 양식으로 추후 교체 예정이며, 다운로드는 화면 편집 전 기본 예시입니다.</p>${samples.map(templateLink).join("")}</details></section>`;
 }
 function agendaView() {
   const event = eventFor(state);
-  return `<h1>${event.short}의 흐름을 잡아 보세요</h1><p class="intro">필요한 순서만 남기고, 위아래로 옮겨 조정해 보세요.</p><div class="note warning"><strong>검토 전 진행 예시</strong><br>실제 행사와 내부 확인 사항에 맞게 조정하세요.</div><ol class="agenda-list">${state.agenda
+  return `<h1>${event.short}의 흐름을 잡아 보세요</h1><p class="intro">기본 추천 식순을 행사에 맞게 추가·삭제·수정하세요.</p>${templatesView()}<div class="row gap no-print"><button class="button secondary" data-action="show-scenario">진행 시나리오 보기</button><button class="button secondary" data-action="copy-scenario">시나리오 복사</button></div><p class="copy-status small" role="status"></p>${state.agendaMigrated ? '<div class="note">이전에 저장한 식순과 순서를 보존했어요. 새 8개 기본 추천 식순으로 바꾸려면 아래의 기본 식순 복원을 이용하세요.</div>' : ""}<section aria-labelledby="agenda-editor-title"><h2 id="agenda-editor-title">식순 편집</h2><p class="small muted">체크를 해제하면 잠시 제외해요. 편집 내용은 이 브라우저에만 저장됩니다. 실제 인명·명단·차량번호·기부금액은 적지 마세요.</p><ol class="agenda-list">${state.agenda
     .map((row, i) => {
-      const a = event.agenda.find((a) => a.id === row.id);
-      return `<li class="agenda-item ${row.included ? "" : "excluded"}"><div class="agenda-top"><span class="agenda-order">${String(i + 1).padStart(2, "0")}</span><label><input type="checkbox" data-agenda="${a.id}" ${row.included ? "checked" : ""}><span class="agenda-title">${a.title}</span><span class="sr-only"> 포함</span></label><button class="icon-button" data-move="${a.id}" data-direction="-1" aria-label="${a.title} 위로" ${i === 0 ? "disabled" : ""}>↑</button><button class="icon-button" data-move="${a.id}" data-direction="1" aria-label="${a.title} 아래로" ${i === state.agenda.length - 1 ? "disabled" : ""}>↓</button></div>${row.included ? `<p>${a.what}</p><dl><dt>역할 예시</dt><dd>${a.role}</dd><dt>미리 확인</dt><dd>${a.check}</dd></dl><details><summary>사회자 진행 멘트 예시</summary><p class="script">“${a.script}”</p></details>` : "<p>준비표에서 제외했어요.</p>"}</li>`;
+      const a = resolveAgendaRow(state, row);
+      return `<li class="agenda-item ${row.included ? "" : "excluded"}"><div class="agenda-top"><span class="agenda-order">${String(i + 1).padStart(2, "0")}</span><label><input type="checkbox" data-agenda="${a.id}" ${row.included ? "checked" : ""}><span class="agenda-title" data-title-for="${a.id}">${esc(a.title)}</span><span class="sr-only"> 포함</span></label><button class="icon-button" data-move="${a.id}" data-direction="-1" aria-label="${esc(a.title)} 위로" ${i === 0 ? "disabled" : ""}>↑</button><button class="icon-button" data-move="${a.id}" data-direction="1" aria-label="${esc(a.title)} 아래로" ${i === state.agenda.length - 1 ? "disabled" : ""}>↓</button></div>${row.included ? `<p>${esc(a.what) || "추가한 식순이에요. 진행 내용과 역할을 직접 정하세요."}</p><p class="small"><strong>준비·확인</strong> ${esc(a.check) || "필요한 준비물을 직접 확인하세요."}</p>` : "<p>시나리오·준비표·현장 식순에서 제외했어요.</p>"}<details class="agenda-edit" data-detail-key="agenda-edit-${a.id}" ${a.id.startsWith("custom-") && a.title === "새 식순" ? "open" : ""}><summary>항목명·역할·진행 멘트 편집</summary><div class="field"><label for="agenda-title-${a.id}">항목명</label><input class="input" id="agenda-title-${a.id}" data-row="${a.id}" data-agenda-field="title" maxlength="100" value="${esc(row.title ?? a.title)}"></div><div class="field"><label for="agenda-role-${a.id}">역할 / 담당 · 팀·역할명 권장</label><input class="input" id="agenda-role-${a.id}" data-row="${a.id}" data-agenda-field="role" maxlength="160" value="${esc(a.role)}"></div><div class="field"><label for="agenda-check-${a.id}">준비물 / 사전 확인</label><textarea class="input" id="agenda-check-${a.id}" data-row="${a.id}" data-agenda-field="check" maxlength="600" rows="2">${esc(a.check)}</textarea></div><div class="field"><label for="agenda-script-${a.id}">사회자 멘트 / 진행 메모 · 작성 참고용</label><textarea class="input" id="agenda-script-${a.id}" data-row="${a.id}" data-agenda-field="script" maxlength="2400" rows="5" placeholder="진행 멘트를 직접 작성하세요">${esc(a.script)}</textarea></div></details><button class="text-button danger no-print" data-delete-agenda="${a.id}" aria-label="${esc(a.title)} 삭제">이 식순 삭제</button></li>`;
     })
     .join(
       "",
-    )}</ol><button class="text-button" data-action="restore-agenda">기본 예시로 복원</button><details class="help"><summary>현장 준비물 한눈에 보기</summary>${
-    selectedAgenda(state).length
-      ? `<ul>${selectedAgenda(state)
-          .map(
-            (a) =>
-              `<li class="small"><strong>${a.title}</strong> · ${a.check}</li>`,
-          )
-          .join("")}</ul>`
-      : "<p>포함한 식순이 없어요. 필요한 순서를 선택해 주세요.</p>"
-  }</details>${templatesView()}${roleEditor(state)}<p class="footnote">발언 순서·서명권자·의전 서열은 자동으로 정하지 않아요.</p>`;
+    )}</ol>${!state.agenda.length ? '<p class="note">아직 식순이 없어요. 항목을 추가하거나 기본 추천을 복원하세요.</p>' : ""}<div class="row gap no-print"><button class="button secondary" data-action="add-agenda" ${state.agenda.length >= AGENDA_LIMIT ? "disabled" : ""}>+ 식순 추가</button><button class="text-button" data-action="restore-agenda">기본 추천 식순으로 복원</button></div><p class="small muted">최대 ${AGENDA_LIMIT}개 · 복원 전 확인을 받습니다.</p></section><details class="help scenario-panel" id="scenario-panel"><summary>진행 시나리오 · 선택한 식순 ${selectedAgenda(state).length}개</summary><p class="small">항목명과 멘트는 식순 카드에서 수정하세요. [치환 항목]을 실제 행사에 맞게 확인하고, 개회 멘트의 전체 순서 안내도 최종 식순과 대조하세요.</p><pre id="scenario-content">${esc(scenarioText(state))}</pre><div class="row no-print"><button class="button" data-action="copy-scenario">시나리오 복사</button><button class="button secondary" data-action="print">식순·시나리오 인쇄</button></div></details>${roleEditor(state)}<p class="footnote">기본 추천과 진행문은 작성 참고용이며 고정 규칙이나 확정 공식 원고가 아닙니다.</p>`;
 }
 function seatsView() {
   const venue = venueFor(state),
@@ -662,7 +664,7 @@ function checklistView() {
           .filter((i) => i.group === group)
           .map(
             (i) =>
-              `<div class="check-row" data-status="${state.checks[i.id].status}" data-item="${i.id}"><div><h3>${i.title}</h3><p>${esc(i.detail)}</p>${i.link ? `<p class="no-print">${ext(i.link, `${LINKS[i.link].name} 열기`, "small")}</p>` : ""}</div><label class="sr-only" for="check-${i.id}">${i.title} 상태</label><select id="check-${i.id}" data-check="${i.id}">${Object.entries(
+              `<div class="check-row" data-status="${state.checks[i.id].status}" data-item="${i.id}"><div><h3>${esc(i.title)}</h3><p>${esc(i.detail)}</p>${i.link ? `<p class="no-print">${ext(i.link, `${LINKS[i.link].name} 열기`, "small")}</p>` : ""}</div><label class="sr-only" for="check-${i.id}">${esc(i.title)} 상태</label><select id="check-${i.id}" data-check="${i.id}">${Object.entries(
                 STATUS_LABELS,
               )
                 .map(
@@ -680,7 +682,10 @@ function checklistView() {
     )}<section class="selected-agenda"><h2>내가 선택한 식순</h2><ol>${selectedAgenda(
     state,
   )
-    .map((a) => `<li class="small">${a.title}</li>`)
+    .map(
+      (a) =>
+        `<li class="small">${esc(a.title)}${a.role ? ` · ${esc(a.role)}` : ""}</li>`,
+    )
     .join(
       "",
     )}</ol></section><div class="note">이 준비표는 직접 확인을 돕는 안내입니다. 실제 예약·접수·지원 상태와 행사 준비 완료를 자동으로 확인하지 않습니다.</div>`;
@@ -699,7 +704,10 @@ function summaryRender() {
 function render(focus = null) {
   const openDetails = new Set(
     [...document.querySelectorAll("details[open]")].map(
-      (el) => el.querySelector("summary")?.textContent,
+      (el) =>
+        el.id ||
+        el.dataset.detailKey ||
+        el.querySelector("summary")?.textContent,
     ),
   );
   document.querySelector("#steps").innerHTML =
@@ -717,7 +725,13 @@ function render(focus = null) {
     `<div class="content"><p class="eyebrow">${String(state.step + 1).padStart(2, "0")} / ${STEPS[state.step]}</p>${resetNotice ? `<div class="note warning no-print" role="status">${esc(resetNotice)}</div>` : ""}${views[state.step]()}</div><div class="footer-nav">${state.step > 0 ? `<button class="button secondary" data-step="${state.step - 1}">← 이전</button>` : ""}${state.step < 6 ? `<button class="button next" data-step="${state.step + 1}">${state.step === 5 ? "준비표 보기" : `다음: ${STEPS[state.step + 1]}`} <span aria-hidden="true">→</span></button>` : ""}</div>`;
   summaryRender();
   for (const el of document.querySelectorAll("details"))
-    if (openDetails.has(el.querySelector("summary")?.textContent))
+    if (
+      openDetails.has(
+        el.id ||
+          el.dataset.detailKey ||
+          el.querySelector("summary")?.textContent,
+      )
+    )
       el.open = true;
   if (focus) document.querySelector(focus)?.focus({ preventScroll: true });
 }
@@ -776,6 +790,40 @@ function confirmation(title, description, action) {
 }
 function handleInput(e) {
   const el = e.target;
+  if (el.dataset.agendaField) {
+    updateWithNotice(
+      "agenda",
+      editAgendaRow(state, el.dataset.row, el.dataset.agendaField, el.value),
+    );
+    persist();
+    summaryRender();
+    const heading = document.querySelector(
+      `[data-title-for="${el.dataset.row}"]`,
+    );
+    if (heading)
+      heading.textContent = resolveAgendaRow(
+        state,
+        state.agenda.find((a) => a.id === el.dataset.row),
+      ).title;
+    const rowTitle = resolveAgendaRow(
+      state,
+      state.agenda.find((a) => a.id === el.dataset.row),
+    ).title;
+    document
+      .querySelectorAll(`[data-move="${el.dataset.row}"]`)
+      .forEach((b) =>
+        b.setAttribute(
+          "aria-label",
+          `${rowTitle} ${b.dataset.direction === "-1" ? "위로" : "아래로"}`,
+        ),
+      );
+    document
+      .querySelector(`[data-delete-agenda="${el.dataset.row}"]`)
+      ?.setAttribute("aria-label", `${rowTitle} 삭제`);
+    const scenario = document.querySelector("#scenario-content");
+    if (scenario) scenario.textContent = scenarioText(state);
+    return;
+  }
   if (el.dataset.role) {
     const roles = { ...state.roles };
     if (el.value.trim()) roles[el.dataset.role] = el.value.slice(0, 60);
@@ -862,6 +910,7 @@ function handleChange(e) {
       "seating",
       "publicity",
       "external",
+      "parkingStatus",
       "food",
       "photography",
       "audio",
@@ -926,6 +975,14 @@ function handleChange(e) {
     state.outputDecision = outputs.length ? "chosen" : "none";
     change("outputs", outputs, `[data-output="${el.dataset.output}"]`);
   }
+  if (el.dataset.check === "parking-registration") {
+    change(
+      "parkingStatus",
+      { done: "done", na: "na", todo: "pending" }[el.value],
+      '[data-check="parking-registration"]',
+    );
+    return;
+  }
   if (el.dataset.check) {
     state.checks[el.dataset.check].status = el.value;
     persist();
@@ -949,6 +1006,24 @@ function handleClick(e) {
     navigate(Number(button.dataset.step));
     return;
   }
+  if (button.dataset.deleteAgenda) {
+    const id = button.dataset.deleteAgenda;
+    confirmation(
+      "이 식순을 삭제할까요?",
+      "연결된 진행 멘트와 준비 항목도 제외됩니다. 삭제 전에는 취소할 수 있어요.",
+      () => {
+        change(
+          "agenda",
+          state.agenda.filter((a) => a.id !== id),
+        );
+        document
+          .querySelector('[data-action="add-agenda"]')
+          ?.focus({ preventScroll: true });
+        announce("식순과 연결된 시나리오 항목을 삭제했어요.");
+      },
+    );
+    return;
+  }
   if (button.dataset.move) {
     const list = structuredClone(state.agenda),
       from = list.findIndex((a) => a.id === button.dataset.move),
@@ -960,6 +1035,30 @@ function handleClick(e) {
     return;
   }
   switch (button.dataset.action) {
+    case "add-agenda": {
+      if (state.agenda.length >= AGENDA_LIMIT) return;
+      const row = newAgendaRow(`custom-${crypto.randomUUID()}`);
+      change(
+        "agenda",
+        [...state.agenda, row],
+        `[data-row="${row.id}"][data-agenda-field="title"]`,
+      );
+      document
+        .querySelector(`[data-row="${row.id}"][data-agenda-field="title"]`)
+        ?.scrollIntoView({ block: "center" });
+      announce("새 식순을 추가했어요. 항목명을 입력해 주세요.");
+      break;
+    }
+    case "show-scenario":
+      document.querySelector("#scenario-panel").open = true;
+      document
+        .querySelector("#scenario-panel")
+        .scrollIntoView({ block: "start" });
+      document.querySelector("#scenario-panel summary").focus();
+      break;
+    case "copy-scenario":
+      copyText(scenarioText(state));
+      break;
     case "copy-invitation":
       copyText(invitationText(state));
       break;
@@ -969,8 +1068,9 @@ function handleClick(e) {
     case "restore-agenda":
       confirmation(
         "기본 식순으로 되돌릴까요?",
-        "바꾸신 식순 순서와 포함 여부가 사라지고, 관련 준비 항목을 다시 확인하게 됩니다.",
+        "추가·삭제·수정한 식순과 진행 메모가 기본 추천으로 바뀌고, 관련 준비 항목을 다시 확인하게 됩니다.",
         () => {
+          state.agendaMigrated = false;
           change("agenda", defaultAgenda(state.event));
           announce("기본 예시로 복원했어요.");
         },
@@ -1083,6 +1183,9 @@ async function boot() {
       templateStatus.set(t.id, await verifyTemplate(t)),
     ),
   );
-  if (state.step === 3) render();
+  if (state.step === 3) {
+    const downloads = document.querySelector(".agenda-downloads");
+    if (downloads) downloads.outerHTML = templatesView();
+  }
 }
 if (typeof document !== "undefined") boot();

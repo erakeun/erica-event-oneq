@@ -1,0 +1,962 @@
+[
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 1440,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "B",
+    "width": 1440,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "C",
+    "width": 1440,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "D",
+    "width": 1440,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 1440,
+    "viewport": 1440
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 390,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "B",
+    "width": 390,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "C",
+    "width": 390,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "D",
+    "width": 390,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 390,
+    "viewport": 390
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "A",
+    "width": 412,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "B",
+    "width": 412,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "C",
+    "width": 412,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "1 장소",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "2 행사 정보",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "3 먼저 요청할 일",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "4 식순·양식",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "5 좌석·명패",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "6 화면·안내물",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "7 준비표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "현장점검",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "역할표",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  },
+  {
+    "scenario": "D",
+    "width": 412,
+    "step": "사후정리",
+    "clipped": [],
+    "scroll": 412,
+    "viewport": 412
+  }
+]
