@@ -1,5 +1,5 @@
 import { uid, activePeople, newMach } from "./oneq-changes.js";
-import { selectedAgenda, agendaFingerprint } from "./agenda.js?v=0.5.0";
+import { selectedAgenda, agendaFingerprint } from "./agenda.js?v=0.5.1-mach";
 
 export const ATTENDEE_LIMIT = 300;
 export const CUE_LIMIT = 150;

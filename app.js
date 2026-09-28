@@ -24,7 +24,7 @@ import {
   CUE_LIMIT,
   CSV_LIMIT,
   JSON_LIMIT,
-} from "./event-workspace.js?v=0.5.0";
+} from "./event-workspace.js?v=0.5.1-mach";
 import {
   attendeesView,
   cuesView,
@@ -33,7 +33,7 @@ import {
   dayView,
   rosterSummary,
   cueNotice,
-} from "./workspace-view.js?v=0.5.0";
+} from "./workspace-view.js?v=0.5.1-mach";
 import {
   STORAGE_KEY,
   STEPS,
@@ -43,7 +43,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.5.0";
+} from "./data.js?v=0.5.1-mach";
 import {
   operationDefaults,
   campusName,
@@ -56,7 +56,7 @@ import {
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.5.0";
+} from "./operations.js?v=0.5.1-mach";
 import {
   logisticsView,
   photoChoices,
@@ -69,8 +69,8 @@ import {
   timelineView,
   invitationMissing,
   nextPreparationView,
-} from "./operations-view.js?v=0.5.0";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.5.0";
+} from "./operations-view.js?v=0.5.1-mach";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.5.1-mach";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -85,7 +85,7 @@ export const eventFor = (state) =>
   EVENTS.find((e) => e.id === state.event) || EVENTS.at(-1);
 export const venueFor = (state) =>
   VENUES.find((v) => v.id === state.venue) || VENUES.at(-1);
-export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.5.0";
+export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.5.1-mach";
 import {
   defaultAgenda,
   selectedAgenda,
@@ -96,7 +96,7 @@ import {
   scenarioText,
   AGENDA_LIMIT,
   agendaFingerprint,
-} from "./agenda.js?v=0.5.0";
+} from "./agenda.js?v=0.5.1-mach";
 export function createState() {
   return {
     ...operationDefaults(),
