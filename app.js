@@ -1,3 +1,5 @@
+import { changesView, attendanceControls, feedbackView } from "./changes-view.js";
+import { newMach, normalizeMach, activePeople, pendingChanges, substitute, compareUnidentified, applyCompared, changeSummary, recordReceipt, personIdentity, reconcilePrintRecord, acceptNameplateRosterReceipt, reconcileTargetStatuses } from "./oneq-changes.js";
 import {
   workspaceDefaults,
   normalizeRows,
@@ -100,6 +102,7 @@ export function createState() {
     ...operationDefaults(),
     ...workspaceDefaults(),
     version: 5,
+    mach: newMach(),
     agendaMigrated: false,
     step: 0,
     venue: "unknown",
@@ -352,6 +355,7 @@ export function normalizeState(raw) {
   if (!raw || typeof raw !== "object" || ![1, 2, 3, 4, 5].includes(raw.version))
     throw new Error("unsupported-state");
   const s = createState();
+  s.mach = normalizeMach(raw.mach);
   s.attendees = normalizeRows(raw.attendees, "attendees");
   s.cues = normalizeRows(raw.cues, "cues");
   s.cueBasis = safeText(raw.cueBasis, 100);
@@ -450,37 +454,48 @@ export function normalizeState(raw) {
       : {};
   return reconcile(s);
 }
+const storageBasis = new WeakMap();
+const blockedStorage = new WeakSet();
 export function loadState(storage) {
   try {
     const raw = storage.getItem(STORAGE_KEY);
-    return {
-      state: raw ? normalizeState(JSON.parse(raw)) : reconcile(createState()),
-      message: raw
-        ? "저장한 선택을 불러왔어요."
-        : "선택하면 이 브라우저에 저장해요.",
-    };
+    storageBasis.set(storage, raw);
+    const loaded = raw ? normalizeState(JSON.parse(raw)) : reconcile(createState());
+    storageBasis.set(storage, raw);
+    blockedStorage.delete(storage);
+    if (raw && (!JSON.parse(raw).mach || JSON.parse(raw).attendees?.some(p => !p.id))) {
+      storage.setItem(STORAGE_KEY + ':before-migration', raw);
+      if (!saveState(storage, loaded)) throw Error('migration-save');
+    }
+    return {state: loaded, message: raw ? '저장한 선택을 불러왔어요.' : '선택하면 이 브라우저에 저장해요.'};
   } catch {
-    return {
-      state: reconcile(createState()),
-      message: "저장한 내용을 불러오지 못했어요. 새 선택으로 계속할 수 있어요.",
-    };
+    if (storage) blockedStorage.add(storage);
+    return {state: reconcile(createState()), message:'저장본을 읽지 못해 자동저장을 중지했습니다. 원본을 보존했어요. 저장 파일을 확인한 뒤 복원하거나 명시적으로 초기화하세요.'};
   }
 }
 export function saveState(storage, state) {
   try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (blockedStorage.has(storage)) return false;
+    const current=storage.getItem(STORAGE_KEY);
+    if(storageBasis.has(storage) && storageBasis.get(storage)!==current) return false;
+    const raw=JSON.stringify(state);
+    storage.setItem(STORAGE_KEY,raw);
+    storageBasis.set(storage,raw);
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 export function clearState(storage) {
-  try {
-    storage.removeItem(STORAGE_KEY);
-    return true;
-  } catch {
-    return false;
-  }
+  try { const raw=storage.getItem(STORAGE_KEY); if(raw) storage.setItem(STORAGE_KEY+':before-reset',raw); storage.removeItem(STORAGE_KEY);storageBasis.set(storage,null);blockedStorage.delete(storage);return true; } catch { return false; }
+}
+export function saveWithBackup(storage, next, allowRecovery=false) {
+  if(blockedStorage.has(storage) && !allowRecovery) throw Error('손상된 원본이 있어 자동저장을 중지했습니다. 원본을 보관한 뒤 초기화 또는 복원하세요.');
+  const current=storage.getItem(STORAGE_KEY);
+  if(storageBasis.has(storage) && storageBasis.get(storage)!==current) throw Error('다른 창에서 더 최신 내용을 저장했습니다. JSON으로 현재 내용을 보관하고 새로고침하세요.');
+  storage.setItem(STORAGE_KEY+':before-change',current || JSON.stringify(next));
+  const wasBlocked=blockedStorage.has(storage);
+  if(allowRecovery)blockedStorage.delete(storage);
+  if(!saveState(storage,next)){if(wasBlocked)blockedStorage.add(storage);throw Error('저장하지 못해 적용을 중단했습니다. 이전 내용은 유지됩니다.');}
+  return next;
 }
 export function updateState(state, field, value) {
   const next = structuredClone(state);
@@ -531,6 +546,11 @@ export function updateState(state, field, value) {
     next.external === "yes"
   )
     next.parkingStatus = "unknown";
+  if (field === 'attendees' && rosterFingerprint(next) !== rosterFingerprint(state)) {
+    next.mach.revision++;
+    reconcileTargetStatuses(next);
+    if(next.mach.feedback.nameplate?.records) next.mach.feedback.nameplate.records=next.mach.feedback.nameplate.records.map(r=>reconcilePrintRecord(r,next.attendees.find(p=>p.id===r.participantId),p=>JSON.stringify([p.participantId,p.name,p.organization,p.position,p.status,p.replacesParticipantId||''])));
+  }
   return reconcile(next);
 }
 export async function verifyTemplate(template, fetcher = globalThis.fetch) {
@@ -603,6 +623,7 @@ const dateLabel = (s) => (s.date ? s.date.replace("T", " · ") : "아직 미정"
 let onlyRemaining = false,
   resetNotice = "",
   storageFailed = false;
+let machBridge = null, machComparison = null, machIncoming = null;
 let pendingCSV = null,
   dayPanel = "home";
 let state,
@@ -730,7 +751,7 @@ function outputsView() {
 function checklistView() {
   if (state.view === "day") return dayView(state, dayPanel, onlyRemaining);
   if (state.view === "attendees")
-    return operationTabs(state) + attendeesView(state, pendingCSV);
+    return operationTabs(state) + attendeesView(state, pendingCSV) + changesView(state, machComparison, machIncoming);
   if (state.view === "cues") return operationTabs(state) + cuesView(state);
   if (state.view === "packet")
     return operationTabs(state) + packetView(state, buildChecklist(state));
@@ -828,7 +849,7 @@ function persist() {
   storageFailed = !saveState(storage, state);
   storageMessage = !storageFailed
     ? "이 브라우저에 저장했어요."
-    : "브라우저에 저장하지 못했어요. 현재 화면에서는 계속 이용할 수 있어요.";
+    : "저장하지 못했어요. 다른 창의 최신 저장본 또는 저장 공간을 확인하고 현재 내용은 JSON으로 보관하세요.";
 }
 function announce(message) {
   document.querySelector("#announce").textContent = message;
@@ -921,9 +942,10 @@ function handleInput(e) {
           : row.title || "업무 입력";
     const group = document.querySelector(`[data-group-heading="${row.id}"]`);
     if (group) group.textContent = row.group || "구분 미입력";
-    if (kind === "attendees")
-      document.querySelector(".roster-summary").outerHTML =
-        rosterSummary(state);
+    if (kind === "attendees") {
+      document.querySelector(".roster-summary").outerHTML = rosterSummary(state);
+      refreshMach();
+    }
     const cueNotices = document.querySelector("#cue-notices");
     if (cueNotices) cueNotices.innerHTML = cueNotice(state);
     return;
@@ -1036,6 +1058,13 @@ function handleInput(e) {
 }
 function handleChange(e) {
   const el = e.target;
+  if (el.id === 'mach-file') { readMachFile(el); return; }
+  if (el.dataset.machAttendance) {
+    const rows=state.attendees.map(p=>p.id===el.dataset.machAttendance ? {...p,attendance:el.value,arrived:false} : p);
+    if (el.value==='absent') confirmation('불참 처리할까요?', '이력은 남기고 활성 명단에서 제외합니다. 변경 전달 후 해당 자리만 비우며 기존 명패 회수가 필요합니다.', ()=>commitMach(updateState(state,'attendees',rows)));
+    else commitMach(updateState(state,'attendees',rows));
+    return;
+  }
   if (el.id === "csv-file" || el.id === "json-file") {
     readWorkspaceFile(el);
     return;
@@ -1144,6 +1173,7 @@ function handleChange(e) {
 function handleClick(e) {
   const button = e.target.closest("button");
   if (!button) return;
+  if (button.dataset.mach) { handleMachClick(button); return; }
   if (button.dataset.day) {
     dayPanel = button.dataset.day;
     render();
@@ -1262,7 +1292,10 @@ function handleClick(e) {
       "원큐에 저장한 선택과 체크 상태가 지워집니다. 다른 제작기에 저장한 내용은 그대로 유지됩니다.",
       () => {
         const success = clearState(storage);
+        if (!success) { workspaceMessage('초기화 전 백업을 저장하지 못해 현재 행사를 유지했습니다. JSON으로 먼저 보관하세요.'); return; }
+        machBridge?.invalidateResults();
         state = reconcile(createState());
+        machIncoming=null; machComparison=null; machBridge?.close(); setupMach();
         onlyRemaining = false;
         pendingCSV = null;
         dayPanel = "home";
@@ -1322,6 +1355,7 @@ async function boot() {
     storage = null;
   }
   ({ state, message: storageMessage } = loadState(storage));
+  setupMach();
   const hashStep =
     /^#step-([1-7])(?:\/(prep|onsite|roles|after|attendees|cues|packet|files|day))?$/.exec(
       location.hash,
@@ -1412,7 +1446,8 @@ async function readWorkspaceFile(input) {
         "저장본으로 현재 행사를 교체할까요?",
         `불러올 행사: ${next.eventName || "행사명 미정"} · 참석자 ${next.attendees.length}명 · 큐시트 ${next.cues.length}행. 현재 행사 입력은 교체됩니다. 취소 후 JSON으로 먼저 보관할 수 있어요.`,
         () => {
-          state = next;
+          try { state = saveWithBackup(storage, next, true); } catch (error) { workspaceMessage(error.message); return; }
+          machIncoming=null; machComparison=null; machBridge?.close(); setupMach();
           pendingCSV = null;
           dayPanel = "home";
           resetNotice =
@@ -1441,13 +1476,11 @@ function handleWorkspaceClick(button) {
   }
   if (button.dataset.rowDelete && ["attendees", "cues"].includes(kind)) {
     confirmation(
-      kind === "attendees" ? "참석자를 삭제할까요?" : "큐시트 행을 삭제할까요?",
-      "이 행의 입력이 삭제됩니다. 삭제 전에는 취소할 수 있어요.",
+      kind === "attendees" ? "불참 처리할까요?" : "큐시트 행을 삭제할까요?",
+      kind === "attendees" ? "참석자 이력은 보존하고 활성 명단에서 제외합니다. 해당 자리 비우기와 명패 회수는 도구에서 확인하세요." : "이 행의 입력이 삭제됩니다. 삭제 전에는 취소할 수 있어요.",
       () => {
-        change(
-          kind,
-          state[kind].filter((r) => r.id !== button.dataset.rowDelete),
-        );
+        if (kind === 'attendees') commitMach(updateState(state,kind,state[kind].map(r=>r.id===button.dataset.rowDelete?{...r,attendance:'absent',arrived:false}:r)));
+        else change(kind,state[kind].filter((r)=>r.id!==button.dataset.rowDelete));
         document
           .querySelector(
             `[data-work="${kind === "attendees" ? "add-person" : "add-cue"}"]`,
@@ -1476,6 +1509,9 @@ function handleWorkspaceClick(button) {
       el?.scrollIntoView({ block: "center" });
       break;
     }
+    case "csv-compare":
+      if (pendingCSV) { machComparison=compareUnidentified(state,pendingCSV.attendees); render(); document.querySelector('#mach-changes')?.scrollIntoView(); }
+      break;
     case "csv-import":
       document.querySelector("#csv-file").click();
       break;
@@ -1491,7 +1527,7 @@ function handleWorkspaceClick(button) {
       if (!pendingCSV) return;
       const replace = button.dataset.work === "csv-replace";
       if (
-        (replace ? 0 : state.attendees.length) + pendingCSV.attendees.length >
+        state.attendees.length + pendingCSV.attendees.length >
         ATTENDEE_LIMIT
       ) {
         workspaceMessage("추가 후 300명을 초과합니다. 기존 명단을 확인하세요.");
@@ -1499,16 +1535,17 @@ function handleWorkspaceClick(button) {
       }
       const apply = () => {
         const rows = replace
-          ? pendingCSV.attendees
+          ? [...state.attendees.map(p=>({...p,attendance:'absent',arrived:false})), ...pendingCSV.attendees]
           : [...state.attendees, ...pendingCSV.attendees];
+        if (!commitMach(updateState(state, 'attendees', rows))) return;
         pendingCSV = null;
-        change("attendees", rows);
+        render();
         announce("CSV 명단을 적용했어요.");
       };
       if (replace)
         confirmation(
           "현재 명단 전체를 교체할까요?",
-          `현재 ${state.attendees.length}명을 가져온 ${pendingCSV.attendees.length}명으로 교체합니다. 기존 명단은 CSV/JSON으로 먼저 보관할 수 있어요.`,
+          `현재 참석자는 불참 이력으로 보존하고 가져온 ${pendingCSV.attendees.length}명을 새 ID로 추가합니다. 기존 사람의 정정이라면 취소 후 수정명단 비교를 이용하세요. 좌석·명패는 도구에서 변경을 확인해야 합니다.`,
           apply,
         );
       else apply();
@@ -1584,7 +1621,8 @@ function handleWorkspaceClick(button) {
         "새 행사로 복제할까요?",
         `현재 행사 대신 새 준비를 시작합니다. 참석자는 ${keep ? "유지" : "비우기"}합니다. 날짜·담당 배정·모든 완료 상태·주차등록·도착 확인을 초기화합니다. 기존 행사는 JSON으로 먼저 저장하세요.`,
         () => {
-          state = duplicateEvent(state, keep, normalizeState);
+          try { state = saveWithBackup(storage, duplicateEvent(state, keep, normalizeState)); } catch(error) { workspaceMessage(error.message); return; }
+          machIncoming=null; machComparison=null; machBridge?.close(); setupMach();
           pendingCSV = null;
           dayPanel = "home";
           resetNotice =
@@ -1595,5 +1633,121 @@ function handleWorkspaceClick(button) {
       break;
     }
   }
+}
+function commitMach(next) {
+  try { state=saveWithBackup(storage,next); storageFailed=false; render(); return true; }
+  catch(error) {workspaceMessage(error.message);return false;}
+}
+function refreshMach() {
+  const panel=document.querySelector('#mach-changes');
+  if(panel) { const checked=new Set([...panel.querySelectorAll('[data-mach-select]:checked')].map(el=>el.dataset.machSelect)); panel.outerHTML=changesView(state,machComparison,machIncoming); document.querySelectorAll('[data-mach-select]').forEach(el=>{el.checked=checked.has(el.dataset.machSelect);}); }
+}
+function setupMach() {
+  if(!globalThis.Mach) return;
+  machBridge=Mach.createBridge({app:'oneq',onTransfer:receiveMach,onStatus:info=>{
+    const target=info.targetApp;
+    if(!['prime','nameplate'].includes(target)) return;
+    // Only validated receiver results can advance the immutable sent baseline.
+    const sent=state.mach.targets[target]?.sent;
+    if(sent && (sent.eventId!==state.mach.eventId || sent.transferId!==info.transferId))return;
+    const next=info.result && sent?.transferId===info.transferId
+      ? recordReceipt(state,target,sent,info.result)
+      : structuredClone(state);
+    if(!info.result) next.mach.targets[target]={...(next.mach.targets[target]||{}),status:info.status};
+    if(saveState(storage,next)) {state=next;refreshMach();}
+  }});
+}
+async function receiveMach(payload,respond=()=>{},meta={}) {
+  try {
+    Mach.validateTransfer(payload);
+    if(!['seats','print'].includes(payload.kind)) throw Error('원큐에서는 자리 결과 또는 출력 결과 파일을 받습니다. 명단 정정은 CSV 비교를 이용하세요.');
+    if(payload.eventId!==state.mach.eventId) throw Error('다른 행사 결과입니다. 해당 행사 저장본을 먼저 열어 주세요.');
+    if(machIncoming) throw Error('현재 열려 있는 도구 결과를 먼저 반영하거나 취소하세요.');
+    const target=payload.kind==='seats'?'prime':'nameplate';
+    if(meta.sourceApp && meta.sourceApp!==target && !(payload.kind==='print' && meta.sourceApp==='prime')) throw Error('결과를 보낸 도구가 올바르지 않습니다.');
+    const payloadHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(payload))))].map(b=>b.toString(16).padStart(2,'0')).join('');
+    const receipt=state.mach.receipts.find(r=>r.transferId===payload.transferId);
+    if(receipt) {if(receipt.payloadHash!==payloadHash) throw Error('이미 확인한 전달 번호에 다른 내용이 포함되었습니다. 새 결과 파일을 요청하세요.'); respond({status:'applied',appliedIds:receipt.ids});return;}
+    const basis=state.mach.targets[target]?.revision ?? (payload.kind==='print' ? state.mach.targets.prime?.revision : undefined);
+    if(payload.baseRevision!==state.mach.revision && (basis===undefined || payload.baseRevision!==basis)) throw Error('현재 명단과 다른 기준의 결과입니다. 최신 명단을 전달하고 다시 확인하세요.');
+    const rows=payload.participants||payload.records||[];
+    if(payload.kind==='print' && rows.some(r=>r.revision>state.mach.revision)) throw Error('현재 원큐보다 새 명단의 출력 결과입니다. 원큐 기준본을 확인하세요.');
+    if(rows.some(r=>!state.attendees.some(p=>p.id===r.participantId))) throw Error('현재 행사에 없는 참석자 결과가 포함돼 있습니다.');
+    machIncoming={payload:structuredClone(payload),payloadHash,respond,target,expectedRevision:state.mach.revision};
+    respond({status:'pending'});
+    navigate(6,true,'attendees');
+    document.querySelector('#mach-changes')?.scrollIntoView();
+  } catch(error) {respond({status:'conflict',message:error.message});workspaceMessage(error.message);}
+}
+async function readMachFile(input) {
+  const file=input.files?.[0];input.value='';if(!file)return;
+  try { receiveMach(await Mach.readFile(file)); } catch(error) {workspaceMessage(error.message);}
+}
+function selectedMachTransfer(target='prime') {
+  const ids=new Set([...document.querySelectorAll('[data-mach-select]:checked')].map(el=>el.dataset.machSelect));
+  const changes=pendingChanges(state,target).filter(c=>ids.has(c.id));
+  if(!changes.length) throw Error('전달할 변경을 선택하세요.');
+  // A substitute and the original remain a coherent change even when selected individually.
+  const selected=new Set(changes.map(c=>c.id));
+  for(const c of changes) if(c.after.replacesParticipantId && !selected.has(c.after.replacesParticipantId) && pendingChanges(state,target).some(x=>x.id===c.after.replacesParticipantId)) throw Error('대리참석자와 원 참석자 변경을 함께 선택하세요.');
+  for(const c of changes) if(c.after.status==='replaced' && state.attendees.some(p=>p.replaces===c.id && !selected.has(p.id) && pendingChanges(state,target).some(x=>x.id===p.id))) throw Error('원 참석자와 대리참석자 변경을 함께 선택하세요.');
+  if(changes.some(c=>!c.after.name.trim())) throw Error('성명을 먼저 입력하세요.');
+  const participants=changes.map(c=>({...c.after}));
+  return Mach.createTransfer({kind:'roster',eventId:state.mach.eventId,eventName:state.eventName,revision:state.mach.revision,baseRevision:state.mach.targets[target]?.revision||0,participants});
+}
+async function sendMach(target,payload,retry=false) {
+  const next=structuredClone(state);
+  next.mach.targets[target]={...(next.mach.targets[target]||{}),status:'preparing',sent:payload,transferId:payload.transferId};
+  if(!commitMach(next)) return;
+  try {
+    let result;
+    if(retry) { try {result=await machBridge.retry(target,payload.transferId);} catch {result=await machBridge.send(target,payload);} } else result=await machBridge.send(target,payload);
+    // Immutable sent snapshot, not the potentially edited current roster, is acknowledged.
+    const next=recordReceipt(state,target,payload,result);
+    if(!commitMach(next)) workspaceMessage('상대 도구 확인은 받았지만 원큐에 저장하지 못했습니다. 반영 여부 확인이 필요합니다.');
+  } catch(error) {const next=structuredClone(state);next.mach.targets[target].status='unknown';commitMach(next);workspaceMessage('연결 확인 불가: '+error.message+' 연동 JSON으로 이어서 작업할 수 있습니다.');}
+}
+function delegateDialog(id) {
+  const original=state.attendees.find(p=>p.id===id);if(!original)return;
+  const dialog=document.createElement('dialog');dialog.className='mach-delegate';
+  dialog.innerHTML=`<form method="dialog"><h2>대리참석자 등록</h2><p>원 참석자 ${esc(original.name)}의 이력은 유지합니다. 새 참석자는 별도 사람으로 등록합니다.</p><label>성명 <input name="name" required maxlength="80"></label><label>소속 <input name="org" maxlength="120"></label><label>직책 <input name="title" maxlength="80"></label><p>대리참석자는 미배정으로 전달합니다. 기존 자리 승계·미배정·다른 자리 지정은 PRIME에서 선택하세요.</p><p>실제 자리 적용과 상석·고정석 예외는 PRIME에서 담당자가 다시 확인합니다.</p><div class="row"><button value="cancel" formnovalidate>취소</button><button value="confirm">등록</button></div></form>`;
+  document.body.append(dialog);
+  dialog.addEventListener('close',()=>{if(dialog.returnValue==='confirm'){const form=new FormData(dialog.querySelector('form'));try{const p={...newPerson('person-'+crypto.randomUUID()),group:original.group,name:String(form.get('name')),org:String(form.get('org')),title:String(form.get('title'))};commitMach(updateState(state,'attendees',substitute(state,id,p,'unassigned')));}catch(error){workspaceMessage(error.message);}}dialog.remove();},{once:true});dialog.showModal();
+}
+async function handleMachClick(button) {
+ try {
+  const action=button.dataset.mach;
+  if(action==='select-all'){document.querySelectorAll('[data-mach-select]').forEach(el=>el.checked=true);return;}
+  if(action==='delegate'){delegateDialog(button.dataset.person);return;}
+  if(action==='send-prime'||action==='send-nameplate'){const target=action==='send-prime'?'prime':'nameplate';await sendMach(target,selectedMachTransfer(target));return;}
+  if(action.startsWith('retry-')){const target=action.slice(6),sent=state.mach.targets[target]?.sent;if(!sent)throw Error('다시 확인할 보낸 내용이 없습니다.');await sendMach(target,sent,true);return;}
+  if(action==='export'){const payload=selectedMachTransfer();Mach.exportFile(payload,'원큐-연동변경.json');workspaceMessage('ID·행사·변경 기준을 포함한 파일을 저장했습니다. 좌석과 디자인 파일은 각 도구에서 별도로 보관하세요.');return;}
+  if(action==='import'){document.querySelector('#mach-file').click();return;}
+  if(action==='summary'){await copyText(changeSummary(state));workspaceMessage("변경 요약을 복사했어요.");return;}
+  if(action==='compare-cancel'){machComparison=null;render();return;}
+  if(action==='compare-apply') { const choices=Object.fromEntries([...document.querySelectorAll('[data-mach-match]')].map(el=>[el.dataset.machMatch,el.value])); if(!Object.values(choices).some(Boolean))throw Error('반영할 행과 대상을 선택하세요.'); if(commitMach(updateState(state,'attendees',applyCompared(state,machComparison,choices)))){machComparison=null;pendingCSV=null;render();}return;}
+  if(action==='feedback-cancel'){machIncoming?.respond({status:'cancelled'});machIncoming=null;render();return;}
+  if(action==='feedback-apply') {
+    if(!machIncoming)return;
+    const {payload,payloadHash,target,respond,expectedRevision}=machIncoming;
+    if(expectedRevision!==state.mach.revision)throw Error('미리보기 이후 참석자가 바뀌었습니다. 최신 명단으로 다시 확인하세요.');
+    const next=payload.kind==='print' ? acceptNameplateRosterReceipt(state,payload,Mach.personFingerprint) : structuredClone(state),rows=payload.participants||payload.records||[],ids=rows.map(r=>r.participantId);
+    next.mach.feedback[target]={...payload,...(payload.kind==='seats'?{seats:payload.participants}:{} )};
+    if(payload.kind==='print') next.mach.feedback[target].records=payload.records.map(r=>{
+      return reconcilePrintRecord(r,next.attendees.find(p=>p.id===r.participantId),Mach.personFingerprint);
+    });
+    next.mach.receipts.push({transferId:payload.transferId,payloadHash,ids});next.mach.receipts=next.mach.receipts.slice(-100);
+    if(commitMach(next)){respond({status:'applied',appliedIds:ids});machIncoming=null;render();}return;
+  }
+  if(action==='undo') {
+    const raw=storage.getItem(STORAGE_KEY+':before-change');if(!raw)throw Error('복원할 적용 전 저장본이 없습니다.');
+    const restored=normalizeState(JSON.parse(raw));
+    confirmation('원큐만 적용 전으로 복원할까요?', '다른 도구는 자동으로 되돌아가지 않습니다. 복원한 변경을 다시 전달하고 확인해야 합니다.',()=>{
+      // Preserve acknowledged baselines so reverting a sent value remains a new pending change.
+      if(restored.mach.eventId===state.mach.eventId){restored.mach.targets=structuredClone(state.mach.targets);restored.mach.revision=Math.max(state.mach.revision,restored.mach.revision)+1;}
+      if(commitMach(restored)){machBridge?.invalidateResults();machIncoming=null;machComparison=null;render();}
+    });return;
+  }
+ } catch(error) {workspaceMessage(error.message);}
 }
 if (typeof document !== "undefined") boot();

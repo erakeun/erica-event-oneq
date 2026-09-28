@@ -1,0 +1,12 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const fs=require('node:fs/promises'),assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({channel:'chrome',headless:true});const context=await browser.newContext();const errors=[];context.on('page',p=>p.on('pageerror',e=>errors.push(e.message)));
+await context.route(/googletagmanager|google-analytics/,r=>r.abort());
+await context.route(u=>u.pathname==='/nameplate-maker/',async r=>r.fulfill({contentType:'text/html; charset=utf-8',body:await fs.readFile(process.env.LEGACY_NAMEPLATE_HTML,'utf8')}));
+const p=await context.newPage();await p.goto('http://127.0.0.1:4177/erica-seat-planner/');
+const packet=JSON.parse(await fs.readFile(__dirname+'/fixtures/mach-roster-v1.json','utf8'));
+await p.locator('#mach-file-input').setInputFiles({name:'synthetic.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(packet))});await p.locator('#mach-link-confirm').check();await p.locator('#mach-all').click();await p.locator('#mach-apply').click();
+const popup=context.waitForEvent('page');await p.locator('#nameplate-button').click();const old=await popup;await old.waitForLoadState();
+await p.waitForFunction(()=>document.querySelector('#mach-transfer-status').textContent.includes('반영 여부 확인 필요'),null,{timeout:27000});
+assert.equal(await old.evaluate(()=>typeof window.Mach),'undefined');assert.equal(await old.evaluate(()=>JSON.parse(localStorage.getItem('nameplate-maker-project-v27')).people.some(p=>p.id==='synthetic-a')),false);assert.equal(await old.locator('#seat-planner-transfer-summary').innerText(),'');assert.equal(errors.length,0);
+console.log(JSON.stringify({newSenderOldReceiver:'safe-timeout',applied:false,oldStandalonePreserved:true,pageErrors:0}));await browser.close();})().catch(e=>{console.error(e.message);process.exit(1)});
