@@ -1892,3 +1892,14 @@ textarea:focus-visible {
     max-width: none;
   }
 }
+
+/* Event change review uses the existing cards and remains usable on narrow screens. */
+#mach-changes { margin-top: 1.25rem; }
+#mach-changes p, #mach-changes label { overflow-wrap: anywhere; }
+#mach-changes select { width:100%; min-width:0; padding:.65rem; }
+#mach-changes .row { flex-wrap:wrap; }
+#mach-changes .button { white-space:normal; }
+.mach-delegate { max-width: min(34rem, calc(100vw - 2rem)); }
+.mach-delegate label { display:grid; gap:.35rem; margin:.8rem 0; }
+.mach-delegate input, .mach-delegate select { width:100%; min-width:0; padding:.65rem; }
+@media(max-width: 440px) { #mach-changes .button { width:100%; } }

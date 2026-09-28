@@ -1,3 +1,4 @@
+import { uid, activePeople, newMach } from "./oneq-changes.js";
 import { selectedAgenda, agendaFingerprint } from "./agenda.js?v=0.5.0";
 
 export const ATTENDEE_LIMIT = 300;
@@ -62,7 +63,7 @@ export function normalizeRows(raw, kind, strict = false) {
       throw Error("잘못된 행입니다.");
     if (strict && (!safeId(r.id) || ids.has(r.id)))
       throw Error("행 ID가 없거나 중복되었습니다.");
-    const id = safeId(r.id) && !ids.has(r.id) ? r.id : `${kind}-${i}`;
+    const id = safeId(r.id) && !ids.has(r.id) ? r.id : uid(kind);
     ids.add(id);
     const row = { id };
     for (const [k, max] of Object.entries(fields)) {
@@ -78,6 +79,12 @@ export function normalizeRows(raw, kind, strict = false) {
       if (strict && typeof r.arrived !== "boolean")
         throw Error("참석 확인 상태가 올바르지 않습니다.");
       row.arrived = r.arrived === true;
+      if (r.attendance !== undefined) {
+        if (!['attending','absent','replaced'].includes(r.attendance)) throw Error('참석 상태를 확인하세요.');
+        row.attendance = r.attendance;
+      }
+      if (r.replaces !== undefined) { if (r.replaces && !safeId(r.replaces)) throw Error('대리참석 관계를 확인하세요.'); row.replaces=r.replaces; }
+      if (r.seatChoice !== undefined) { if (!['unassigned','inherit','other'].includes(r.seatChoice)) throw Error('자리 처리 선택을 확인하세요.'); row.seatChoice=r.seatChoice; }
     }
     return row;
   });
@@ -129,10 +136,10 @@ export function timeWarnings(rows) {
   return warnings;
 }
 export const rosterGroups = (s) =>
-  [...new Set(s.attendees.map((p) => p.group.trim() || "구분 미입력"))].map(
+  [...new Set(activePeople(s).map((p) => p.group.trim() || "구분 미입력"))].map(
     (name) => ({
       name,
-      count: s.attendees.filter(
+      count: activePeople(s).filter(
         (p) => (p.group.trim() || "구분 미입력") === name,
       ).length,
     }),
@@ -145,6 +152,7 @@ export function csvCell(value) {
   return '"' + v.replace(/"/g, '""') + '"';
 }
 export function exportAttendeesCSV(rows, target = "oneq") {
+  rows = rows.filter(p => !['absent','replaced'].includes(p.attendance));
   const spec =
     target === "nameplate"
       ? [
@@ -315,6 +323,7 @@ export function packetSignature(s) {
     step,
     view,
     cueBasis,
+    mach,
     ...content
   } = s;
   return agendaFingerprint({
@@ -420,6 +429,7 @@ export function importEventJSON(source, normalize, defaults) {
   if (!raw || Array.isArray(raw))
     throw Error("행사 정보 형식이 잘못되었습니다.");
   for (const [key, sample] of Object.entries(defaults)) {
+    if (key === 'mach' && raw[key] === undefined) continue;
     const value = raw[key];
     if (
       Array.isArray(sample)
@@ -446,7 +456,7 @@ export function importEventJSON(source, normalize, defaults) {
   const normalized = normalize(raw);
   // Reject invalid enums, dates, lengths, IDs and malformed arrays instead of silently replacing user data.
   for (const key of Object.keys(defaults)) {
-    if (["checks", "onsiteChecks", "afterChecks"].includes(key)) continue;
+    if (["checks", "onsiteChecks", "afterChecks"].includes(key) || (key === "mach" && raw[key] === undefined)) continue;
     if (
       JSON.stringify(canonical(raw[key])) !==
       JSON.stringify(canonical(normalized[key]))
@@ -476,6 +486,7 @@ export function duplicateEvent(s, keepAttendees, normalize) {
     step: 1,
     view: "prep",
   });
+  next.mach = newMach();
   next.agenda = s.agenda.map((a) => ({ ...a, role: "" }));
   next.attendees = keepAttendees
     ? s.attendees.map((p) => ({ ...p, arrived: false }))
