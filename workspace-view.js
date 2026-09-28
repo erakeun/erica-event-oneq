@@ -5,7 +5,7 @@ import {
   eventHeading,
   fieldAgendaView,
   onsiteView,
-} from "./operations-view.js?v=0.5.0";
+} from "./operations-view.js?v=0.5.1-mach";
 import {
   assignedRoles,
   locationText,
@@ -13,16 +13,16 @@ import {
   buildAfter,
   PARKING_LABELS,
   matches,
-} from "./operations.js?v=0.5.0";
-import { VENUES, EVENTS, LINKS, FOOD_OPTIONS } from "./data.js?v=0.5.0";
-import { selectedAgenda, scenarioText } from "./agenda.js?v=0.5.0";
+} from "./operations.js?v=0.5.1-mach";
+import { VENUES, EVENTS, LINKS, FOOD_OPTIONS } from "./data.js?v=0.5.1-mach";
+import { selectedAgenda, scenarioText } from "./agenda.js?v=0.5.1-mach";
 import {
   rosterGroups,
   cueStale,
   timeWarnings,
   ATTENDEE_LIMIT,
   CUE_LIMIT,
-} from "./event-workspace.js?v=0.5.0";
+} from "./event-workspace.js?v=0.5.1-mach";
 
 const button = (action, label, cls = "secondary") =>
   `<button class="button ${cls}" data-work="${action}">${label}</button>`;

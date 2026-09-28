@@ -1,5 +1,5 @@
-import { rosterDependency, cueSignature } from "./event-workspace.js?v=0.5.0";
-import { agendaFingerprint } from "./agenda.js?v=0.5.0";
+import { rosterDependency, cueSignature } from "./event-workspace.js?v=0.5.1-mach";
+import { agendaFingerprint } from "./agenda.js?v=0.5.1-mach";
 import {
   VENUES,
   CAMPUSES,
@@ -12,7 +12,7 @@ import {
   ONSITE_ITEMS,
   AFTER_ITEMS,
   PREP_PRIORITY,
-} from "./data.js?v=0.5.0";
+} from "./data.js?v=0.5.1-mach";
 export const PARKING_LABELS = {
   done: "완료",
   pending: "아직 안 함",

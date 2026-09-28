@@ -1,10 +1,10 @@
-import { selectedAgenda } from "./agenda.js?v=0.5.0";
+import { selectedAgenda } from "./agenda.js?v=0.5.1-mach";
 import {
   FOOD_OPTIONS,
   GUEST_NEEDS,
   ROLE_TEMPLATES,
   EVENTS,
-} from "./data.js?v=0.5.0";
+} from "./data.js?v=0.5.1-mach";
 import {
   matches,
   recommendedRoles,
@@ -15,7 +15,7 @@ import {
   invitationText,
   locationText,
   nextPreparation,
-} from "./operations.js?v=0.5.0";
+} from "./operations.js?v=0.5.1-mach";
 export const esc = (v) =>
   String(v ?? "").replace(
     /[&<>"']/g,
