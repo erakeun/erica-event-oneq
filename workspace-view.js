@@ -1,3 +1,4 @@
+import { assignmentTable } from "./role-assignment-view.js?v=0.6.0";
 import { activePeople } from "./oneq-changes.js";
 import { attendanceControls, feedbackView } from "./changes-view.js";
 import {
@@ -5,7 +6,7 @@ import {
   eventHeading,
   fieldAgendaView,
   onsiteView,
-} from "./operations-view.js?v=0.5.1-mach";
+} from "./operations-view.js?v=0.6.0";
 import {
   assignedRoles,
   locationText,
@@ -13,16 +14,16 @@ import {
   buildAfter,
   PARKING_LABELS,
   matches,
-} from "./operations.js?v=0.5.1-mach";
-import { VENUES, EVENTS, LINKS, FOOD_OPTIONS } from "./data.js?v=0.5.1-mach";
-import { selectedAgenda, scenarioText } from "./agenda.js?v=0.5.1-mach";
+} from "./operations.js?v=0.6.0";
+import { VENUES, EVENTS, LINKS, FOOD_OPTIONS } from "./data.js?v=0.6.0";
+import { selectedAgenda, scenarioText } from "./agenda.js?v=0.6.0";
 import {
   rosterGroups,
   cueStale,
   timeWarnings,
   ATTENDEE_LIMIT,
   CUE_LIMIT,
-} from "./event-workspace.js?v=0.5.1-mach";
+} from "./event-workspace.js?v=0.6.0";
 
 const button = (action, label, cls = "secondary") =>
   `<button class="button ${cls}" data-work="${action}">${label}</button>`;
@@ -85,7 +86,7 @@ export function packetView(s, items) {
       ? `세팅 지원: ${venue.setupContact} · 세팅이 필요한 경우 문의`
       : "",
   ].filter(Boolean);
-  return `<article class="operation-packet"><h1>행사 운영본</h1>${eventHeading(s)}<p>${esc(EVENTS.find((e) => e.id === s.event)?.name)}${s.people ? ` · 예상 ${esc(s.people)}명` : ""}${s.attendees.length ? ` · 명단 ${s.attendees.length}명` : ""}</p><div class="row gap no-print">${button("packet-reviewed", "운영본 확인 완료")}<button class="button" data-action="print">운영본 인쇄 / PDF 저장</button><button class="button secondary" data-view="day">행사 당일 모드</button></div><p class="small no-print">인쇄 창에서 A4와 PDF 저장을 선택하세요. 참석자 정보가 포함될 수 있으니 보관·공유에 주의하세요.</p><p class="packet-status">운영본: ${status(s, "operation-pack")}</p>${section("장소 및 연락처", contact.length ? contact.map((c) => `<p>${esc(c)}</p>`).join("") : "")}${feedbackView(s)}${section("참석자 명단 · 소개 순서", s.attendees.length ? attendeeTable(s) : "")}${section("역할분담", roles.length ? `<dl class="role-sheet">${roles.map((r) => `<div><dt>${esc(r.label)}</dt><dd>${esc(r.name)}</dd></div>`).join("")}</dl>` : "")}${section("최종 식순", agenda.length ? `<ol>${agenda.map((r) => `<li><strong>${esc(r.title)}</strong>${r.role ? ` · ${esc(r.role)}` : ""}</li>`).join("")}</ol>` : "")}${section("진행 큐시트", s.cues.length ? cueNotice(s) + cueTable(s) : "")}${section(
+  return `<article class="operation-packet"><h1>행사 운영본</h1>${eventHeading(s)}<p>${esc(EVENTS.find((e) => e.id === s.event)?.name)}${s.people ? ` · 예상 ${esc(s.people)}명` : ""}${s.attendees.length ? ` · 명단 ${s.attendees.length}명` : ""}</p><div class="row gap no-print">${button("packet-reviewed", "운영본 확인 완료")}<button class="button" data-action="print">운영본 인쇄 / PDF 저장</button><button class="button secondary" data-view="day">행사 당일 모드</button></div><p class="small no-print">인쇄 창에서 A4와 PDF 저장을 선택하세요. 참석자 정보가 포함될 수 있으니 보관·공유에 주의하세요.</p><p class="packet-status">운영본: ${status(s, "operation-pack")}</p>${section("장소 및 연락처", contact.length ? contact.map((c) => `<p>${esc(c)}</p>`).join("") : "")}${feedbackView(s)}${section("참석자 명단 · 소개 순서", s.attendees.length ? attendeeTable(s) : "")}${section("업무 역할분담", s.roleTasks?.length ? assignmentTable(s,s.roleTasks) : "")}${section("기존 역할 메모", roles.length ? `<dl class="role-sheet">${roles.map((r) => `<div><dt>${esc(r.label)}</dt><dd>${esc(r.name)}</dd></div>`).join("")}</dl>` : "")}${section("최종 식순", agenda.length ? `<ol>${agenda.map((r) => `<li><strong>${esc(r.title)}</strong>${r.role ? ` · ${esc(r.role)}` : ""}</li>`).join("")}</ol>` : "")}${section("진행 큐시트", s.cues.length ? cueNotice(s) + cueTable(s) : "")}${section(
     "주요 준비물",
     agenda.some((r) => r.check)
       ? `<ul>${agenda
@@ -111,7 +112,7 @@ export function packetView(s, items) {
   )}${section("다과·식사", matches(s, "food") ? `<p>${FOOD_OPTIONS.find(([id]) => id === s.food)[1]} · 제공 ${esc(s.foodPeople || s.people) || "미정"}${s.foodPeople || s.people ? "명" : ""} · 입력 명단 ${s.attendees.length}명</p><p>인원: ${status(s, "food-count")} · 주문/예약: ${status(s, "food-order")}</p>${s.foodTime ? `<p>수령: ${esc(s.foodTime)}</p>` : ""}${s.foodPlace ? `<p>배치: ${esc(s.foodPlace)}</p>` : ""}` : "")}${section("촬영·보도자료", [s.vip === "yes" ? `<p>촬영·취재 요청: ${status(s, "press-request")} · 지원 확정: ${status(s, "press-support")}</p>` : "", matches(s, "photo") ? `<p>현장 촬영: ${s.onsiteChecks.photo?.status === "done" ? "확인 완료" : "확인 필요"}</p>` : "", s.publicity === "needed" ? `<p>보도자료 제출: ${status(s, "pr-submit")}</p>` : ""].join(""))}${section("현장점검", `<p>${onsite.filter((i) => s.onsiteChecks[i.id]?.status === "done").length} / ${onsite.length}개 확인</p><ul>${onsite.map((i) => `<li>${s.onsiteChecks[i.id]?.status === "done" ? "☑" : "□"} ${esc(i.title)}</li>`).join("")}</ul>`)}${section("사후정리", after.length ? `<ul>${after.map((i) => `<li>${s.afterChecks[i.id]?.status === "done" ? "☑" : "□"} ${esc(i.title)}</li>`).join("")}</ul>${s.afterNote ? `<p>${esc(s.afterNote)}</p>` : ""}` : "")}</article>`;
 }
 export function filesView() {
-  return `<h1>행사 저장·복원</h1><p class="intro">행사 전체를 로컬 파일로 보관하고, 지난 행사를 새 준비의 시작점으로 사용하세요.</p><section class="panel"><h2>JSON 저장 / 불러오기</h2><p>이 파일에는 참석자 이름 등 행사정보가 포함될 수 있습니다. 보관·공유에 주의하세요.</p><div class="row">${button("json-export", "현재 행사 JSON 내보내기")}${button("json-import", "JSON 저장본 불러오기")}</div><p class="small">서버로 업로드하지 않습니다. 원큐 V0.5 JSON · 행사 연결·변경 기준·도구 확인 포함 · 최대 3MB. 실제 좌석과 명패 디자인은 각 도구의 저장 파일이 별도로 필요합니다. 파일을 검증한 뒤 현재 행사 교체 여부를 확인합니다. 현재 행사를 먼저 내보내 두면 안전하게 되돌릴 수 있어요.</p></section><section class="panel"><h2>지난 행사 복제</h2><p>현재 또는 불러온 행사를 새 행사로 복제합니다. 날짜·완료 상태·담당자 배정·도착 확인·큐시트 시간은 비우고 장소·식순·큐시트 구조·출력물 종류는 유지합니다.</p><div class="row">${button("duplicate-keep", "참석자 유지해서 복제")}${button("duplicate-clear", "참석자 비우고 복제")}</div><p class="small">복제 전 원본은 이 브라우저에 보관합니다. 브라우저 데이터를 지우면 함께 없어지므로 JSON 파일도 별도로 저장하세요.</p></section>`;
+  return `<h1>행사 저장·복원</h1><p class="intro">담당자·역할분담을 포함한 행사 전체를 로컬 파일로 보관하고, 지난 행사를 새 준비의 시작점으로 사용하세요.</p><section class="panel"><h2>JSON 저장 / 불러오기</h2><p>이 파일에는 참석자 이름 등 행사정보가 포함될 수 있습니다. 보관·공유에 주의하세요.</p><div class="row">${button("json-export", "현재 행사 JSON 내보내기")}${button("json-import", "JSON 저장본 불러오기")}</div><p class="small">서버로 업로드하지 않습니다. 원큐 V0.5 호환 JSON · 담당자·역할분담·행사 연결·변경 기준·도구 확인 포함 · 최대 3MB. 실제 좌석과 명패 디자인은 각 도구의 저장 파일이 별도로 필요합니다. 파일을 검증한 뒤 현재 행사 교체 여부를 확인합니다. 현재 행사를 먼저 내보내 두면 안전하게 되돌릴 수 있어요.</p></section><section class="panel"><h2>지난 행사 복제</h2><p>현재 또는 불러온 행사를 새 행사로 복제합니다. 날짜·완료 상태·담당자 배정·도착 확인·큐시트 시간은 비우고 장소·식순·큐시트 구조·출력물 종류는 유지합니다.</p><div class="row">${button("duplicate-keep", "참석자 유지해서 복제")}${button("duplicate-clear", "참석자 비우고 복제")}</div><p class="small">복제 전 원본은 이 브라우저에 보관합니다. 브라우저 데이터를 지우면 함께 없어지므로 JSON 파일도 별도로 저장하세요.</p></section>`;
 }
 export function dayView(s, panel, onlyRemaining) {
   s = {...s, attendees:activePeople(s)};
@@ -131,13 +132,13 @@ export function dayView(s, panel, onlyRemaining) {
   else if (panel === "cues") content = cueNotice(s) + cueTable(s);
   else if (panel === "attendees") content = attendeeTable(s, true);
   else if (panel === "roles")
-    content = assignedRoles(s).length
+    content = `<div class="row no-print"><button class="button" data-my-work="true">내 업무 보기</button><button class="button secondary" data-view="roles">역할분담 열기</button></div>${s.roleTasks?.length ? assignmentTable(s,s.roleTasks.filter(t=>t.phase==="day")) : ""}` + (assignedRoles(s).length
       ? `<dl class="role-sheet">${assignedRoles(s)
           .map(
             (r) => `<div><dt>${esc(r.label)}</dt><dd>${esc(r.name)}</dd></div>`,
           )
           .join("")}</dl>`
-      : "<p>입력한 담당 역할이 없습니다.</p>";
+      : "<p>기존 간단 역할 메모가 없습니다.</p>");
   else if (panel === "onsite") content = onsiteView(s, onlyRemaining);
   else
     content = `<p class="note">${s.attendees.length}명 입력 · ${s.attendees.filter((p) => p.arrived).length}명 도착 확인 · 큐시트 ${s.cues.length}행</p>${cueNotice(s)}<p>현장점검 ${buildOnsite(s).filter((i) => s.onsiteChecks[i.id]?.status === "done").length} / ${buildOnsite(s).length}개 확인</p><div class="row">${s.seating === "needed" && s.venue === "prime" ? toolLink("seat") : s.seating === "needed" && s.venue === "seoul" ? toolLink("seoulSeat") : ""}${s.nameplates === "needed" ? toolLink("nameplate") : ""}</div><p class="small">도구를 열어도 명단이나 완료 상태는 자동 전달되지 않습니다.</p><button class="button secondary" data-view="packet">행사 운영본 보기</button>`;

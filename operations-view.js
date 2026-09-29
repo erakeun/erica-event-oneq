@@ -1,10 +1,10 @@
-import { selectedAgenda } from "./agenda.js?v=0.5.1-mach";
+import { selectedAgenda } from "./agenda.js?v=0.6.0";
 import {
   FOOD_OPTIONS,
   GUEST_NEEDS,
   ROLE_TEMPLATES,
   EVENTS,
-} from "./data.js?v=0.5.1-mach";
+} from "./data.js?v=0.6.0";
 import {
   matches,
   recommendedRoles,
@@ -15,7 +15,7 @@ import {
   invitationText,
   locationText,
   nextPreparation,
-} from "./operations.js?v=0.5.1-mach";
+} from "./operations.js?v=0.6.0";
 export const esc = (v) =>
   String(v ?? "").replace(
     /[&<>"']/g,
@@ -84,7 +84,7 @@ const roleInput = (s, r) =>
 export function roleEditor(s) {
   const recommended = recommendedRoles(s),
     other = ROLE_TEMPLATES.filter((r) => !recommended.includes(r));
-  return `<details class="help role-editor"><summary>행사 전체 역할분담 · 선택 입력</summary><p class="small">이름 대신 팀·역할명을 써도 돼요. 이 브라우저에만 저장됨. 비워 두면 역할표에서 제외하며, 입력 없이 다음으로 넘어가도 돼요.</p><div class="form-grid">${recommended.map((r) => roleInput(s, r)).join("")}</div>${other.length ? `<details class="help"><summary>그 밖의 역할 추가</summary><div class="form-grid">${other.map((r) => roleInput(s, r)).join("")}</div></details>` : ""}<button class="button secondary" data-view="roles">입력한 현장 역할표 보기</button></details>`;
+  return `<details class="help role-editor"><summary>행사 전체 역할분담 · 선택 입력</summary><p class="small">이름 대신 팀·역할명을 써도 돼요. 이 브라우저에만 저장됨. 비워 두면 역할표에서 제외하며, 입력 없이 다음으로 넘어가도 돼요.</p><div class="form-grid">${recommended.map((r) => roleInput(s, r)).join("")}</div>${other.length ? `<details class="help"><summary>그 밖의 역할 추가</summary><div class="form-grid">${other.map((r) => roleInput(s, r)).join("")}</div></details>` : ""}<button class="button secondary" data-view="roles">업무와 담당자 역할분담 열기</button></details>`;
 }
 export function operationTabs(s) {
   return `<nav class="operation-tabs no-print" aria-label="행사 운영 화면">${[
@@ -95,7 +95,7 @@ export function operationTabs(s) {
     ["day", "당일 모드"],
     ["files", "저장·복원"],
     ["onsite", "현장점검"],
-    ["roles", "역할표"],
+    ["roles", "역할분담"],
     ["after", "사후정리"],
   ]
     .map(

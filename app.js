@@ -1,3 +1,6 @@
+import { roleDefaults, normalizeAssignments } from "./role-assignment.js?v=0.6.0";
+import { assignmentView, roleUI } from "./role-assignment-view.js?v=0.6.0";
+import { assignmentController } from "./role-assignment-controller.js?v=0.6.0";
 import { changesView, attendanceControls, feedbackView } from "./changes-view.js";
 import { newMach, normalizeMach, activePeople, pendingChanges, substitute, compareUnidentified, applyCompared, changeSummary, recordReceipt, personIdentity, reconcilePrintRecord, acceptNameplateRosterReceipt, reconcileTargetStatuses } from "./oneq-changes.js";
 import {
@@ -24,7 +27,7 @@ import {
   CUE_LIMIT,
   CSV_LIMIT,
   JSON_LIMIT,
-} from "./event-workspace.js?v=0.5.1-mach";
+} from "./event-workspace.js?v=0.6.0";
 import {
   attendeesView,
   cuesView,
@@ -33,7 +36,7 @@ import {
   dayView,
   rosterSummary,
   cueNotice,
-} from "./workspace-view.js?v=0.5.1-mach";
+} from "./workspace-view.js?v=0.6.0";
 import {
   STORAGE_KEY,
   STEPS,
@@ -43,7 +46,7 @@ import {
   LINKS,
   TEMPLATES,
   OUTPUTS,
-} from "./data.js?v=0.5.1-mach";
+} from "./data.js?v=0.6.0";
 import {
   operationDefaults,
   campusName,
@@ -56,7 +59,7 @@ import {
   buildAfter,
   invitationText,
   fieldSummary,
-} from "./operations.js?v=0.5.1-mach";
+} from "./operations.js?v=0.6.0";
 import {
   logisticsView,
   photoChoices,
@@ -69,8 +72,8 @@ import {
   timelineView,
   invitationMissing,
   nextPreparationView,
-} from "./operations-view.js?v=0.5.1-mach";
-import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.5.1-mach";
+} from "./operations-view.js?v=0.6.0";
+import { ROLE_TEMPLATES, GUEST_NEEDS } from "./data.js?v=0.6.0";
 
 export const STATUS_LABELS = {
   todo: "할 일",
@@ -85,7 +88,7 @@ export const eventFor = (state) =>
   EVENTS.find((e) => e.id === state.event) || EVENTS.at(-1);
 export const venueFor = (state) =>
   VENUES.find((v) => v.id === state.venue) || VENUES.at(-1);
-export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.5.1-mach";
+export { defaultAgenda, selectedAgenda } from "./agenda.js?v=0.6.0";
 import {
   defaultAgenda,
   selectedAgenda,
@@ -96,11 +99,12 @@ import {
   scenarioText,
   AGENDA_LIMIT,
   agendaFingerprint,
-} from "./agenda.js?v=0.5.1-mach";
+} from "./agenda.js?v=0.6.0";
 export function createState() {
   return {
     ...operationDefaults(),
     ...workspaceDefaults(),
+    ...roleDefaults(),
     version: 5,
     mach: newMach(),
     agendaMigrated: false,
@@ -356,6 +360,7 @@ export function normalizeState(raw) {
     throw new Error("unsupported-state");
   const s = createState();
   s.mach = normalizeMach(raw.mach);
+  Object.assign(s, normalizeAssignments(raw));
   s.attendees = normalizeRows(raw.attendees, "attendees");
   s.cues = normalizeRows(raw.cues, "cues");
   s.cueBasis = safeText(raw.cueBasis, 100);
@@ -758,7 +763,7 @@ function checklistView() {
   if (state.view === "files") return operationTabs(state) + filesView();
   if (state.view === "onsite")
     return operationTabs(state) + onsiteView(state, onlyRemaining);
-  if (state.view === "roles") return operationTabs(state) + roleView(state);
+  if (state.view === "roles") return operationTabs(state) + assignmentView(state, roleView(state));
   if (state.view === "after") return operationTabs(state) + afterView(state);
   const items = buildChecklist(state),
     groups = [...new Set(items.map((i) => i.group))],
@@ -805,9 +810,10 @@ function summaryRender() {
       : "";
   }
   document.querySelector("#summary").innerHTML =
-    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-view="prep">내 행사 준비표 보기 →</button><button class="text-button" data-view="day">행사 당일 모드 →</button><button class="text-button" data-view="packet">행사 운영본 →</button><button class="text-button" data-view="files">JSON 저장·복원 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
+    `<div class="summary-card"><div class="summary-head"><h2>선택한 내용</h2><span>MY EVENT</span></div><div class="summary-body"><dl><div><dt>장소</dt><dd>${esc(placeLabel(state))}</dd></div><div><dt>행사 종류</dt><dd>${eventFor(state).name}</dd></div><div><dt>부총장 이상 참석</dt><dd>${vipLabel(state)}</dd></div>${state.eventName ? `<div><dt>행사명</dt><dd>${esc(state.eventName)}</dd></div>` : ""}</dl><button class="text-button" data-view="prep">내 행사 준비표 보기 →</button><button class="text-button" data-view="roles">역할분담 · 담당자와 업무 →</button><button class="text-button" data-view="day">행사 당일 모드 →</button><button class="text-button" data-view="packet">행사 운영본 →</button><button class="text-button" data-view="files">JSON 저장·복원 →</button></div></div><div class="storage" role="status"><strong>${esc(storageMessage)}</strong><p>이 브라우저에만 보관해요.<br>다른 기기와 자동으로 공유되지 않아요.</p></div><details class="help"><summary>원큐는 어떤 도구인가요?</summary><p>PROJECT MACH에 속한 독립 도구예요. 기존 도구와 필요한 준비를 연결해 드립니다.</p>${ext("mach", "PROJECT MACH 살펴보기", "small")}</details>`;
 }
 function render(focus = null) {
+  document.body.classList.toggle("assignments-mode", state.step === 6 && state.view === "roles");
   document.body.classList.toggle(
     "day-mode",
     state.step === 6 && state.view === "day",
@@ -908,6 +914,7 @@ function confirmation(title, description, action) {
 }
 function handleInput(e) {
   const el = e.target;
+  if (el.closest(".assignment-dialog")) return;
   if (el.dataset.record) {
     const kind = el.dataset.record,
       key = el.dataset.field;
@@ -1058,6 +1065,8 @@ function handleInput(e) {
 }
 function handleChange(e) {
   const el = e.target;
+  if (el.closest(".assignment-dialog")) return;
+  if (assignmentActions.change(el)) return;
   if (el.id === 'mach-file') { readMachFile(el); return; }
   if (el.dataset.machAttendance) {
     const rows=state.attendees.map(p=>p.id===el.dataset.machAttendance ? {...p,attendance:el.value,arrived:false} : p);
@@ -1173,6 +1182,8 @@ function handleChange(e) {
 function handleClick(e) {
   const button = e.target.closest("button");
   if (!button) return;
+  if (assignmentActions.click(button)) return;
+  if (button.dataset.myWork) { Object.assign(roleUI,{view:"mine",phase:"day",person:"all",status:"all"}); navigate(6,true,"roles"); return; }
   if (button.dataset.mach) { handleMachClick(button); return; }
   if (button.dataset.day) {
     dayPanel = button.dataset.day;
@@ -1750,4 +1761,11 @@ async function handleMachClick(button) {
   }
  } catch(error) {workspaceMessage(error.message);}
 }
+const assignmentActions = assignmentController({
+  getState: () => state,
+  commit: commitMach,
+  render,
+  confirm: confirmation,
+  notify: workspaceMessage,
+});
 if (typeof document !== "undefined") boot();

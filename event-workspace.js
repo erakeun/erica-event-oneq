@@ -1,5 +1,5 @@
 import { uid, activePeople, newMach } from "./oneq-changes.js";
-import { selectedAgenda, agendaFingerprint } from "./agenda.js?v=0.5.1-mach";
+import { selectedAgenda, agendaFingerprint } from "./agenda.js?v=0.6.0";
 
 export const ATTENDEE_LIMIT = 300;
 export const CUE_LIMIT = 150;
@@ -429,7 +429,7 @@ export function importEventJSON(source, normalize, defaults) {
   if (!raw || Array.isArray(raw))
     throw Error("행사 정보 형식이 잘못되었습니다.");
   for (const [key, sample] of Object.entries(defaults)) {
-    if (key === 'mach' && raw[key] === undefined) continue;
+    if (['mach','staff','roleTasks'].includes(key) && raw[key] === undefined) continue;
     const value = raw[key];
     if (
       Array.isArray(sample)
@@ -456,7 +456,7 @@ export function importEventJSON(source, normalize, defaults) {
   const normalized = normalize(raw);
   // Reject invalid enums, dates, lengths, IDs and malformed arrays instead of silently replacing user data.
   for (const key of Object.keys(defaults)) {
-    if (["checks", "onsiteChecks", "afterChecks"].includes(key) || (key === "mach" && raw[key] === undefined)) continue;
+    if (["checks", "onsiteChecks", "afterChecks"].includes(key) || (["mach","staff","roleTasks"].includes(key) && raw[key] === undefined)) continue;
     if (
       JSON.stringify(canonical(raw[key])) !==
       JSON.stringify(canonical(normalized[key]))
@@ -487,6 +487,8 @@ export function duplicateEvent(s, keepAttendees, normalize) {
     view: "prep",
   });
   next.mach = newMach();
+  next.staff = [];
+  next.roleTasks = (s.roleTasks || []).map(t=>({...t,primary:"",assistant:"",start:"",end:"",due:"",status:"unassigned"}));
   next.agenda = s.agenda.map((a) => ({ ...a, role: "" }));
   next.attendees = keepAttendees
     ? s.attendees.map((p) => ({ ...p, arrived: false }))

@@ -1,4 +1,4 @@
-import { esc } from './operations-view.js?v=0.5.1-mach';
+import { esc } from './operations-view.js?v=0.6.0';
 import { pendingChanges, activePeople } from './oneq-changes.js';
 export const stateLabels={preparing:'전달 준비',received:'수신 확인',pending:'반영 대기',applied:'반영 완료',cancelled:'취소',conflict:'최신본 확인 필요',unknown:'반영 여부 확인 필요'};
 const button=(action,text)=>`<button class="button secondary" data-mach="${action}">${text}</button>`;
