@@ -529,6 +529,14 @@ export function updateState(state, field, value) {
     next.parkingNote = "";
     if (field === "venue") next.otherVenue = "";
   }
+  if (field === "eventName" && value !== state.eventName) {
+    for (const output of OUTPUTS.filter((o) => state.outputs.includes(o.id))) {
+      for (const suffix of ["file", "onsite"]) {
+        const check = next.checks[`output-${output.id}-${suffix}`];
+        if (check) check.status = "todo";
+      }
+    }
+  }
   next[field] = value;
   if (field === "cues" && !state.cues.length && value.length)
     next.cueBasis = cueSignature(next);
