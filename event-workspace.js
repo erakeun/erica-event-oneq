@@ -135,15 +135,14 @@ export function timeWarnings(rows) {
   });
   return warnings;
 }
-export const rosterGroups = (s) =>
-  [...new Set(activePeople(s).map((p) => p.group.trim() || "구분 미입력"))].map(
-    (name) => ({
-      name,
-      count: activePeople(s).filter(
-        (p) => (p.group.trim() || "구분 미입력") === name,
-      ).length,
-    }),
-  );
+export function rosterGroups(s) {
+  const counts = new Map();
+  for (const person of activePeople(s)) {
+    const name = person.group.trim() || "구분 미입력";
+    counts.set(name, (counts.get(name) || 0) + 1);
+  }
+  return Array.from(counts, ([name, count]) => ({ name, count }));
+}
 
 // Imported/exported files remain in the browser. Formula escaping is applied at every CSV boundary.
 export function csvCell(value) {
