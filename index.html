@@ -19,10 +19,13 @@
     <script type="module" src="./app.js?v=0.6.0"></script>
   <style id="mach-home-navigation-style">
 /* Screen navigation only. Keep outside all generated artwork. */
-.mach-home-nav{display:block;max-width:100%;margin:0 0 12px;box-sizing:border-box}
+.mach-home-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;max-width:100%;margin:0 0 12px;box-sizing:border-box}
 .mach-home-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:4px 8px;box-sizing:border-box;border-radius:6px;background:#fff;text-decoration:none}
 .mach-home-link img{aspect-ratio:3/1;display:block;width:168px;max-width:100%;height:auto;object-fit:contain}
 .mach-home-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
+.mach-feedback-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:10px 14px;box-sizing:border-box;border:1px solid #b9cfe4;border-radius:8px;background:#fff;color:#073c73;font:700 13px/1.4 sans-serif;text-decoration:none;text-align:center}
+.mach-feedback-link:hover{background:#eaf3fc;border-color:#165dcb}
+.mach-feedback-link:focus-visible{outline:3px solid #165dcb;outline-offset:3px}
 @media print{.mach-home-nav,.mach-home-link{display:none!important}}
 
 .mach-screen-bar{padding:8px 24px;margin:0;background:#fff}
@@ -33,6 +36,7 @@
   <a class="mach-home-link" href="https://erakeun.github.io/ERICAAI/" aria-label="MACH 홈으로 이동">
     <img src="assets/mach-selected-A.svg" alt="PROJECT MACH" decoding="async">
   </a>
+  <a class="mach-feedback-link" href="https://script.google.com/macros/s/AKfycby2ShSY4ruQr9Ku-QlljB05Ygk3ygDRtX-hXWO0hfUmEULl-jK9Z7mqh_k2m9GSV70v/exec?tool=25" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="의견 보내기 (비공개, 새 창)">의견 보내기 (비공개) ↗</a>
 </div>
     <a class="skip" href="#main">본문으로 바로가기</a>
     <header class="header">
